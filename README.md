@@ -31,6 +31,7 @@ Uses gunicorn + nginx.
     ```sh
     $ cp config/.env.prod-sample config/.env.prod
     $ cp config/.env.prod.db-sample config/.env.prod.db
+    # Modify config/.env.prod.db to include the machine's IP to DJANGO_ALLOWED_HOSTS
     $ openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out config/nginx/localhost.crt -keyout config/nginx/localhost.key < config/.ssl-vals-sample
     $ docker-compose -f docker-compose.prod.yml up -d --build
     ```
