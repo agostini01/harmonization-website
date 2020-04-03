@@ -9,11 +9,12 @@ Dockerizing Django with Postgres, Gunicorn, and Nginx.
 
 Uses the default Django development server.
 
-1. Rename *.env.dev-sample* to *.env.dev*.
-1. Update the environment variables in the *docker-compose.yml* and *.env.dev* files.
+1. Rename *config/.env.dev-sample* to *config/.env.dev*.
+1. Update the environment variables in the *docker-compose.yml* and *config/.env.dev* files.
 1. Build the images and run the containers:
 
     ```sh
+    $ cp config/.env.dev-sample config/.env.dev
     $ docker-compose up -d --build
     ```
 
@@ -23,10 +24,12 @@ Uses the default Django development server.
 
 Uses gunicorn + nginx.
 
-1. Rename *.env.prod-sample* to *.env.prod* and *.env.prod.db-sample* to *.env.prod.db*. Update the environment variables.
+1. Rename *config/.env.prod-sample* to *config/.env.prod* and *config/.env.prod.db-sample* to *config/.env.prod.db*. Update the environment variables.
 1. Build the images and run the containers:
 
     ```sh
+    $ cp config/.env.prod-sample config/.env.prod
+    $ cp config/.env.prod.db-sample config/.env.prod.db
     $ docker-compose -f docker-compose.prod.yml up -d --build
     ```
 
