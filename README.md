@@ -1,10 +1,9 @@
-# Dockerizing Django with Postgres, Gunicorn, and Nginx
+# Data Harmonization
 
-## Want to learn how to build this?
+This project implements the data harmonization website by 
+Dockerizing Django with Postgres, Gunicorn, and Nginx.
 
-Check out the [post](https://testdriven.io/dockerizing-django-with-postgres-gunicorn-and-nginx).
-
-## Want to use this project?
+## How to use
 
 ### Development
 
@@ -32,3 +31,11 @@ Uses gunicorn + nginx.
     ```
 
     Test it out at [http://localhost:1337](http://localhost:1337). No mounted folders. To apply changes, the image must be re-built.
+
+
+# Special Remarks
+
+This project was build on top of different amazing tutorials:
+
+* https://github.com/testdrivenio/django-on-docker
+* https://github.com/wsvincent/djangoforprofessionals
