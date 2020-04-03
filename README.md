@@ -25,11 +25,13 @@ Uses the default Django development server.
 Uses gunicorn + nginx.
 
 1. Rename *config/.env.prod-sample* to *config/.env.prod* and *config/.env.prod.db-sample* to *config/.env.prod.db*. Update the environment variables.
+1. Create a self signed certficate for HTTPS encryption
 1. Build the images and run the containers:
 
     ```sh
     $ cp config/.env.prod-sample config/.env.prod
     $ cp config/.env.prod.db-sample config/.env.prod.db
+    $ openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out config/nginx/localhost.crt -keyout config/nginx/localhost.key < config/.ssl-vals-sample
     $ docker-compose -f docker-compose.prod.yml up -d --build
     ```
 
