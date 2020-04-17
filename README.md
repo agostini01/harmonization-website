@@ -15,7 +15,7 @@ Uses the default Django development server.
 
     ```sh
     $ cp config/.env.dev-sample config/.env.dev
-    $ docker-compose up -d --build
+    $ CURRENT_UID=$(id -u):$(id -g) docker-compose up -d --build
     ```
 
     Test it out at [http://localhost:8000](http://localhost:8000). The "app" folder is mounted into the container and your code changes apply automatically.

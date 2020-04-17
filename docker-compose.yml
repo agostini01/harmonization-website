@@ -12,6 +12,7 @@ services:
       - ./config/.env.dev
     depends_on:
       - db
+    user: ${CURRENT_UID}
   db:
     image: postgres:12.0-alpine
     volumes:
