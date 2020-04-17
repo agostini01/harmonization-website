@@ -45,7 +45,10 @@ INSTALLED_APPS = [
     'allauth.account',
 
     # Local
-    "upload",
+    #"upload",
+    # Local
+    'users.apps.UsersConfig', 
+    'pages.apps.PagesConfig',
 ]
 
 MIDDLEWARE = [
@@ -143,7 +146,7 @@ MEDIA_URL = "/mediafiles/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
 
 # TODO
-# AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # django-crispy-forms
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

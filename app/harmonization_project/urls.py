@@ -6,13 +6,15 @@ from django.conf.urls.static import static
 from upload.views import image_upload
 
 urlpatterns = [
-    path("", image_upload, name="upload"),
+    # Django Admin
+    path("admin/", admin.site.urls),
+    #path("", image_upload, name="upload"),
 
     # User management
     path('accounts/', include('allauth.urls')),
 
-    # Django Admin
-    path("admin/", admin.site.urls),
+    # Local Apps
+    path('', include('pages.urls')),
 ]
 
 if bool(settings.DEBUG):
