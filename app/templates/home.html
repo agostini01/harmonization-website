@@ -4,13 +4,16 @@
 {% block title %}Home{% endblock title %}
 
 {% block content %}
-<h1>Homepage</h1>
-<img class="bookcover" src="{% static 'images/djangoforprofessionals.jpg' %}">
+<h1>Welcome</h1>
+<!-- <img class="bookcover" src="{% static 'images/djangoforprofessionals.jpg' %}"> -->
 {% if user.is_authenticated %}
-  <p>Hi {{ user.email }}!</p>
+  <p>Hello {{ user.email }}!</p>
+  <p>Please click on the links in the top navigation bar to perform the desired action.</p>
   <p><a href="{% url 'account_logout' %}">Log Out</a></p>
 {% else %}
-  <p>You are not logged in</p>
+  <p>You are not logged in.</p>
+  <p>You must log in to interact with this website.</p>
+  <p></p>
   <p><a href="{% url 'account_login' %}">Log In</a> |
   <a href="{% url 'account_signup' %}">Sign Up</a></p>
 {% endif %}
