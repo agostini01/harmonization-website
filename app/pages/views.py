@@ -14,3 +14,5 @@ class AboutPageView(LoginRequiredMixin,TemplateView):
 
 class GraphsPageView(TemplateView): 
     template_name = 'graphs/graphs_base.html'
+    login_url = '/accounts/login/'
+    redirect_field_name = 'redirect'
