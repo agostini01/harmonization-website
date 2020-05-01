@@ -4,14 +4,6 @@ function getPairPlot() {
     new_graph += '<div class="plot">'
     new_graph += '<div class="title">'
 
-    // var today = new Date();
-    // var date = today.getFullYear() + '-' +
-    //            (today.getMonth() + 1) + '-' + today.getDate();
-    // var time = (today.getHours()).slice(-2) + ":" + 
-    //            (today.getMinutes()).slice(-2) + ":" + 
-    //            (today.getSeconds()).slice(-2);
-    // var date_time = date + ' ' + time;
-
     var d = new Date();
     d.format("hh:mm:ss tt");
 
