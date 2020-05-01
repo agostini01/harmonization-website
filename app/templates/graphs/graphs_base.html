@@ -3,11 +3,30 @@
 
 {% block content %}
 
+<script>
+  function getImage() {
+    document.getElementById("image").innerHTML =
+    '<img src=/getsbdata/ width="1000">'
+  }
+
+</script>
+
 <img class="welcome-image" src="{% static 'images/harmonization.jpg' %}">
 <div class="graph-detail">
 
   <div class="reviews-detail">
-    <h3>This page is under constructions. Come back later.</h3>
+    <h3>Select the features below and click Generate Graph.</h3>
+    Note, graph generation may take a couple of seconds.
+  </div>
+  <br>
+
+  <div style="text-align:center">
+    <button onclick="getImage()">Generate Graph</button>
+  </div>
+
+  <div id="image">
+    <!-- <img src=/getsbdata/ width="1000"> -->
   </div>
 </div>
+
 {% endblock content %}
