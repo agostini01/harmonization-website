@@ -3,21 +3,14 @@
 
 {% block content %}
 
-<script>
-  function getPairPlot() {
-    var new_graph = ''
-    new_graph +='<div class="plot">'
-    new_graph +=
-      '<div class="graph-img"><img src=/graphs/getplot/getpairplot/ width="1000"></div>'
-    new_graph +='</div>'
-    document.getElementById("graphs-div").innerHTML += new_graph
-  }
+<script src="https://cdn.jsdelivr.net/npm/@dmester/sffjs@1.16.1/dist/stringformat.min.js"></script>
+<script src="{% static 'js/base_graphs.js' %}"></script>
 
-</script>
+<div class="welcome_image">
+  <img src="{% static 'images/harmonization.jpg' %}">
+</div>
 
-<img class="welcome-image" src="{% static 'images/harmonization.jpg' %}">
 <div class="graph-detail">
-
   <div class="reviews-detail">
     <h3>Select the features below and click Generate Graph.</h3>
     Note, graph generation may take a couple of seconds.
