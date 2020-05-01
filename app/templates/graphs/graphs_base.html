@@ -4,9 +4,13 @@
 {% block content %}
 
 <script>
-  function getImage() {
-    document.getElementById("image").innerHTML =
-    '<img src=/graphs/getplot/getpairplot/ width="1000">'
+  function getPairPlot() {
+    var new_graph = ''
+    new_graph +='<div class="plot">'
+    new_graph +=
+      '<div class="graph-img"><img src=/graphs/getplot/getpairplot/ width="1000"></div>'
+    new_graph +='</div>'
+    document.getElementById("graphs-div").innerHTML += new_graph
   }
 
 </script>
@@ -21,10 +25,10 @@
   <br>
 
   <div style="text-align:center">
-    <button onclick="getImage()">Generate Graph</button>
+    <button onclick="getPairPlot()">Generate Graph</button>
   </div>
 
-  <div id="image">
+  <div id="graphs-div">
     <!-- <img src=/getsbdata/ width="1000"> -->
   </div>
 </div>
