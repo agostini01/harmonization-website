@@ -30,7 +30,7 @@ class GraphsPageView(TemplateView):
     redirect_field_name = 'redirect'
 
     @classmethod
-    def getSBData(cls, request):
+    def getPairPlot(cls, request):
         #gr=sb.factorplot(x='Survived', hue='Sex', data=df, col='Pclass', kind='count')
         gr=sns.pairplot(iris,hue="type",height=3)
         response = HttpResponse(content_type="image/jpg")
