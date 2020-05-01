@@ -1,4 +1,9 @@
-django==3.0.1
+cython==0.29.17
+numpy==1.18.3
+matplotlib
+pandas==1.0.3
+seaborn
+django==3.0.5
 django-allauth==0.41.0
 gunicorn==19.9.0
 psycopg2-binary==2.8.4
