@@ -5,6 +5,10 @@ __pycache
 .env.prod
 .env.prod.db
 
+app/staticfiles/
+app-books/
+app-original/
+.vscode/
 
 # Generated
 
