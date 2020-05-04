@@ -1,6 +1,8 @@
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
+
+from .forms import FlowersForm
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,16 +26,27 @@ class AboutPageView(LoginRequiredMixin,TemplateView):
     redirect_field_name = 'redirect'
 
 
-class GraphsPageView(TemplateView): 
+class GraphsPageView(FormView): 
     template_name = 'graphs/graphs_base.html'
     login_url = '/accounts/login/'
     redirect_field_name = 'redirect'
 
+    form_class = FlowersForm
+
     @classmethod
     def getPairPlot(cls, request):
+        print("HERE!")
         #gr=sb.factorplot(x='Survived', hue='Sex', data=df, col='Pclass', kind='count')
         gr=sns.pairplot(iris,hue="type",height=3)
         response = HttpResponse(content_type="image/jpg")
         gr.savefig(response, format="jpg")
 
         return response
+
+    def get_context_data(self, **kwargs):
+        context = super(GraphsPageView, self).get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        return super(GraphsPageView, self).form_valid(form)

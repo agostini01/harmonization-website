@@ -17,6 +17,14 @@
   </div>
   <br>
 
+  <!-- https://realpython.com/django-and-ajax-form-submissions/ -->
+
+  <form action="/graphs/request_graph/" method="GET" id="get_form">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Generate Graph">
+  </form>
+
   <div style="text-align:center">
     <button onclick="getPairPlot()">Generate Graph</button>
   </div>
