@@ -1,39 +1,62 @@
 {% extends '_base.html' %}
 {% load static %}
 
+{% load crispy_forms_tags %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/base_graphs.css' %}">
+
 {% block content %}
 
 <script src="https://cdn.jsdelivr.net/npm/@dmester/sffjs@1.16.1/dist/stringformat.min.js"></script>
 <script src="{% static 'js/base_graphs.js' %}"></script>
 
-<div class="welcome_image">
-  <img src="{% static 'images/harmonization.jpg' %}">
+<div class="row flex-xl-nowrap">
+
+  <!-- SIDEBAR -->
+  <div class="col-12 col-md-3 col-xl-2 bd-sidebar">
+    <p>Hello User,</p>
+
+    <p>Please select the type of graph and features to plot from the dropdown menus below.</p>
+
+    <form action="/graphs/request_graph/" method="GET" id="get_form">
+      {% csrf_token %}
+      {{ form | crispy }}
+    </form>
+
+    <div style="text-align:center">
+      <button type="button" class="btn btn-primary btn-lg"onclick="getPlot()">Generate Graph</button>
+      <p></p>
+      <p style="font-size:x-small">*Note, graph generation may take a couple of seconds.</p>
+    </div>
+  </div>
+
+  <!-- TODO: Reference Bar -->
+  <div class="d-none d-xl-block col-xl-2 bd-toc">i
+    <ul class="section-nav">
+
+    </ul>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
+  <div class="welcome_image">
+    <img src="{% static 'images/harmonization.jpg' %}" width=450 center>
+  </div>
+
+  <!-- PLOTS -->
+  <div class="graph-detail">
+    <div class="reviews-detail">
+      <h2>Harmonization Graphs</h2>
+    </div>
+    <br>
+
+    <!-- https://realpython.com/django-and-ajax-form-submissions/ -->
+
+
+    <div id="graphs-div">
+      <!-- <img src=/getsbdata/ width="1000"> -->
+    </div>
+  </div>
+  </main>
 </div>
-
-<div class="graph-detail">
-  <div class="reviews-detail">
-    <h3>Select the features below and click Generate Graph.</h3>
-    Note, graph generation may take a couple of seconds.
-  </div>
-  <br>
-
-  <!-- https://realpython.com/django-and-ajax-form-submissions/ -->
-
-  <form action="/graphs/request_graph/" method="GET" id="get_form">
-    {% csrf_token %}
-    {{ form }}
-    <!-- TODO: Pretify the form (sidebar maybe) -->
-    <!-- <input type="submit" value="Generate Graph"> -->
-  </form>
-
-  <!-- TODO: Center button -->
-  <div style="text-align:center">
-    <button onclick="getPlot()">Generate Graph</button>
-  </div>
-
-  <div id="graphs-div">
-    <!-- <img src=/getsbdata/ width="1000"> -->
-  </div>
-</div>
-
 {% endblock content %}
