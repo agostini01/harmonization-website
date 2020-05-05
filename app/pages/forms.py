@@ -32,9 +32,13 @@ class FlowersForm(forms.Form):
         self.initial['y_feature'] = FEATURE_CHOICES[1][0]
         self.initial['color_by']  = FEATURE_CHOICES[4][0]
         self.initial['fig_dpi']   = DPI_CHOICES[0][0]
+        self.initial['plot_name']   = 'New Plot'
 
+    plot_name = forms.CharField(max_length=100,
+        help_text="Type the name of your next plot.")
     plot_type = forms.ChoiceField(choices=PLOT_TYPES)
     x_feature = forms.ChoiceField(choices=FEATURE_CHOICES)
     y_feature = forms.ChoiceField(choices=FEATURE_CHOICES)
     color_by  = forms.ChoiceField(choices=FEATURE_CHOICES)
-    fig_dpi  = forms.ChoiceField(choices=DPI_CHOICES)
+    fig_dpi  = forms.ChoiceField(choices=DPI_CHOICES,
+        help_text="low_res=100dpi, high_res=300dpi.")
