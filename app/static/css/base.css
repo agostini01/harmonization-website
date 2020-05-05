@@ -43,6 +43,7 @@ h5 {
 
 .card {
 	word-wrap: break-word;
+	margin: 20px
 }
 
 .graph-img {

@@ -1,4 +1,16 @@
 
+/**
+ * Delete parent of the element.
+ * @param  {document.element} e  The element whose parent will be deleted
+ */
+function deleteCard(e) {
+    e.parentElement.remove();
+}
+
+
+/**
+ * Insert a new card with the correct plot based on the django form.
+ */
 function getPlot() {
     plot_name = document.getElementById("id_plot_name").value;
     console.log(plot_name)
@@ -8,15 +20,15 @@ function getPlot() {
 
     var new_graph = ''
    
-    // TODO: Add discard buttom
+    // https://coderthemes.com/hyper/modern/index.html
     new_graph+=`
     <div class="card">
         <div class="card-body">
             <div class="float-right">
-                <i class="mdi mdi-currency-usd widget-icon bg-success-lighten text-success">`
+                <i class="text-muted">`
      new_graph+=d+`</i>
             </div>
-            <h5 class="text-muted font-weight-normal mt-0" title="Plot Title">`
+            <h5 class="text-muted font-weight-bold mt-0" title="Plot Title">`
      new_graph+=plot_name+`       
             </h5>`
 
@@ -44,6 +56,7 @@ function getPlot() {
     new_graph += ' width="1000"></div>'
     new_graph += `</div>
         </div >
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="deleteCard(this)">Remove Graph</button>
     </div >
     `
 
