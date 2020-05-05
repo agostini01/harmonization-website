@@ -22,11 +22,13 @@
   <form action="/graphs/request_graph/" method="GET" id="get_form">
     {% csrf_token %}
     {{ form }}
-    <input type="submit" value="Generate Graph">
+    <!-- TODO: Pretify the form (sidebar maybe) -->
+    <!-- <input type="submit" value="Generate Graph"> -->
   </form>
 
+  <!-- TODO: Center button -->
   <div style="text-align:center">
-    <button onclick="getPairPlot()">Generate Graph</button>
+    <button onclick="getPlot()">Generate Graph</button>
   </div>
 
   <div id="graphs-div">

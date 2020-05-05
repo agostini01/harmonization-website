@@ -7,5 +7,5 @@ urlpatterns = [
     path('graphs/', GraphsPageView.as_view(), name='graphs'), 
     path('about/', AboutPageView.as_view(), name='about'), 
     path('', HomePageView.as_view(), name='home'),
-    path('graphs/getplot/getpairplot/', GraphsPageView.getPairPlot),
+    path('graphs/getplot/', GraphsPageView.getPlot),
 ]
