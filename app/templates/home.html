@@ -5,10 +5,10 @@
 
 {% block content %}
 <h1>Welcome</h1>
-<!-- <img class="bookcover" src="{% static 'images/djangoforprofessionals.jpg' %}"> -->
 {% if user.is_authenticated %}
   <p>Hello {{ user.email }}!</p>
   <p>Please click on the links in the top navigation bar to perform the desired action.</p>
+  <p><a href="{% url 'graphs' %}">Click here to generate graphs</a></p>
   <p><a href="{% url 'account_logout' %}">Log Out</a></p>
 {% else %}
   <p>You are not logged in.</p>
