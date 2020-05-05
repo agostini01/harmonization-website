@@ -28,6 +28,7 @@ function getPlot() {
     new_graph +='&x_feature='+ document.getElementById("id_x_feature").value;
     new_graph +='&y_feature='+ document.getElementById("id_y_feature").value;
     new_graph +='&color_by=' + document.getElementById("id_color_by").value;
+    new_graph +='&fig_dpi='  + document.getElementById("id_fig_dpi").value;
     // TODO: Plot title
     new_graph += ' width="1000"></div>'
     new_graph += '</div>'

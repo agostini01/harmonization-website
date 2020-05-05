@@ -67,6 +67,7 @@ class GraphsPageView(FormView):
         x_feature = request.GET.get('x_feature')
         y_feature = request.GET.get('y_feature')
         color_by = request.GET.get('color_by')
+        fig_dpi = int(request.GET.get('fig_dpi'))
 
         t = plot_type
         gr = None
@@ -87,7 +88,7 @@ class GraphsPageView(FormView):
         #Add histogram
 
         response = HttpResponse(content_type="image/jpg")
-        gr.savefig(response, format="jpg")
+        gr.savefig(response, format="jpg", dpi=fig_dpi)
 
         return response
 
