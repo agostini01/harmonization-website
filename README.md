@@ -45,3 +45,4 @@ This project was build on top of different amazing tutorials:
 
 * https://github.com/testdrivenio/django-on-docker
 * https://github.com/wsvincent/djangoforprofessionals
+
