@@ -34,11 +34,20 @@
   </div>
 
   <div class="wsk-float">
-    <a href="https://github.com/agostini01/harmonization-website/issues" target="_blank" class="pulse-button">
-    </a>
+    {% if user.is_authenticated %}
+    <a href="https://github.com/dataset-harmonization/features-and-issues/issues/new/choose" target="_blank" class="pulse-button"> </a>
+    <div class="wsk-text">
+      Issues? <br>
+      You must<br>
+      log in to<br>
+      github
+    </div>
+    {% else %}
+    <a href="https://github.com/agostini01/harmonization-website/issues" target="_blank" class="pulse-button"> </a>
     <div class="wsk-text">
       Issues?
     </div>
+    {% endif %}
   </div>
 
   <!-- JavaScript -->
