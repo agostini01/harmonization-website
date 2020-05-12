@@ -1,0 +1,22 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block title %}Dataset Upload{% endblock title %}
+
+{% block content %}
+<h1>Dataset Upload</h1>
+{% if user.is_authenticated %}
+<p>Hello {{ user.email }}!</p>
+<p>Use this interface to upload the datasets to the website.</p>
+<p>If you observe an error here, it is because the data dictionary provide does not match with the dictionary expected.
+</p>
+<p><a href="{% url 'graphs' %}">Click here to generate graphs</a></p>
+<p><a href="{% url 'account_logout' %}">Log Out</a></p>
+{% else %}
+<p>You are not logged in.</p>
+<p>You must log in to interact with this website.</p>
+<p></p>
+<p><a href="{% url 'account_login' %}">Log In</a> |
+    <a href="{% url 'account_signup' %}">Sign Up</a></p>
+{% endif %}
+{% endblock content %}
