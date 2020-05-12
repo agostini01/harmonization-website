@@ -10,8 +10,8 @@ PLOT_TYPES = (
 )
 
 DPI_CHOICES = (
-    (100,"low_res"),
-    (300,"high_res")
+    (100, "low_res"),
+    (300, "high_res")
 )
 
 FEATURE_CHOICES = (
@@ -30,15 +30,35 @@ class FlowersForm(forms.Form):
         self.initial['plot_type'] = PLOT_TYPES[0][0]
         self.initial['x_feature'] = FEATURE_CHOICES[0][0]
         self.initial['y_feature'] = FEATURE_CHOICES[1][0]
-        self.initial['color_by']  = FEATURE_CHOICES[4][0]
-        self.initial['fig_dpi']   = DPI_CHOICES[0][0]
-        self.initial['plot_name']   = 'New Plot'
+        self.initial['color_by'] = FEATURE_CHOICES[4][0]
+        self.initial['fig_dpi'] = DPI_CHOICES[0][0]
+        self.initial['plot_name'] = 'New Plot'
 
     plot_name = forms.CharField(max_length=100,
-        help_text="Type the name of your next plot.")
+                                help_text="Type the name of your next plot.")
     plot_type = forms.ChoiceField(choices=PLOT_TYPES)
     x_feature = forms.ChoiceField(choices=FEATURE_CHOICES)
     y_feature = forms.ChoiceField(choices=FEATURE_CHOICES)
-    color_by  = forms.ChoiceField(choices=FEATURE_CHOICES)
-    fig_dpi  = forms.ChoiceField(choices=DPI_CHOICES,
-        help_text="low_res=100dpi, high_res=300dpi.")
+    color_by = forms.ChoiceField(choices=FEATURE_CHOICES)
+    fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
+                                help_text="low_res=100dpi, high_res=300dpi.")
+
+
+DATASET_CHOICES = (
+    ("flowers_dataset", "flowers_dataset"),
+    ("UNM_dataset", "UNM_dataset"),
+    ("NEU_dataset", "NEU_dataset"),
+    ("Dartmouth_dataset", "Dartmouth_dataset")
+)
+
+
+class UploadFileForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(UploadFileForm, self).__init__(*args, **kwargs)
+
+    uploader_name = forms.CharField(max_length=100,
+                                    help_text="Scientist uploading this dataset.")
+    uploader_email = forms.EmailField(
+        help_text='A valid email address, please.')
+    dataset_type = forms.ChoiceField(choices=DATASET_CHOICES)
+    dataset_file = forms.FileField(allow_empty_file=False)

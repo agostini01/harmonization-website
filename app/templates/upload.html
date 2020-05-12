@@ -1,6 +1,8 @@
 {% extends '_base.html' %}
 {% load static %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Dataset Upload{% endblock title %}
 
 {% block content %}
@@ -10,6 +12,15 @@
 <p>Use this interface to upload the datasets to the website.</p>
 <p>If you observe an error here, it is because the data dictionary provide does not match with the dictionary expected.
 </p>
+
+<form action="" method="POST" enctype="multipart/form-data" id="post_form">
+    {% csrf_token %}
+    {{ form | crispy }}
+    <small>Only accepts CSV files</small>
+    <!-- <button type="submit">Upload</button> -->
+    <button type="submit" class="btn btn-primary btn-lg">Upload</button>
+</form>
+
 <p><a href="{% url 'graphs' %}">Click here to generate graphs</a></p>
 <p><a href="{% url 'account_logout' %}">Log Out</a></p>
 {% else %}

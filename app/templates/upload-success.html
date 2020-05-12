@@ -1,0 +1,19 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block title %}Dataset Upload{% endblock title %}
+
+{% block content %}
+<h1>Dataset Upload</h1>
+{% if user.is_authenticated %}
+<p>The upload was successful.</p>
+<p><a href="{% url 'graphs' %}">Click here to generate graphs</a></p>
+<p><a href="{% url 'account_logout' %}">Log Out</a></p>
+{% else %}
+<p>You are not logged in.</p>
+<p>You must log in to interact with this website.</p>
+<p></p>
+<p><a href="{% url 'account_login' %}">Log In</a> |
+    <a href="{% url 'account_signup' %}">Sign Up</a></p>
+{% endif %}
+{% endblock content %}
