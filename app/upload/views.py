@@ -4,9 +4,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 
 from .forms import UploadFileForm
 
-from django.shortcuts import render
-from django.core.files.storage import FileSystemStorage
-
 
 def handle_uploaded_file(f):
     print("This is running!")
