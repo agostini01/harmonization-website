@@ -6,6 +6,7 @@ __pycache
 .env.prod.db
 
 app/staticfiles/
+app/mediafiles/
 app-books/
 app-original/
 .vscode/
