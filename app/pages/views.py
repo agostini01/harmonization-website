@@ -2,7 +2,7 @@ from django.views.generic import TemplateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 
-from .forms import FlowersForm, UploadFileForm
+from .forms import FlowersForm
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,13 +16,6 @@ iris_virginica = iris.loc[iris["type"] == "Iris-virginica"]
 iris_versicolor = iris.loc[iris["type"] == "Iris-versicolor"]
 
 
-def handle_uploaded_file(f):
-    print("This is running!")
-    with open('upload-name.txt', 'wb+') as destination:
-        for chunk in f.chunks():
-            destination.write(chunk)
-
-
 class HomePageView(TemplateView):
     template_name = 'home.html'
 
@@ -31,32 +24,6 @@ class AboutPageView(LoginRequiredMixin, TemplateView):
     template_name = 'about.html'
     login_url = '/accounts/login/'
     redirect_field_name = 'redirect'
-
-
-class UploadSuccessPageView(LoginRequiredMixin, TemplateView):
-    template_name = 'upload-success.html'
-    login_url = '/accounts/login/'
-    redirect_field_name = 'redirect'
-
-
-class UploadPageView(LoginRequiredMixin, FormView):
-    template_name = 'upload.html'
-    login_url = '/accounts/login/'
-    redirect_field_name = 'redirect'
-    success_url = '/upload/success/'
-
-    form_class = UploadFileForm
-
-    def post(self, request, *args, **kwargs):
-        print('>>>> Inside Upload File')
-        if request.method == 'POST':
-            form = UploadFileForm(request.POST, request.FILES)
-            if form.is_valid():
-                handle_uploaded_file(request.FILES['dataset_file'])
-                return HttpResponseRedirect('/upload/success/')
-        else:
-            form = UploadFileForm()
-        return HttpResponse(request, 'upload.html', {'form': form})
 
 
 class GraphsPageView(LoginRequiredMixin, FormView):

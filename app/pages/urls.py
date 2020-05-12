@@ -1,13 +1,11 @@
 from django.urls import path
 
-from .views import HomePageView, AboutPageView, GraphsPageView, UploadPageView, UploadSuccessPageView
+from .views import HomePageView, AboutPageView, GraphsPageView
 
 
 urlpatterns = [
     path('graphs/', GraphsPageView.as_view(), name='graphs'),
     path('about/', AboutPageView.as_view(), name='about'),
-    path('upload/', UploadPageView.as_view(), name='upload'),
-    path('upload/success/', UploadSuccessPageView.as_view(), name='upload-success'),
     path('', HomePageView.as_view(), name='home'),
     path('graphs/getplot/', GraphsPageView.getPlot),
 ]

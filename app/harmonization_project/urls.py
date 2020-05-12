@@ -15,6 +15,7 @@ urlpatterns = [
 
     # Local Apps
     path('', include('pages.urls')),
+    path('upload/', include('upload.urls')),
 ]
 
 if bool(settings.DEBUG):

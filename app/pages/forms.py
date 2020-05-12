@@ -42,23 +42,3 @@ class FlowersForm(forms.Form):
     color_by = forms.ChoiceField(choices=FEATURE_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
-
-
-DATASET_CHOICES = (
-    ("flowers_dataset", "flowers_dataset"),
-    ("UNM_dataset", "UNM_dataset"),
-    ("NEU_dataset", "NEU_dataset"),
-    ("Dartmouth_dataset", "Dartmouth_dataset")
-)
-
-
-class UploadFileForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        super(UploadFileForm, self).__init__(*args, **kwargs)
-
-    uploader_name = forms.CharField(max_length=100,
-                                    help_text="Scientist uploading this dataset.")
-    uploader_email = forms.EmailField(
-        help_text='A valid email address, please.')
-    dataset_type = forms.ChoiceField(choices=DATASET_CHOICES)
-    dataset_file = forms.FileField(allow_empty_file=False)
