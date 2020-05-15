@@ -13,17 +13,46 @@ services:
     env_file:
       - ./config/.env.dev
     depends_on:
-      - db
+      - webdb
     user: ${CURRENT_UID}
-  db:
+  api:
+    build:
+      context: ./cohorts_proj
+      dockerfile: Dockerfile-debian
+    command: python manage.py runserver 0.0.0.0:8888
+    volumes:
+      - ./cohorts_proj/:/usr/src/app/
+    ports:
+      - 8888:8888
+    env_file:
+      - ./config/.env-api.dev
+    depends_on:
+      - apidb
+    user: ${CURRENT_UID}
+  webdb:
     image: postgres:12.0-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - web_data:/var/lib/postgresql/data/
     environment:
       - POSTGRES_USER=hello_django
       - POSTGRES_PASSWORD=hello_django
       - POSTGRES_DB=hello_django_dev
       - POSTGRES_HOST_AUTH_METHOD=trust
+    command:
+      -p 5432
+  apidb:
+    image: postgres:12.0-alpine
+    volumes:
+      - api_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=hello_django
+      - POSTGRES_PASSWORD=hello_django
+      - POSTGRES_DB=hello_django_dev
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    # Modifying the port here, requires changes on config/.env... files
+    command:
+      -p 5433
 
 volumes:
-  postgres_data:
+  web_data:
+  api_data:

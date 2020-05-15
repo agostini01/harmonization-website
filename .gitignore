@@ -2,13 +2,14 @@
 __pycache
 .DS_Store
 .env.dev
+.env-api.dev
 .env.prod
 .env.prod.db
 
 app/staticfiles/
 app/mediafiles/
-app-books/
-app-original/
+cohorts_proj/staticfiles/
+cohorts_proj/mediafiles/
 .vscode/
 
 # Generated

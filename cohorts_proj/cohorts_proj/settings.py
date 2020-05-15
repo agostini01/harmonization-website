@@ -20,12 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '&lc6s-@@#-z^_@q2xfswsygt%uj(mok707664g49%0o-rrepox'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = int(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 
 # Application definition
@@ -54,7 +54,7 @@ ROOT_URLCONF = 'cohorts_proj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -74,9 +74,13 @@ WSGI_APPLICATION = 'cohorts_proj.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    "default": {
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        "USER": os.environ.get("SQL_USER", "user"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
     }
 }
 
@@ -117,4 +121,50 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/staticfiles/"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+]
+
+MEDIA_URL = "/mediafiles/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
+
+
+# TODO
+#AUTH_USER_MODEL = 'users.CustomUser'
+
+# TODO
+# django-crispy-forms
+#CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+# TODO
+# django-allauth config
+#LOGIN_REDIRECT_URL = 'home'
+#ACCOUNT_LOGOUT_REDIRECT = 'home' 
+
+SITE_ID = 1
+
+# TODO
+# AUTHENTICATION_BACKENDS = (
+#     'django.contrib.auth.backends.ModelBackend',
+#     'allauth.account.auth_backends.AuthenticationBackend',
+# )
+# 
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
+# EMAIL_HOST=os.environ.get('EMAIL_HOST')
+# EMAIL_HOST_USER=os.environ.get('EMAIL_HOST_USER') 
+# EMAIL_HOST_PASSWORD=os.environ.get('EMAIL_HOST_PASSWORD') 
+# EMAIL_PORT=os.environ.get('EMAIL_PORT') 
+# EMAIL_USE_TLS=os.environ.get('EMAIL_USE_TLS')
+# 
+# ACCOUNT_SESSION_REMEMBER = True
+# ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+# ACCOUNT_USERNAME_REQUIRED = False 
+# ACCOUNT_AUTHENTICATION_METHOD = 'email' 
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_UNIQUE_EMAIL = True
+# 
+# DEFAULT_FROM_EMAIL = 'admin@harmonization.com'
