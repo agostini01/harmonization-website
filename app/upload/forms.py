@@ -14,7 +14,7 @@ class UploadFileForm(forms.Form):
 
     uploader_name = forms.CharField(max_length=100,
                                     help_text="Scientist uploading this dataset.")
-    uploader_email = forms.EmailField(
+    uploader_email = forms.EmailField(max_length=100,
         help_text='A valid email address, please.')
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES)
     dataset_file = forms.FileField(allow_empty_file=False)
