@@ -37,6 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third party
+    'rest_framework',
+    'rest_framework.authtoken',
+    #'rest_auth',
+
+    # Local
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
@@ -122,7 +130,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = "/staticfiles/"
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'), ]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -143,7 +151,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
 # TODO
 # django-allauth config
 #LOGIN_REDIRECT_URL = 'home'
-#ACCOUNT_LOGOUT_REDIRECT = 'home' 
+#ACCOUNT_LOGOUT_REDIRECT = 'home'
 
 SITE_ID = 1
 
@@ -152,19 +160,19 @@ SITE_ID = 1
 #     'django.contrib.auth.backends.ModelBackend',
 #     'allauth.account.auth_backends.AuthenticationBackend',
 # )
-# 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
+#
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST=os.environ.get('EMAIL_HOST')
-# EMAIL_HOST_USER=os.environ.get('EMAIL_HOST_USER') 
-# EMAIL_HOST_PASSWORD=os.environ.get('EMAIL_HOST_PASSWORD') 
-# EMAIL_PORT=os.environ.get('EMAIL_PORT') 
+# EMAIL_HOST_USER=os.environ.get('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD=os.environ.get('EMAIL_HOST_PASSWORD')
+# EMAIL_PORT=os.environ.get('EMAIL_PORT')
 # EMAIL_USE_TLS=os.environ.get('EMAIL_USE_TLS')
-# 
+#
 # ACCOUNT_SESSION_REMEMBER = True
 # ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
-# ACCOUNT_USERNAME_REQUIRED = False 
-# ACCOUNT_AUTHENTICATION_METHOD = 'email' 
+# ACCOUNT_USERNAME_REQUIRED = False
+# ACCOUNT_AUTHENTICATION_METHOD = 'email'
 # ACCOUNT_EMAIL_REQUIRED = True
 # ACCOUNT_UNIQUE_EMAIL = True
-# 
+#
 # DEFAULT_FROM_EMAIL = 'admin@harmonization.com'
