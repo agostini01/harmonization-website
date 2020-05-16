@@ -15,5 +15,6 @@ class DatasetUploadModel(models.Model):
     dataset_type = models.CharField(max_length=100, choices=DATASET_CHOICES)
     dataset_file = models.FileField(upload_to='raw-datasets/%Y/%m/%d/')
 
+    # Must change this to get a number, otherwise they look ugly in the admin page
     def __str__(self):
-        return self.title
+        return 'raw_{}_{}'.format(self.dataset_type, self.dataset_time)
