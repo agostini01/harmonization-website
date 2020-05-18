@@ -15,7 +15,7 @@ def upload_file(uploader_name, uploader_email, dataset_type, f):
     payload = {'uploader_name': uploader_name,
                'uploader_email': uploader_email,
                'dataset_type': dataset_type}
-    
+
     files = [
         ('dataset_file', f.open(mode='rb'))
     ]
@@ -32,14 +32,7 @@ def upload_file(uploader_name, uploader_email, dataset_type, f):
 def handle_flowers_file(uploader_name, uploader_email, dataset_type, f):
     #default_storage.save('datasets/flowers/flowers.csv', f)
 
-    # Must send this file to http://api:8888/query/dataset-upload/
-    success = True
-    # Do any pre processing / terminate early
-    if success:
-        response = upload_file(uploader_name, uploader_email, dataset_type, f)
-    else:
-        response = HttpResponse(
-            '<h1>Error during uploading occured</h1>', status=400)
+    response = upload_file(uploader_name, uploader_email, dataset_type, f)
     return response
 
 
@@ -83,23 +76,26 @@ class UploadPageView(LoginRequiredMixin, FormView):
                 f = request.FILES['dataset_file']
 
                 if (dataset_type == 'flowers_dataset'):
-                    print('Got Flowers Dataset')
-                    handle_flowers_file(
+                    # print('Got Flowers Dataset')
+                    response = handle_flowers_file(
                         uploader_name, uploader_email, dataset_type, f)
 
                 if (dataset_type == 'UNM_dataset'):
-                    print('Got UNM Dataset')
-                    handle_unm_file(f)
+                    # print('Got UNM Dataset')
+                    respose = handle_unm_file(f)
 
                 if (dataset_type == 'NEU_dataset'):
-                    print('Got NEU Dataset')
-                    handle_neu_file(f)
+                    # print('Got NEU Dataset')
+                    response = handle_neu_file(f)
 
                 if (dataset_type == 'Dartmouth_dataset'):
-                    print('Got Dartmouth Dataset')
-                    handle_dartmouth_file(f)
+                    # print('Got Dartmouth Dataset')
+                    response = handle_dartmouth_file(f)
 
-                return HttpResponseRedirect('/upload/success/')
+                if response.status_code == 201:
+                    return HttpResponseRedirect('/upload/success/')
+                else:
+                    return response
         else:
             form = UploadFileForm()
         return HttpResponse(request, 'upload.html', {'form': form})
