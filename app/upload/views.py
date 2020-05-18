@@ -6,10 +6,41 @@ from .forms import UploadFileForm
 
 from django.core.files.storage import default_storage
 
+import requests
 
-def handle_flowers_file(f):
-    # TODO
-    default_storage.save('datasets/flowers/flowers.csv', f)
+
+def upload_file(uploader_name, uploader_email, dataset_type, f):
+    url = "http://api:8888/query/dataset-upload/"
+
+    payload = {'uploader_name': uploader_name,
+               'uploader_email': uploader_email,
+               'dataset_type': dataset_type}
+    
+    files = [
+        ('dataset_file', f.open(mode='rb'))
+    ]
+    print(files)
+    headers = {
+    }
+
+    response = requests.request(
+        "POST", url, headers=headers, data=payload, files=files)
+
+    return response
+
+
+def handle_flowers_file(uploader_name, uploader_email, dataset_type, f):
+    #default_storage.save('datasets/flowers/flowers.csv', f)
+
+    # Must send this file to http://api:8888/query/dataset-upload/
+    success = True
+    # Do any pre processing / terminate early
+    if success:
+        response = upload_file(uploader_name, uploader_email, dataset_type, f)
+    else:
+        response = HttpResponse(
+            '<h1>Error during uploading occured</h1>', status=400)
+    return response
 
 
 def handle_unm_file(f):
@@ -42,15 +73,19 @@ class UploadPageView(LoginRequiredMixin, FormView):
     form_class = UploadFileForm
 
     def post(self, request, *args, **kwargs):
+        response = HttpResponse()
         if request.method == 'POST':
             form = UploadFileForm(request.POST, request.FILES)
             if form.is_valid():
+                uploader_name = request.POST.get('uploader_name')
+                uploader_email = request.POST.get('uploader_email')
                 dataset_type = request.POST.get('dataset_type')
                 f = request.FILES['dataset_file']
 
                 if (dataset_type == 'flowers_dataset'):
                     print('Got Flowers Dataset')
-                    handle_flowers_file(f)
+                    handle_flowers_file(
+                        uploader_name, uploader_email, dataset_type, f)
 
                 if (dataset_type == 'UNM_dataset'):
                     print('Got UNM Dataset')
