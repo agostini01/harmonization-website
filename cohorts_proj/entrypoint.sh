@@ -11,6 +11,7 @@ then
   echo "PostgreSQL started"
 fi
 
+# Next line erases the database at every docker run
 #python manage.py flush --no-input
 python manage.py migrate
 python manage.py collectstatic --no-input --clear
