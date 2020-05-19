@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.files.storage import default_storage
 
@@ -25,7 +26,9 @@ class UploadPageView(LoginRequiredMixin, FormView):
         response = HttpResponse()
         if request.method == 'POST':
             form = UploadFileForm(request.POST, request.FILES)
+            
             if form.is_valid():
+                
                 uploader_name = request.POST.get('uploader_name')
                 uploader_email = request.POST.get('uploader_email')
                 dataset_type = request.POST.get('dataset_type')
@@ -54,4 +57,5 @@ class UploadPageView(LoginRequiredMixin, FormView):
                     return response
         else:
             form = UploadFileForm()
-        return HttpResponse(request, 'upload.html', {'form': form})
+        #return HttpResponse(request, 'upload.html', {'form': form})
+        return render(request, 'upload.html', {'form': form})

@@ -16,9 +16,10 @@
 <form action="" method="POST" enctype="multipart/form-data" id="post_form">
     {% csrf_token %}
     {{ form | crispy }}
-    <small>Only accepts CSV files</small>
+    <p></p>
     <!-- <button type="submit">Upload</button> -->
     <button type="submit" class="btn btn-primary btn-lg">Upload</button>
+    <p></p>
 </form>
 
 <p><a href="{% url 'graphs' %}">Click here to generate graphs</a></p>
