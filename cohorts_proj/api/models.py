@@ -17,4 +17,4 @@ class DatasetUploadModel(models.Model):
 
     # Must change this to get a number, otherwise they look ugly in the admin page
     def __str__(self):
-        return 'raw_{}_{}'.format(self.dataset_type, self.dataset_time)
+        return 'raw_{} {}'.format(self.dataset_type, self.dataset_time)
