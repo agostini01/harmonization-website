@@ -1,5 +1,6 @@
 import requests
 
+
 def upload_file(uploader_name, uploader_email, dataset_type, f):
     url = "http://api:8888/query/dataset-upload/"
 
@@ -7,12 +8,8 @@ def upload_file(uploader_name, uploader_email, dataset_type, f):
                'uploader_email': uploader_email,
                'dataset_type': dataset_type}
 
-    files = [
-        ('dataset_file', f.open(mode='rb'))
-    ]
-    print(files)
-    headers = {
-    }
+    files = [('dataset_file', f.open(mode='rb'))]
+    headers = {}
 
     response = requests.request(
         "POST", url, headers=headers, data=payload, files=files)
