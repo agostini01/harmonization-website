@@ -4,18 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 
 from .forms import FlowersForm
 
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
-
 import requests
-
-col = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'type']
-iris = pd.read_csv("staticfiles/datasets/iris.csv", names=col)
-iris_setosa = iris.loc[iris["type"] == "Iris-setosa"]
-iris_virginica = iris.loc[iris["type"] == "Iris-virginica"]
-iris_versicolor = iris.loc[iris["type"] == "Iris-versicolor"]
 
 
 class HomePageView(TemplateView):
@@ -34,65 +23,6 @@ class GraphsPageView(LoginRequiredMixin, FormView):
     redirect_field_name = 'redirect'
 
     form_class = FlowersForm
-
-    @classmethod
-    def getScatterPlot(cls, x_feature, y_feature, color_by):
-        gr = sns.scatterplot(
-            data=iris, x=x_feature, y=y_feature, hue=color_by)
-
-        return gr.figure
-
-    @classmethod
-    def getPairPlot(cls, x_feature, y_feature, color_by):
-        gr = sns.pairplot(
-            iris, vars=[x_feature, y_feature], hue=color_by, height=3)
-
-        return gr
-
-    @classmethod
-    def getCatPlot(cls, x_feature, y_feature, color_by):
-        gr = sns.catplot(data=iris, x=x_feature,
-                         y=y_feature, hue=color_by)
-
-        return gr
-
-    @classmethod
-    def getViolinCatPlot(cls, x_feature, y_feature, color_by):
-        gr = sns.catplot(data=iris, x=x_feature,
-                         y=y_feature, hue=color_by, kind="violin")
-
-        return gr
-
-    @classmethod
-    def getPlot(cls, request):
-        plot_type = request.GET.get('plot_type')
-        x_feature = request.GET.get('x_feature')
-        y_feature = request.GET.get('y_feature')
-        color_by = request.GET.get('color_by')
-        fig_dpi = int(request.GET.get('fig_dpi'))
-
-        t = plot_type
-        gr = None
-
-        plt.clf()
-        if (t == 'scatter_plot'):
-            gr = cls.getScatterPlot(x_feature, y_feature, color_by)
-
-        if (t == 'pair_plot'):
-            gr = cls.getPairPlot(x_feature, y_feature, color_by)
-
-        if (t == 'cat_plot'):
-            gr = cls.getCatPlot(x_feature, y_feature, color_by)
-
-        if (t == 'violin_cat_plot'):
-            gr = cls.getViolinCatPlot(x_feature, y_feature, color_by)
-
-        # Add histogram
-
-        response = HttpResponse(content_type="image/jpg")
-        gr.savefig(response, format="jpg", dpi=fig_dpi)
-
-        return response
 
     @classmethod
     def getApiPlot(cls, request):
