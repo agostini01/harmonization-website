@@ -33,6 +33,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
         y_feature = request.GET.get('y_feature')
         color_by = request.GET.get('color_by')
         fig_dpi = int(request.GET.get('fig_dpi'))
+        dataset_type = request.GET.get('dataset_type')
 
         url = "http://api:8888/query/get-plot/"
 
@@ -41,7 +42,8 @@ class GraphsPageView(LoginRequiredMixin, FormView):
                    'y_feature': y_feature,
                    'color_by': color_by,
                    'fig_dpi': fig_dpi,
-                   'plot_name': 'test'}
+                   'plot_name': 'test',
+                   'dataset_type': dataset_type}
         files = []
         headers = {}
 

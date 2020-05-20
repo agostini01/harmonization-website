@@ -88,13 +88,34 @@ class GraphRequestView(views.APIView):
         y_feature = request.data['y_feature']
         color_by = request.data['color_by']
         fig_dpi = int(request.data['fig_dpi'])
+        dataset_type = request.data['dataset_type']
 
         t = plot_type
         gr = None
 
-        # TODO - must select dataset here     
-        # Raw Flowers dataset
-        df = pd.DataFrame.from_records(RawFlower.objects.all().values(x_feature, y_feature, color_by))
+        # Selects the datasets
+        # It only query the database for the correct columns
+        df = pd.DataFrame()
+        if dataset_type == 'flowers_dataset':
+            df = pd.DataFrame.from_records(
+                RawFlower.objects.all().values(x_feature, y_feature, color_by))
+
+        if dataset_type == 'unm_dataset':
+            df = pd.DataFrame.from_records(
+                RawUNM.objects.all().values(x_feature, y_feature, color_by))
+
+        if dataset_type == 'neu_dataset':
+            df = pd.DataFrame.from_records(
+                RawNEU.objects.all().values(x_feature, y_feature, color_by))
+
+        if dataset_type == 'dar_dataset':
+            df = pd.DataFrame.from_records(
+                RawDAR.objects.all().values(x_feature, y_feature, color_by))
+
+        # This is the harmonized dataset
+        if dataset_type == 'har_dataset':
+            df = pd.DataFrame.from_records(
+                RawHAR.objects.all().values(x_feature, y_feature, color_by))
 
         plt.clf()
         if (t == 'scatter_plot'):
@@ -120,7 +141,7 @@ class GraphRequestView(views.APIView):
     def getScatterPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.scatterplot(
             data=data, x=x_feature, y=y_feature, hue=color_by)
-            # data=iris, x=x_feature, y=y_feature, hue=color_by)
+        # data=iris, x=x_feature, y=y_feature, hue=color_by)
 
         return gr.figure
 

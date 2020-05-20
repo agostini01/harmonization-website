@@ -23,3 +23,4 @@ class GraphRequestSerializer(serializers.Serializer):
     color_by = serializers.CharField()
     fig_dpi = serializers.IntegerField()
     plot_name = serializers.CharField()
+    dataset_type = serializers.CharField()

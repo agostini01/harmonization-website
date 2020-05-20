@@ -54,6 +54,7 @@ function getPlot() {
     new_graph +='&y_feature='+ document.getElementById("id_y_feature").value;
     new_graph +='&color_by=' + document.getElementById("id_color_by").value;
     new_graph +='&fig_dpi='  + document.getElementById("id_fig_dpi").value;
+    new_graph +='&dataset_type='  + document.getElementById("id_dataset_type").value;
     new_graph += ' style="max-width:100%; height:auto"></div>'
     new_graph += `</div>
         </div >
