@@ -24,16 +24,31 @@ def handle_flowers_file(uploader_name, uploader_email, dataset_type, f):
     return response
 
 
-def handle_unm_file(f):
-    # TODO
-    default_storage.save('datasets/unm/unm.csv', f)
+def handle_unm_file(uploader_name, uploader_email, dataset_type, f):
+    #default_storage.save('datasets/unm/unm.csv', f)
+
+    # TODO - Validate csv header and then upload
+
+    # Upload to api
+    response = upload_file(uploader_name, uploader_email, dataset_type, f)
+    return response
 
 
-def handle_neu_file(f):
-    # TODO
-    default_storage.save('datasets/neu/neu.csv', f)
+def handle_neu_file(uploader_name, uploader_email, dataset_type, f):
+    # default_storage.save('datasets/neu/neu.csv', f)
+
+    # TODO - Validate csv header and then upload
+
+    # Upload to api
+    response = upload_file(uploader_name, uploader_email, dataset_type, f)
+    return response
 
 
-def handle_dartmouth_file(f):
-    # TODO
-    default_storage.save('datasets/dartmouth/dartmouth.csv', f)
+def handle_dartmouth_file(uploader_name, uploader_email, dataset_type, f):
+    # default_storage.save('datasets/dartmouth/dartmouth.csv', f)
+
+    # TODO - Validate csv header and then upload
+
+    # Upload to api
+    response = upload_file(uploader_name, uploader_email, dataset_type, f)
+    return response

@@ -41,15 +41,18 @@ class UploadPageView(LoginRequiredMixin, FormView):
 
                 if (dataset_type == 'UNM_dataset'):
                     # print('Got UNM Dataset')
-                    respose = handle_unm_file(f)
+                    response = handle_unm_file(
+                        uploader_name, uploader_email, dataset_type, f)
 
                 if (dataset_type == 'NEU_dataset'):
                     # print('Got NEU Dataset')
-                    response = handle_neu_file(f)
+                    response = handle_neu_file(
+                        uploader_name, uploader_email, dataset_type, f)
 
                 if (dataset_type == 'Dartmouth_dataset'):
                     # print('Got Dartmouth Dataset')
-                    response = handle_dartmouth_file(f)
+                    response = handle_dartmouth_file(
+                        uploader_name, uploader_email, dataset_type, f)
 
                 if response.status_code == 201:
                     return HttpResponseRedirect('/upload/success/')
