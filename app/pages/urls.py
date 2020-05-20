@@ -7,5 +7,8 @@ urlpatterns = [
     path('graphs/', GraphsPageView.as_view(), name='graphs'),
     path('about/', AboutPageView.as_view(), name='about'),
     path('', HomePageView.as_view(), name='home'),
-    path('graphs/getplot/', GraphsPageView.getPlot),
+
+    # TODO - Remove once all graph logic gets ported
+    #path('graphs/getplot/', GraphsPageView.getPlot),
+    path('graphs/api/getplot/', GraphsPageView.getApiPlot),
 ]

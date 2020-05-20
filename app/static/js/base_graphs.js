@@ -38,7 +38,9 @@ function getPlot() {
     <div class="title">`
 
     // Plotting the graph
-    new_graph += '<div class="graph-img"><img src=/graphs/getplot'
+    // This next line calls the django url that sends the request to the
+    // API container
+    new_graph += '<div class="graph-img"><img src=/graphs/api/getplot'
 
     // Features to be plotted
     // new_graph += arguments[0]

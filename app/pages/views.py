@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
+import requests
+
 col = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'type']
 iris = pd.read_csv("staticfiles/datasets/iris.csv", names=col)
 iris_setosa = iris.loc[iris["type"] == "Iris-setosa"]
@@ -91,6 +93,37 @@ class GraphsPageView(LoginRequiredMixin, FormView):
         gr.savefig(response, format="jpg", dpi=fig_dpi)
 
         return response
+
+    @classmethod
+    def getApiPlot(cls, request):
+        """This function requets graphs through the API container."""
+
+        plot_type = request.GET.get('plot_type')
+        x_feature = request.GET.get('x_feature')
+        y_feature = request.GET.get('y_feature')
+        color_by = request.GET.get('color_by')
+        fig_dpi = int(request.GET.get('fig_dpi'))
+
+        url = "http://api:8888/query/get-plot/"
+
+        payload = {'plot_type': plot_type,
+                   'x_feature': x_feature,
+                   'y_feature': y_feature,
+                   'color_by': color_by,
+                   'fig_dpi': fig_dpi,
+                   'plot_name': 'test'}
+        files = []
+        headers = {}
+
+        requests_response = requests.request(
+            "GET", url, headers=headers, data=payload, files=files)
+
+        django_response = HttpResponse(
+            content=requests_response.content,
+            status=requests_response.status_code,
+            content_type=requests_response.headers['Content-Type']
+        )
+        return django_response
 
     def get_context_data(self, **kwargs):
         context = super(GraphsPageView, self).get_context_data(**kwargs)
