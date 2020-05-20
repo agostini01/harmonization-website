@@ -6,6 +6,12 @@ CAT_FLO_TYPE = (
     ('iris-versicolor', 'Iris-versicolor'),
 )
 
+class FlowerTypeField(models.CharField):
+    def __init__(self, *args, **kwargs):
+        super(FlowerTypeField, self).__init__(*args, **kwargs)
+
+    def get_prep_value(self, value):
+        return str(value).lower()
 
 class RawFlower(models.Model):
 
@@ -19,4 +25,4 @@ class RawFlower(models.Model):
     petal_width = models.FloatField()
 
     # The type of flower
-    type_field = models.CharField(max_length=100, choices=CAT_FLO_TYPE)
+    type_field = FlowerTypeField(max_length=100, choices=CAT_FLO_TYPE)

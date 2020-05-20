@@ -6,13 +6,21 @@ from .models import DatasetUploadModel
 
 from .serializers import GraphRequestSerializer
 
+from datasets.models import RawFlower
+
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-col = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'type']
-iris = pd.read_csv("staticfiles/datasets/iris.csv", names=col)
+import csv
+import io
+
+cols_flowers = ['sepal_length', 'sepal_width',
+                'petal_length', 'petal_width', 'type']
+cols_flowers_to_db = ['sepal_length', 'sepal_width',
+                      'petal_length', 'petal_width', 'type_field']
+iris = pd.read_csv("staticfiles/datasets/iris.csv", names=cols_flowers)
 iris_setosa = iris.loc[iris["type"] == "Iris-setosa"]
 iris_virginica = iris.loc[iris["type"] == "Iris-virginica"]
 iris_versicolor = iris.loc[iris["type"] == "Iris-versicolor"]
@@ -26,6 +34,33 @@ class DatasetUploadView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         """Custom post to print exceptions during upload."""
 
+        csv_file = request.data['dataset_file']
+        df = pd.read_csv(csv_file, names=cols_flowers_to_db)
+        # print(df.head())
+        df['PIN_ID'] = range(len(df))
+        # print(df.head())
+
+        # Delete database
+        RawFlower.objects.all().delete()
+
+        for entry in df.itertuples():
+            # print('>>>> HIT HERE 0')
+            entry = RawFlower.objects.create(
+                # Just a number for the sample
+
+                PIN_ID=entry.PIN_ID,
+
+                # Result: value in cm
+                sepal_length=entry.sepal_length,
+                sepal_width=entry.sepal_width,
+                petal_length=entry.petal_length,
+                petal_width=entry.petal_width,
+
+                # The type of flower
+                type_field=entry.type_field
+            )
+
+        # Commit model upload of the regular dataset
         try:
             return self.create(request, *args, **kwargs)
         except Exception as e:
