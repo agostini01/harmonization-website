@@ -25,4 +25,4 @@ class RawFlower(models.Model):
     petal_width = models.FloatField()
 
     # The type of flower
-    type_field = FlowerTypeField(max_length=100, choices=CAT_FLO_TYPE)
+    flower_type = FlowerTypeField(max_length=100, choices=CAT_FLO_TYPE)

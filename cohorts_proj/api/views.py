@@ -92,18 +92,22 @@ class GraphRequestView(views.APIView):
         t = plot_type
         gr = None
 
+        # TODO - must select dataset here     
+        # Raw Flowers dataset
+        df = pd.DataFrame.from_records(RawFlower.objects.all().values(x_feature, y_feature, color_by))
+
         plt.clf()
         if (t == 'scatter_plot'):
-            gr = cls.getScatterPlot(x_feature, y_feature, color_by)
+            gr = cls.getScatterPlot(df, x_feature, y_feature, color_by)
 
         if (t == 'pair_plot'):
-            gr = cls.getPairPlot(x_feature, y_feature, color_by)
+            gr = cls.getPairPlot(df, x_feature, y_feature, color_by)
 
         if (t == 'cat_plot'):
-            gr = cls.getCatPlot(x_feature, y_feature, color_by)
+            gr = cls.getCatPlot(df, x_feature, y_feature, color_by)
 
         if (t == 'violin_cat_plot'):
-            gr = cls.getViolinCatPlot(x_feature, y_feature, color_by)
+            gr = cls.getViolinCatPlot(df, x_feature, y_feature, color_by)
 
         # TODO: Add histogram
 
@@ -113,29 +117,30 @@ class GraphRequestView(views.APIView):
         return response
 
     @classmethod
-    def getScatterPlot(cls, x_feature, y_feature, color_by):
+    def getScatterPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.scatterplot(
-            data=iris, x=x_feature, y=y_feature, hue=color_by)
+            data=data, x=x_feature, y=y_feature, hue=color_by)
+            # data=iris, x=x_feature, y=y_feature, hue=color_by)
 
         return gr.figure
 
     @classmethod
-    def getPairPlot(cls, x_feature, y_feature, color_by):
+    def getPairPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.pairplot(
-            iris, vars=[x_feature, y_feature], hue=color_by, height=3)
+            data, vars=[x_feature, y_feature], hue=color_by, height=3)
 
         return gr
 
     @classmethod
-    def getCatPlot(cls, x_feature, y_feature, color_by):
-        gr = sns.catplot(data=iris, x=x_feature,
+    def getCatPlot(cls, data, x_feature, y_feature, color_by):
+        gr = sns.catplot(data=data, x=x_feature,
                          y=y_feature, hue=color_by)
 
         return gr
 
     @classmethod
-    def getViolinCatPlot(cls, x_feature, y_feature, color_by):
-        gr = sns.catplot(data=iris, x=x_feature,
+    def getViolinCatPlot(cls, data, x_feature, y_feature, color_by):
+        gr = sns.catplot(data=data, x=x_feature,
                          y=y_feature, hue=color_by, kind="violin")
 
         return gr

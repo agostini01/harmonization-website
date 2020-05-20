@@ -19,7 +19,8 @@ FEATURE_CHOICES = (
     ("sepal_width", "sepal_width"),
     ("petal_length", "petal_length"),
     ("petal_width", "petal_width"),
-    ("type", "type"),
+    ("flower_type", "flower_type"),
+)
 )
 
 
