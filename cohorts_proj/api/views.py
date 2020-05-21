@@ -26,7 +26,6 @@ def saveFlowersToDB(csv_file):
     RawFlower.objects.all().delete()
 
     for entry in df.itertuples():
-        # print('>>>> HIT HERE 0')
         entry = RawFlower.objects.create(
             # Just a number for the sample
 
@@ -43,6 +42,25 @@ def saveFlowersToDB(csv_file):
         )
 
 
+def saveUNMToDB(csv_file):
+    df = pd.read_csv(csv_file,
+                     skip_blank_lines=True,
+                     header=0)
+
+    # Delete database
+    RawUNM.objects.all().delete()
+
+    for entry in df.itertuples():
+        entry = RawUNM.objects.create(
+            PIN_Patient=entry.PIN_Patient,
+            Member_c=entry.Member_c,
+            TimePeriod=entry.TimePeriod,
+            Analyte=entry.Analyte,
+            Result=entry.Result,
+            Creat_Corr_Result=entry.Creat_Corr_Result,
+        )
+
+
 class DatasetUploadView(generics.CreateAPIView):
     """Handles only POST methods."""
     serializer_class = DatasetUploadSerializer
@@ -51,9 +69,14 @@ class DatasetUploadView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         """Saves CSV to DatasetModel database and populate raw databases."""
 
+        print('>>>>>> {}'.format(request.data['dataset_type']))
         if request.data['dataset_type'] == 'flowers_dataset':
             csv_file = request.data['dataset_file']
             saveFlowersToDB(csv_file)
+
+        if request.data['dataset_type'] == 'UNM_dataset':
+            csv_file = request.data['dataset_file']
+            saveUNMToDB(csv_file)
 
         # Commit model upload of the regular dataset
         try:
