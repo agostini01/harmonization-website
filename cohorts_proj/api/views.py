@@ -14,16 +14,7 @@ import seaborn as sns
 import pandas as pd
 
 
-class DatasetUploadView(generics.CreateAPIView):
-    """Handles only POST methods."""
-    serializer_class = DatasetUploadSerializer
-    queryset = DatasetUploadModel.objects.all()
-
-    def post(self, request, *args, **kwargs):
-        """Saves CSV to DatasetModel database and populate raw databases."""
-
-        if request.data['dataset_type'] == 'flowers_dataset':
-            csv_file = request.data['dataset_file']
+def saveFlowersToDB(csv_file):
             df = pd.read_csv(csv_file,
                             skip_blank_lines=True,
                             header=0)
@@ -50,6 +41,19 @@ class DatasetUploadView(generics.CreateAPIView):
                     # The type of flower
                     flower_type=entry.flower_type
                 )
+
+
+class DatasetUploadView(generics.CreateAPIView):
+    """Handles only POST methods."""
+    serializer_class = DatasetUploadSerializer
+    queryset = DatasetUploadModel.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        """Saves CSV to DatasetModel database and populate raw databases."""
+
+        if request.data['dataset_type'] == 'flowers_dataset':
+            csv_file = request.data['dataset_file']
+            saveFlowersToDB(csv_file)
 
         # Commit model upload of the regular dataset
         try:
