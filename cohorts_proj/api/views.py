@@ -6,7 +6,7 @@ from .models import DatasetUploadModel
 
 from .serializers import GraphRequestSerializer
 
-from datasets.models import RawFlower
+from datasets.models import RawFlower, RawUNM
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,32 +15,32 @@ import pandas as pd
 
 
 def saveFlowersToDB(csv_file):
-            df = pd.read_csv(csv_file,
-                            skip_blank_lines=True,
-                            header=0)
-            # print(df.head())
-            df['PIN_ID'] = range(len(df))
-            # print(df.head())
+    df = pd.read_csv(csv_file,
+                     skip_blank_lines=True,
+                     header=0)
+    # print(df.head())
+    df['PIN_ID'] = range(len(df))
+    # print(df.head())
 
-            # Delete database
-            RawFlower.objects.all().delete()
+    # Delete database
+    RawFlower.objects.all().delete()
 
-            for entry in df.itertuples():
-                # print('>>>> HIT HERE 0')
-                entry = RawFlower.objects.create(
-                    # Just a number for the sample
+    for entry in df.itertuples():
+        # print('>>>> HIT HERE 0')
+        entry = RawFlower.objects.create(
+            # Just a number for the sample
 
-                    PIN_ID=entry.PIN_ID,
+            PIN_ID=entry.PIN_ID,
 
-                    # Result: value in cm
-                    sepal_length=entry.sepal_length,
-                    sepal_width=entry.sepal_width,
-                    petal_length=entry.petal_length,
-                    petal_width=entry.petal_width,
+            # Result: value in cm
+            sepal_length=entry.sepal_length,
+            sepal_width=entry.sepal_width,
+            petal_length=entry.petal_length,
+            petal_width=entry.petal_width,
 
-                    # The type of flower
-                    flower_type=entry.flower_type
-                )
+            # The type of flower
+            flower_type=entry.flower_type
+        )
 
 
 class DatasetUploadView(generics.CreateAPIView):
