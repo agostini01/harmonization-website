@@ -1,6 +1,8 @@
 from django import forms
 
 from .choices.flowers import FLOWER_FEATURE_CHOICES
+from .choices.unm import UNM_FEATURE_CHOICES
+
 """ (Name that will be send on the http request, name of the feature) """
 
 PLOT_TYPES = (
@@ -46,14 +48,27 @@ class FlowersForm(forms.Form):
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
                                      widget=forms.HiddenInput())
+
+
+class UNMForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super(UNMForm, self).__init__(*args, **kwargs)
+        self.initial['plot_type'] = PLOT_TYPES[0][0]
+        self.initial['x_feature'] = UNM_FEATURE_CHOICES[0][0]
+        self.initial['y_feature'] = UNM_FEATURE_CHOICES[1][0]
+        self.initial['color_by'] = UNM_FEATURE_CHOICES[4][0]
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New Plot'
+        self.initial['dataset_type'] = DATASET_CHOICES[1][0]
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
     plot_type = forms.ChoiceField(choices=PLOT_TYPES)
-    x_feature = forms.ChoiceField(choices=FEATURE_CHOICES)
-    y_feature = forms.ChoiceField(choices=FEATURE_CHOICES)
-    color_by = forms.ChoiceField(choices=FEATURE_CHOICES)
+    x_feature = forms.ChoiceField(choices=UNM_FEATURE_CHOICES)
+    y_feature = forms.ChoiceField(choices=UNM_FEATURE_CHOICES)
+    color_by = forms.ChoiceField(choices=UNM_FEATURE_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
+    dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
+                                     widget=forms.HiddenInput())
