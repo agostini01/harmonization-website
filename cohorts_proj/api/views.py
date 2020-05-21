@@ -13,18 +13,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-import csv
-import io
-
-cols_flowers = ['sepal_length', 'sepal_width',
-                'petal_length', 'petal_width', 'type']
-cols_flowers_to_db = ['sepal_length', 'sepal_width',
-                      'petal_length', 'petal_width', 'type_field']
-iris = pd.read_csv("staticfiles/datasets/iris.csv", names=cols_flowers)
-iris_setosa = iris.loc[iris["type"] == "Iris-setosa"]
-iris_virginica = iris.loc[iris["type"] == "Iris-virginica"]
-iris_versicolor = iris.loc[iris["type"] == "Iris-versicolor"]
-
 
 class DatasetUploadView(generics.CreateAPIView):
     """Handles only POST methods."""
@@ -141,7 +129,6 @@ class GraphRequestView(views.APIView):
     def getScatterPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.scatterplot(
             data=data, x=x_feature, y=y_feature, hue=color_by)
-        # data=iris, x=x_feature, y=y_feature, hue=color_by)
 
         return gr.figure
 
