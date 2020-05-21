@@ -64,3 +64,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         return super(GraphsPageView, self).form_valid(form)
+
+
+class GraphsFlowersPagesView(GraphsPageView):
+    form_class = FlowersForm
