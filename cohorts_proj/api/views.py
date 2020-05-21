@@ -20,33 +20,36 @@ class DatasetUploadView(generics.CreateAPIView):
     queryset = DatasetUploadModel.objects.all()
 
     def post(self, request, *args, **kwargs):
-        """Custom post to print exceptions during upload."""
+        """Saves CSV to DatasetModel database and populate raw databases."""
 
-        csv_file = request.data['dataset_file']
-        df = pd.read_csv(csv_file, names=cols_flowers_to_db)
-        # print(df.head())
-        df['PIN_ID'] = range(len(df))
-        # print(df.head())
+        if request.data['dataset_type'] == 'flowers_dataset':
+            csv_file = request.data['dataset_file']
+            df = pd.read_csv(csv_file,
+                            skip_blank_lines=True,
+                            header=0)
+            # print(df.head())
+            df['PIN_ID'] = range(len(df))
+            # print(df.head())
 
-        # Delete database
-        RawFlower.objects.all().delete()
+            # Delete database
+            RawFlower.objects.all().delete()
 
-        for entry in df.itertuples():
-            # print('>>>> HIT HERE 0')
-            entry = RawFlower.objects.create(
-                # Just a number for the sample
+            for entry in df.itertuples():
+                # print('>>>> HIT HERE 0')
+                entry = RawFlower.objects.create(
+                    # Just a number for the sample
 
-                PIN_ID=entry.PIN_ID,
+                    PIN_ID=entry.PIN_ID,
 
-                # Result: value in cm
-                sepal_length=entry.sepal_length,
-                sepal_width=entry.sepal_width,
-                petal_length=entry.petal_length,
-                petal_width=entry.petal_width,
+                    # Result: value in cm
+                    sepal_length=entry.sepal_length,
+                    sepal_width=entry.sepal_width,
+                    petal_length=entry.petal_length,
+                    petal_width=entry.petal_width,
 
-                # The type of flower
-                type_field=entry.type_field
-            )
+                    # The type of flower
+                    flower_type=entry.flower_type
+                )
 
         # Commit model upload of the regular dataset
         try:
