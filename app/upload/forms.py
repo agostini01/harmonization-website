@@ -26,4 +26,6 @@ class UploadFileForm(forms.Form):
     uploader_email = forms.EmailField(max_length=100,
                                       help_text='A valid email address, please.')
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES)
-    dataset_file = CSVFileField(help_text='Only csv files are accepted.')
+    dataset_file = CSVFileField(
+        help_text="Only csv files are accepted. "
+        "The csv file MUST have the correct header.")

@@ -22,8 +22,19 @@
     <p></p>
 </form>
 
-<p><a href="{% url 'graphs' %}">Click here to generate graphs</a></p>
-<p><a href="{% url 'account_logout' %}">Log Out</a></p>
+<div class="text-center">
+    <p><a href="{% url 'graphs' %}">Click here to generate graphs</a></p>
+    <p><a href="{% url 'account_logout' %}">Log Out</a></p>
+</div>
+
+<div class="bd-example bd-example-images">
+    <div class="text-center">
+        <img src="{% static 'images/flowers_csv_sample.PNG' %}" 
+            class="img-fluid rounded mx-auto d-block"
+            alt="Flowers Dataset CSV Sample">
+        <p>Flowers Dataset Sample</p>
+    </div>
+</div>
 {% else %}
 <p>You are not logged in.</p>
 <p>You must log in to interact with this website.</p>
