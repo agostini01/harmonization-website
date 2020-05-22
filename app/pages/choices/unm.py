@@ -49,9 +49,11 @@ CAT_UNM_TIME_PERIOD = (
 )
 
 ADDITIONAL_FEATURES = (
-    ('member', 'Family Member'),
-    ('collection_time', 'Collection Time'),
+    ('Member_c', 'Family Member'),
+    ('TimePeriod', 'Collection Time'),
     # ('outcome', 'Outcome'),
 )
 
 UNM_FEATURE_CHOICES = CAT_UNM_ANALYTES + ADDITIONAL_FEATURES
+#UNM_FEATURE_CHOICES = CAT_UNM_ANALYTES
+UNM_CATEGORICAL_CHOICES = ADDITIONAL_FEATURES

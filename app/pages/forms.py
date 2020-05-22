@@ -1,7 +1,7 @@
 from django import forms
 
 from .choices.flowers import FLOWER_FEATURE_CHOICES
-from .choices.unm import UNM_FEATURE_CHOICES
+from .choices.unm import UNM_FEATURE_CHOICES, UNM_CATEGORICAL_CHOICES
 
 """ (Name that will be send on the http request, name of the feature) """
 
@@ -51,13 +51,23 @@ class FlowersForm(forms.Form):
 
 
 class UNMForm(forms.Form):
+    """Form to select what features from the Raw UNM csv file to plot.
+
+    This form must match the RawUNM model features. Restriction of choices here,
+    will reflect there. 
+
+    Other Files Involved:
+        $PROJ_SOURCE/cohorts_proj/api/views.py
+        $PROJ_SOURCE/cohorts_proj/datasets/models.py
+        $PROJ_SOURCE/cohorts_proj/datasets/mymodels/raw_unm.py
+    """
 
     def __init__(self, *args, **kwargs):
         super(UNMForm, self).__init__(*args, **kwargs)
         self.initial['plot_type'] = PLOT_TYPES[0][0]
         self.initial['x_feature'] = UNM_FEATURE_CHOICES[0][0]
         self.initial['y_feature'] = UNM_FEATURE_CHOICES[1][0]
-        self.initial['color_by'] = UNM_FEATURE_CHOICES[4][0]
+        self.initial['color_by'] = UNM_CATEGORICAL_CHOICES[0][0]
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[1][0]
@@ -67,7 +77,7 @@ class UNMForm(forms.Form):
     plot_type = forms.ChoiceField(choices=PLOT_TYPES)
     x_feature = forms.ChoiceField(choices=UNM_FEATURE_CHOICES)
     y_feature = forms.ChoiceField(choices=UNM_FEATURE_CHOICES)
-    color_by = forms.ChoiceField(choices=UNM_FEATURE_CHOICES)
+    color_by = forms.ChoiceField(choices=UNM_CATEGORICAL_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
