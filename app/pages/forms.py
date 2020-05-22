@@ -35,7 +35,7 @@ class FlowersForm(forms.Form):
         self.initial['y_feature'] = FLOWER_FEATURE_CHOICES[1][0]
         self.initial['color_by'] = FLOWER_FEATURE_CHOICES[4][0]
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
-        self.initial['plot_name'] = 'New Plot'
+        self.initial['plot_name'] = 'New Flowers Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[0][0]
 
     plot_name = forms.CharField(max_length=100,
@@ -57,7 +57,7 @@ class UNMForm(forms.Form):
     will reflect there. 
 
     Other Files Involved:
-        $PROJ_SOURCE/cohorts_proj/api/views.py
+        $PROJ_SOURCE/cohorts_proj/api/adapters/unm.py
         $PROJ_SOURCE/cohorts_proj/datasets/models.py
         $PROJ_SOURCE/cohorts_proj/datasets/mymodels/raw_unm.py
     """
@@ -69,7 +69,7 @@ class UNMForm(forms.Form):
         self.initial['y_feature'] = UNM_FEATURE_CHOICES[1][0]
         self.initial['color_by'] = UNM_CATEGORICAL_CHOICES[0][0]
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
-        self.initial['plot_name'] = 'New Plot'
+        self.initial['plot_name'] = 'New UNM Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[1][0]
 
     plot_name = forms.CharField(max_length=100,
