@@ -11,6 +11,8 @@ app/mediafiles/
 cohorts_proj/staticfiles/
 cohorts_proj/mediafiles/
 .vscode/
+jupyter/
+others/
 
 # Generated
 
