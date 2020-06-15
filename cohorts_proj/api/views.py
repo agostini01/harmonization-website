@@ -6,7 +6,7 @@ from .models import DatasetUploadModel
 
 from .serializers import GraphRequestSerializer
 
-from datasets.models import RawFlower, RawUNM
+from datasets.models import RawFlower, RawUNM, RawDAR
 
 from api import adapters
 
@@ -62,6 +62,52 @@ def saveUNMToDB(csv_file):
         )
 
 
+def saveDARToDB(csv_file):
+    df = pd.read_csv(csv_file,
+                     skip_blank_lines=True,
+                     header=0)
+
+    print(df)
+    print(df.Ag_BDL)
+
+    # Delete database
+    RawDAR.objects.all().delete()
+
+    for entry in df.itertuples():
+        entry = RawDAR.objects.create(
+            unq_id=entry.unq_id,
+            assay=entry.assay,
+            lab=entry.lab,
+            participant_type=entry.participant_type,
+            time_period=entry.time_period,
+            batch=entry.batch,
+            squid=entry.squid,
+            sample_gestage_days=entry.sample_gestage_days,
+            Ag=entry.Ag, Ag_IDL=entry.Ag_IDL, Ag_BDL=entry.Ag_BDL,
+            Al=entry.Al, Al_IDL=entry.Al_IDL, Al_BDL=entry.Al_BDL,
+            As=entry.As, As_IDL=entry.As_IDL, As_BDL=entry.As_BDL,
+            Be=entry.Be, Be_IDL=entry.Be_IDL, Be_BDL=entry.Be_BDL,
+            Cd=entry.Cd, Cd_IDL=entry.Cd_IDL, Cd_BDL=entry.Cd_BDL,
+            Co=entry.Co, Co_IDL=entry.Co_IDL, Co_BDL=entry.Co_BDL,
+            Cr=entry.Cr, Cr_IDL=entry.Cr_IDL, Cr_BDL=entry.Cr_BDL,
+            Cu=entry.Cu, Cu_IDL=entry.Cu_IDL, Cu_BDL=entry.Cu_BDL,
+            Fe=entry.Fe, Fe_IDL=entry.Fe_IDL, Fe_BDL=entry.Fe_BDL,
+            Hg=entry.Hg, Hg_IDL=entry.Hg_IDL, Hg_BDL=entry.Hg_BDL,
+            Mn=entry.Mn, Mn_IDL=entry.Mn_IDL, Mn_BDL=entry.Mn_BDL,
+            Mo=entry.Mo, Mo_IDL=entry.Mo_IDL, Mo_BDL=entry.Mo_BDL,
+            Ni=entry.Ni, Ni_IDL=entry.Ni_IDL, Ni_BDL=entry.Ni_BDL,
+            Pb=entry.Pb, Pb_IDL=entry.Pb_IDL, Pb_BDL=entry.Pb_BDL,
+            Sb=entry.Sb, Sb_IDL=entry.Sb_IDL, Sb_BDL=entry.Sb_BDL,
+            Se=entry.Se, Se_IDL=entry.Se_IDL, Se_BDL=entry.Se_BDL,
+            Sn=entry.Sn, Sn_IDL=entry.Sn_IDL, Sn_BDL=entry.Sn_BDL,
+            Tl=entry.Tl, Tl_IDL=entry.Tl_IDL, Tl_BDL=entry.Tl_BDL,
+            U=entry.U, U_IDL=entry.U_IDL, U_BDL=entry.U_BDL,
+            W=entry.W, W_IDL=entry.W_IDL, W_BDL=entry.W_BDL,
+            Zn=entry.Zn, Zn_IDL=entry.Zn_IDL, Zn_BDL=entry.Zn_BDL,
+            V=entry.V, V_IDL=entry.V_IDL, V_BDL=entry.V_BDL,
+        )
+
+
 class DatasetUploadView(generics.CreateAPIView):
     """Handles only POST methods."""
     serializer_class = DatasetUploadSerializer
@@ -78,6 +124,10 @@ class DatasetUploadView(generics.CreateAPIView):
         if request.data['dataset_type'] == 'UNM_dataset':
             csv_file = request.data['dataset_file']
             saveUNMToDB(csv_file)
+
+        if request.data['dataset_type'] == 'Dartmouth_dataset':
+            csv_file = request.data['dataset_file']
+            saveDARToDB(csv_file)
 
         # Commit model upload of the regular dataset
         try:
