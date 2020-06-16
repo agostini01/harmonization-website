@@ -67,9 +67,6 @@ def saveDARToDB(csv_file):
                      skip_blank_lines=True,
                      header=0)
 
-    print(df)
-    print(df.Ag_BDL)
-
     # Delete database
     RawDAR.objects.all().delete()
 
