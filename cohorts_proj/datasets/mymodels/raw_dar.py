@@ -58,6 +58,13 @@ CAT_DAR_BDL = (
     ('nan', 'invalid'),
 )
 
+# TODO: verify field
+# CAT_DAR_OUTCOME = (
+#     ('1', 'term'),
+#     ('0', 'preterm'),
+#     ('nan', 'invalid'),
+# )
+
 
 class RawDAR(models.Model):
 
@@ -85,7 +92,12 @@ class RawDAR(models.Model):
     # sample_gestage_days - numeric: days of gestation
     sample_gestage_days = models.IntegerField()
 
+    # TODO: verify field
+    # outcome - categorical: 1=term ; 0=preterm; 
+    # outcome = models.CharField(max_length=3, choices=CAT_DAR_OUTCOME)
+
     # List of analytes, Index of detection level, Above/Below IDL
+    # Floating values unit: 1ppb = 1ug/L
 
     Ag = models.FloatField()
     Ag_IDL = models.FloatField()
