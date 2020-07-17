@@ -24,6 +24,7 @@ services:
       - ./cohorts_proj/:/usr/src/app/
     ports:
       - 8888:8888
+      - 7777:7777  # Jupyter notebook
     env_file:
       - ./config/.env-api.dev
     depends_on:

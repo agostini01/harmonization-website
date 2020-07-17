@@ -24,5 +24,10 @@ COPY ./entrypoint.sh /usr/src/app/entrypoint.sh
 # copy project
 COPY . /usr/src/app/
 
+# create home for developer user
+RUN groupadd --gid 1004 developer \
+    && useradd --uid 1004 --gid developer \
+       --shell /bin/bash --create-home developer
+
 # run entrypoint.sh
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]

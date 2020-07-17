@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     #'rest_auth',
+    'django_extensions',
 
     # Local
     'api.apps.ApiConfig',
@@ -141,6 +142,11 @@ STATICFILES_FINDERS = [
 MEDIA_URL = "/mediafiles/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
 
+NOTEBOOK_ARGUMENTS = [
+    '--ip=0.0.0.0',
+    '--port=7777',
+    '--no-browser',
+]
 
 # TODO
 #AUTH_USER_MODEL = 'users.CustomUser'
