@@ -4,7 +4,7 @@ services:
   web:
     build:
       context: ./app
-      dockerfile: Dockerfile-debian
+      dockerfile: Dockerfile.debian
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./app/:/usr/src/app/
@@ -18,7 +18,7 @@ services:
   api:
     build:
       context: ./cohorts_proj
-      dockerfile: Dockerfile-debian
+      dockerfile: Dockerfile.debian
       args: 
         DEV_USER_ID: ${DEV_UID}
         DEV_GROUP_ID: ${DEV_UID}
