@@ -19,6 +19,9 @@ services:
     build:
       context: ./cohorts_proj
       dockerfile: Dockerfile-debian
+      args: 
+        DEV_USER_ID: ${DEV_UID}
+        DEV_GROUP_ID: ${DEV_UID}
     command: python manage.py runserver 0.0.0.0:8888
     volumes:
       - ./cohorts_proj/:/usr/src/app/
