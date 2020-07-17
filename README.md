@@ -18,7 +18,7 @@ Uses the default Django development server.
     $ CURRENT_UID=$(id -u):$(id -g) docker-compose up -d --build
     ```
 
-    Test it out at [http://localhost:8000](http://localhost:8000). The "app" folder is mounted into the container and your code changes apply automatically.
+    Test it out at [http://localhost:80](http://localhost:80). The "app" folder is mounted into the container and your code changes apply automatically.
 
 
 Furthermore, admins can access a custom django-jupyter-notebook kernel on
