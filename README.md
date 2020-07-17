@@ -15,10 +15,24 @@ Uses the default Django development server.
 
     ```sh
     $ cp config/.env.dev-sample config/.env.dev
-    $ CURRENT_UID=$(id -u):$(id -g) DEV_UID=$(id -u) docker-compose up -d --build
+    $ CURRENT_UID=$(id -u):$(id -g) docker-compose up -d --build
     ```
 
     Test it out at [http://localhost:8000](http://localhost:8000). The "app" folder is mounted into the container and your code changes apply automatically.
+
+
+Furthermore, admins can access a custom django-jupyter-notebook kernel on
+port 7777:
+
+```sh
+# In a new shell
+$ docker-compose exec api /bin/bash
+(api)$ python manage.py shell_plus --notebook
+```
+Take note of the token and use it in your browser address bar:
+```
+http://<ip of the host>:7777/?token=<token number>
+```
 
 ### Production
 
