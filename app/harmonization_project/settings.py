@@ -45,8 +45,6 @@ INSTALLED_APPS = [
     'allauth.account',
 
     # Local
-    #"upload",
-    # Local
     'users.apps.UsersConfig', 
     'pages.apps.PagesConfig',
     'upload.apps.UploadConfig',
