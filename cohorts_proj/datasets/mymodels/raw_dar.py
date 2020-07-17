@@ -1,6 +1,6 @@
 from django.db import models
 
-# Each row of raw Dartmounth datset has the following fields
+# Each row of raw Dartmouth datset has the following fields
 # unq_id
 # assay
 # lab
