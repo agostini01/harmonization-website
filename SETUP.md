@@ -24,8 +24,11 @@ Create a development folder and download the project code
 
 ```
 mkdir $HOME/Development
-cd $HOME/Development
+cd ~/Development
 git clone https://github.com/agostini01/harmonization-website.git server
+
+# Enter the development folder
+cd ~/Development/server
 ```
 
 Open a tmux session so that the terminal never dies in this machine.
@@ -40,14 +43,9 @@ tmux attach
 # To attach to a specific session
 tmux attach -t server-sess
 
-# To detacth but no kill the session (for when you are done with changes)
+# To detacth but not kill the session (for when you are done with changes)
 ```
-<kbd>ctrl</kbd>+<kbd>b</kbd> <kbd>d</kbd>
-
-Open server folder
-```
-cd server
-```
+Use the keyboard sequence: <kbd>ctrl</kbd>+<kbd>b</kbd> <kbd>d</kbd>
 
 Make a copy of the sample config files and edit your configurations
 ```
@@ -59,10 +57,9 @@ nano config/.env.dev
 # and
 nano config/.env-api.dev
 
-
 # Save and close the file with nano
 ```
-<kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>y</kbd> <kbd>Enter</kbd>
+Use the keyboard sequence: <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>y</kbd> <kbd>Enter</kbd>
 
 Start the server
 ```
@@ -80,20 +77,20 @@ A Window saying welcome will be displayed.
 Now lets create admin users. Back in the terminal. Divide the pane of the 
 tmux session (in case -d option was not used)
 
-<kbd>ctrl</kbd>+<kbd>b</kbd> <kbd>"</kbd>
+Use the combination: <kbd>ctrl</kbd>+<kbd>b</kbd> <kbd>"</kbd>
 ```
 # make sure you are in the project folder
 cd ~/Development/server
 
 # Now it is possible to swtich between panes with
-<kbd>ctrl</kbd>+<kbd>b</kbd> <kbd>o</kbd>
 ```
+Use the combination<kbd>ctrl</kbd>+<kbd>b</kbd> <kbd>o</kbd>
 
 
 Run the commands and follow the promts.
 
 ```bash
-# These two are necessary because 2 servers are running
+# These two are necessary because 2 servers are running:
 # web container runs the website frontend
 docker-compose  exec web python manage.py createsuperuser
 
