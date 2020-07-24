@@ -15,6 +15,7 @@ Uses the default Django development server.
 
     ```sh
     $ cp config/.env.dev-sample config/.env.dev
+    $ cp config/.env-api.dev-sample config/.env-api.dev
     $ CURRENT_UID=$(id -u):$(id -g) DEV_UID=$(id -u) docker-compose up -d --build
     ```
 
