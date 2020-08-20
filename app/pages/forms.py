@@ -13,7 +13,8 @@ PLOT_TYPES = (
     # TODO This is a 1D plot, and ignores y-feature
     ("histogram_plot", "histogram_plot"),
     ("linear_reg_plot", "linear_reg_plot"),
-    ("linear_reg_with_color_plot", "linear_reg_with_color_plot")
+    ("linear_reg_with_color_plot", "linear_reg_with_color_plot"),
+    ("linear_reg_detailed_plot", "linear_reg_detailed_plot")
 )
 
 DPI_CHOICES = (

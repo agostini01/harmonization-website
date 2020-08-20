@@ -201,11 +201,13 @@ class GraphRequestView(views.APIView):
             gr = cls.getHistogramPlot(df, x_feature, y_feature, color_by)
         
         if (t == 'linear_reg_plot'):
-            gr = cls.getLmPlot(df, x_feature, y_feature, color_by)
+            gr = cls.getRegPlot(df, x_feature, y_feature, color_by)
         
         if (t == 'linear_reg_with_color_plot'):
-            gr = cls.getLmColorPlot(df, x_feature, y_feature, color_by)
-
+            gr = cls.getRegColorPlot(df, x_feature, y_feature, color_by)
+        
+        if (t == 'linear_reg_detailed_plot'):
+            gr = cls.getRegDetailedPlot(df, x_feature, y_feature, color_by)
 
         response = HttpResponse(content_type="image/jpg")
         gr.savefig(response, format="jpg", dpi=fig_dpi)
@@ -245,7 +247,7 @@ class GraphRequestView(views.APIView):
         gr = sns.distplot(data[x_feature])
     
     @classmethod
-    def getLmPlot(cls, data, x_feature, y_feature, color_by):
+    def getRegPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.regplot(data=data, x=x_feature,
                          y=y_feature)
         slope, intercept, r_value, p_value, std_err = stats.linregress(
@@ -253,13 +255,13 @@ class GraphRequestView(views.APIView):
             y=gr.get_lines()[0].get_ydata())
         reg_info = "f(x)={:.3f}x + {:.3f}".format(
             slope, intercept)
-    
+
         gr.set_title(reg_info)
 
         return gr.figure
 
     @classmethod
-    def getLmColorPlot(cls, data, x_feature, y_feature, color_by):
+    def getRegColorPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.lmplot(data=data, x=x_feature,
                         y=y_feature, hue=color_by, legend_out=True)
 
@@ -280,5 +282,24 @@ class GraphRequestView(views.APIView):
         gr.fig.suptitle(reg_info)
 
         return gr
+
+    @classmethod
+    def getRegDetailedPlot(cls, data, x_feature, y_feature, color_by):
+        def get_stats(x, y):
+            """Prints more statistics"""
+
+            slope, intercept, r_value, p_value, std_err = stats.linregress(
+                x=x, y=y)
+            reg_info = "f(x)={:.2f}x + {:.2f} \nr^2={:.2f} p={:.2f}".format(
+                slope, intercept, r_value, p_value)
+
+            #TODO return value is incompatible with jointplot stat_func
+            return reg_info
+
+        def r_squared(x, y):
+            return stats.pearsonr(x, y)[0] ** 2
+
+        gr = sns.jointplot(data=data, x=x_feature,
+                           y=y_feature, kind="reg", stat_func=r_squared)
 
         return gr
