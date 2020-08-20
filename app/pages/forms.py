@@ -9,7 +9,9 @@ PLOT_TYPES = (
     ("scatter_plot", "scatter_plot"),
     ("pair_plot", "pair_plot"),
     ("cat_plot", "cat_plot"),
-    ("violin_cat_plot", "violin_cat_plot")
+    ("violin_cat_plot", "violin_cat_plot"),
+    # TODO This is a 1D plot, and ignores y-feature
+    ("histogram_plot", "histogram_plot")
 )
 
 DPI_CHOICES = (

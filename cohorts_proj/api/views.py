@@ -194,8 +194,12 @@ class GraphRequestView(views.APIView):
 
         if (t == 'violin_cat_plot'):
             gr = cls.getViolinCatPlot(df, x_feature, y_feature, color_by)
+        
+        if (t == 'histogram_plot'):
+            gr = cls.getHistogramPlot(df, x_feature, y_feature, color_by)
 
-        # TODO: Add histogram
+        # TODO add linear regression
+
 
         response = HttpResponse(content_type="image/jpg")
         gr.savefig(response, format="jpg", dpi=fig_dpi)
@@ -229,3 +233,9 @@ class GraphRequestView(views.APIView):
                          y=y_feature, hue=color_by, kind="violin")
 
         return gr
+    
+    @classmethod
+    def getHistogramPlot(cls, data, x_feature, y_feature, color_by):
+        gr = sns.distplot(data[x_feature])
+
+        return gr.figure
