@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
+import scipy.stats as stats
 
 
 def saveFlowersToDB(csv_file):
@@ -245,14 +246,39 @@ class GraphRequestView(views.APIView):
     
     @classmethod
     def getLmPlot(cls, data, x_feature, y_feature, color_by):
-        gr = sns.lmplot(data=data, x=x_feature,
+        gr = sns.regplot(data=data, x=x_feature,
                          y=y_feature)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(
+            x=gr.get_lines()[0].get_xdata(),
+            y=gr.get_lines()[0].get_ydata())
+        reg_info = "f(x)={:.3f}x + {:.3f}".format(
+            slope, intercept)
     
-        return gr
+        gr.set_title(reg_info)
+
+        return gr.figure
 
     @classmethod
     def getLmColorPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.lmplot(data=data, x=x_feature,
-                         y=y_feature, hue=color_by)
+                        y=y_feature, hue=color_by, legend_out=True)
+
+        slope, intercept, r_value, p_value, std_err = stats.linregress(
+            x=gr.axes.flat[0].get_lines()[0].get_xdata(),
+            y=gr.axes.flat[0].get_lines()[0].get_ydata())
+        reg_info0 = "f(x)={:.3f}x + {:.3f}".format(
+            slope, intercept)
+
+        slope, intercept, r_value, p_value, std_err = stats.linregress(
+            x=gr.axes.flat[0].get_lines()[1].get_xdata(),
+            y=gr.axes.flat[0].get_lines()[1].get_ydata())
+        reg_info1 = "g(x)={:.3f}x + {:.3f}".format(
+            slope, intercept)
+
+        reg_info = "{}  |  {}".format(reg_info0, reg_info1)
+
+        gr.fig.suptitle(reg_info)
+
+        return gr
 
         return gr
