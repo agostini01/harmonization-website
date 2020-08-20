@@ -13,6 +13,7 @@ from api import adapters
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import numpy as np
 
 
 def saveFlowersToDB(csv_file):
@@ -197,8 +198,12 @@ class GraphRequestView(views.APIView):
         
         if (t == 'histogram_plot'):
             gr = cls.getHistogramPlot(df, x_feature, y_feature, color_by)
-
-        # TODO add linear regression
+        
+        if (t == 'linear_reg_plot'):
+            gr = cls.getLmPlot(df, x_feature, y_feature, color_by)
+        
+        if (t == 'linear_reg_with_color_plot'):
+            gr = cls.getLmColorPlot(df, x_feature, y_feature, color_by)
 
 
         response = HttpResponse(content_type="image/jpg")
@@ -237,5 +242,17 @@ class GraphRequestView(views.APIView):
     @classmethod
     def getHistogramPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.distplot(data[x_feature])
+    
+    @classmethod
+    def getLmPlot(cls, data, x_feature, y_feature, color_by):
+        gr = sns.lmplot(data=data, x=x_feature,
+                         y=y_feature)
+    
+        return gr
 
-        return gr.figure
+    @classmethod
+    def getLmColorPlot(cls, data, x_feature, y_feature, color_by):
+        gr = sns.lmplot(data=data, x=x_feature,
+                         y=y_feature, hue=color_by)
+
+        return gr
