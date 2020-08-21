@@ -73,6 +73,8 @@ def saveDARToDB(csv_file):
     df = pd.read_csv(csv_file,
                      skip_blank_lines=True,
                      header=0)
+    
+    df.dropna(subset=['preterm'],inplace=True)
 
     # Delete database
     RawDAR.objects.all().delete()
@@ -81,12 +83,14 @@ def saveDARToDB(csv_file):
         entry = RawDAR.objects.create(
             unq_id=entry.unq_id,
             assay=entry.assay,
-            lab=entry.lab,
+            # lab=entry.lab,
             participant_type=entry.participant_type,
             time_period=entry.time_period,
             batch=entry.batch,
-            squid=entry.squid,
+            # squid=entry.squid,
+            preterm=entry.preterm,
             sample_gestage_days=entry.sample_gestage_days,
+            urine_specific_gravity=entry.urine_specific_gravity,
             Ag=entry.Ag, Ag_IDL=entry.Ag_IDL, Ag_BDL=entry.Ag_BDL,
             Al=entry.Al, Al_IDL=entry.Al_IDL, Al_BDL=entry.Al_BDL,
             As=entry.As, As_IDL=entry.As_IDL, As_BDL=entry.As_BDL,

@@ -1,5 +1,17 @@
 from django.db import models
 
+# TODO - This data dictionary received the following updates
+# Must implement the changes
+# iAs – Inorganic arsenic. Includes arsenite (AsIII) and arsenate (AsV).
+# AsB – Arsenobetaine
+# DMA – Dimethylarsinic acid
+# MMA – Monomethylarsonic acid
+# Ba – Barium
+# Cs – Caesium
+# Sr – Strontium
+# W - Tungsten
+
+
 # Each row of raw Dartmouth datset has the following fields
 # unq_id
 # assay
@@ -58,13 +70,11 @@ CAT_DAR_BDL = (
     ('nan', 'invalid'),
 )
 
-# TODO: verify field
-# CAT_DAR_OUTCOME = (
-#     ('1', 'term'),
-#     ('0', 'preterm'),
-#     ('nan', 'invalid'),
-# )
-
+CAT_DAR_OUTCOME = (
+    ('0', 'term'),
+    ('1', 'preterm'),
+    ('nan', 'invalid'),
+)
 
 class RawDAR(models.Model):
 
@@ -74,7 +84,7 @@ class RawDAR(models.Model):
     unq_id = models.CharField(max_length=100)
 
     assay = models.CharField(max_length=100)
-    lab = models.CharField(max_length=100)
+    # lab = models.CharField(max_length=100)
 
     # participant_type – categorical variable: maternal = mother; child = child
     participant_type = models.CharField(
@@ -82,22 +92,23 @@ class RawDAR(models.Model):
 
     # time_period – categorical: 12G, 24G, 6WP, 6MP, 1YP, 2YP, 3YP, 5YP
     time_period = models.CharField(max_length=3, choices=CAT_DAR_TIME_PERIOD)
-
+    
     # batch - numeric: batch number
     batch = models.IntegerField()
 
     # squid - unique identifier: Sample identifier
-    squid = models.CharField(max_length=100)
+    # squid = models.CharField(max_length=100)
 
     # sample_gestage_days - numeric: days of gestation
     sample_gestage_days = models.IntegerField()
 
-    # TODO: verify field
-    # outcome - categorical: 1=term ; 0=preterm; 
-    # outcome = models.CharField(max_length=3, choices=CAT_DAR_OUTCOME)
+    # Outcome – categorical variable: 1 = preterm birth; 0 = term
+    preterm = models.CharField(max_length=3, choices=CAT_DAR_OUTCOME, blank=True)
 
     # List of analytes, Index of detection level, Above/Below IDL
     # Floating values unit: 1ppb = 1ug/L
+
+    urine_specific_gravity = models.FloatField()
 
     Ag = models.FloatField()
     Ag_IDL = models.FloatField()
