@@ -30,9 +30,9 @@ def get_dataframe():
     # Pivoting the table and reseting index
     # TODO - Do we want to plot Result or Creat_Corr_Result
     numerical_values = 'Result'
-    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c']
+    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome']
     categorical_to_columns = ['Analyte']
-    indexes_to_columns = ['Member_c', 'TimePeriod']
+    indexes_to_columns = ['Member_c', 'TimePeriod', 'Outcome']
     df = pd.pivot_table(df, values=numerical_values,
                         index=columns_to_indexes,
                         columns=categorical_to_columns,

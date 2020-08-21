@@ -21,9 +21,7 @@ def saveFlowersToDB(csv_file):
     df = pd.read_csv(csv_file,
                      skip_blank_lines=True,
                      header=0)
-    # print(df.head())
     df['PIN_ID'] = range(len(df))
-    # print(df.head())
 
     # Delete database
     RawFlower.objects.all().delete()
@@ -50,6 +48,12 @@ def saveUNMToDB(csv_file):
                      skip_blank_lines=True,
                      header=0)
 
+    # TODO droping if no outcome was provided
+    df.dropna(subset=['PretermBirth'],inplace=True)
+    df['PretermBirth'] = df['PretermBirth'].astype(int)
+    df['Member_c'] = df['Member_c'].astype(int)
+    df['TimePeriod'] = df['TimePeriod'].astype(int)
+
     # Delete database
     RawUNM.objects.all().delete()
 
@@ -61,6 +65,7 @@ def saveUNMToDB(csv_file):
             Analyte=entry.Analyte,
             Result=entry.Result,
             Creat_Corr_Result=entry.Creat_Corr_Result,
+            Outcome=entry.PretermBirth,
         )
 
 
@@ -115,7 +120,6 @@ class DatasetUploadView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         """Saves CSV to DatasetModel database and populate raw databases."""
 
-        # print('>>>>>> {}'.format(request.data['dataset_type']))
         if request.data['dataset_type'] == 'flowers_dataset':
             csv_file = request.data['dataset_file']
             saveFlowersToDB(csv_file)
@@ -183,7 +187,7 @@ class GraphRequestView(views.APIView):
         if dataset_type == 'har_dataset':
             df = pd.DataFrame.from_records(
                 RawHAR.objects.all().values(x_feature, y_feature, color_by))
-
+            
         plt.clf()
         if (t == 'scatter_plot'):
             gr = cls.getScatterPlot(df, x_feature, y_feature, color_by)
@@ -245,6 +249,8 @@ class GraphRequestView(views.APIView):
     @classmethod
     def getHistogramPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.distplot(data[x_feature])
+
+        return gr.figure
     
     @classmethod
     def getRegPlot(cls, data, x_feature, y_feature, color_by):

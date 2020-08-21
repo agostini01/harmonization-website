@@ -50,6 +50,14 @@ CAT_UNM_TIME_PERIOD = (
     ('3', 'week 63/delivery'),
 )
 
+# TODO Invert the outcome results
+# UNM provides "Is Preterm?" instead of "Is Term?"
+# To conform to other datasets, we should invert the 0/1 order
+CAT_UNM_OUTCOME = (
+    ('0', 'term'),
+    ('1', 'preterm'),
+)
+
 
 class RawUNM(models.Model):
 
@@ -72,3 +80,6 @@ class RawUNM(models.Model):
 
     # Creat_Corr_Result: value, corrected for creatinine (urine only), ug/L
     Creat_Corr_Result = models.FloatField()
+    
+    # Outcome – categorical variable: 1 = preterm birth; 0 = term
+    Outcome = models.CharField(max_length=1, choices=CAT_UNM_OUTCOME, blank=True)
