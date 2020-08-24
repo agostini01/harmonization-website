@@ -49,7 +49,7 @@ def saveUNMToDB(csv_file):
                      header=0)
 
     # TODO droping if no outcome was provided
-    df.dropna(subset=['PretermBirth'],inplace=True)
+    df.dropna(subset=['PretermBirth'], inplace=True)
     df['PretermBirth'] = df['PretermBirth'].astype(int)
     df['Member_c'] = df['Member_c'].astype(int)
     df['TimePeriod'] = df['TimePeriod'].astype(int)
@@ -73,8 +73,8 @@ def saveDARToDB(csv_file):
     df = pd.read_csv(csv_file,
                      skip_blank_lines=True,
                      header=0)
-    
-    df.dropna(subset=['preterm'],inplace=True)
+
+    df.dropna(subset=['preterm'], inplace=True)
 
     # Delete database
     RawDAR.objects.all().delete()
@@ -191,7 +191,7 @@ class GraphRequestView(views.APIView):
         if dataset_type == 'har_dataset':
             df = pd.DataFrame.from_records(
                 RawHAR.objects.all().values(x_feature, y_feature, color_by))
-            
+
         plt.clf()
         if (t == 'scatter_plot'):
             gr = cls.getScatterPlot(df, x_feature, y_feature, color_by)
@@ -204,16 +204,16 @@ class GraphRequestView(views.APIView):
 
         if (t == 'violin_cat_plot'):
             gr = cls.getViolinCatPlot(df, x_feature, y_feature, color_by)
-        
+
         if (t == 'histogram_plot'):
             gr = cls.getHistogramPlot(df, x_feature, y_feature, color_by)
-        
+
         if (t == 'linear_reg_plot'):
             gr = cls.getRegPlot(df, x_feature, y_feature, color_by)
-        
+
         if (t == 'linear_reg_with_color_plot'):
             gr = cls.getRegColorPlot(df, x_feature, y_feature, color_by)
-        
+
         if (t == 'linear_reg_detailed_plot'):
             gr = cls.getRegDetailedPlot(df, x_feature, y_feature, color_by)
 
@@ -249,13 +249,13 @@ class GraphRequestView(views.APIView):
                          y=y_feature, hue=color_by, kind="violin")
 
         return gr
-    
+
     @classmethod
     def getHistogramPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.distplot(data[x_feature])
 
         return gr.figure
-    
+
     @classmethod
     def getRegPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.regplot(data=data, x=x_feature,
@@ -303,7 +303,7 @@ class GraphRequestView(views.APIView):
             reg_info = "f(x)={:.2f}x + {:.2f} \nr^2={:.2f} p={:.2f}".format(
                 slope, intercept, r_value, p_value)
 
-            #TODO return value is incompatible with jointplot stat_func
+            # TODO return value is incompatible with jointplot stat_func
             return reg_info
 
         def r_squared(x, y):
