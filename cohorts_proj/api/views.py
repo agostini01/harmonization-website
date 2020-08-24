@@ -175,6 +175,7 @@ class GraphRequestView(views.APIView):
         if dataset_type == 'flowers_dataset':
             df = pd.DataFrame.from_records(
                 RawFlower.objects.all().values(x_feature, y_feature, color_by))
+            df['CohortType'] = 'Flowers'
 
         if dataset_type == 'unm_dataset':
             df = adapters.unm.get_dataframe()
@@ -188,8 +189,12 @@ class GraphRequestView(views.APIView):
 
         # This is the harmonized dataset
         if dataset_type == 'har_dataset':
-            df = pd.DataFrame.from_records(
-                RawHAR.objects.all().values(x_feature, y_feature, color_by))
+            selected_columns = [x_feature,y_feature,color_by,'CohortType']
+
+            # TODO Handle early exit when selected columns are not present
+            df1 = adapters.unm.get_dataframe()#[selected_columns]
+            df2 = adapters.dar.get_dataframe()#[selected_columns]
+            df = pd.concat([df1,df2])
 
         plt.clf()
         if (t == 'scatter_plot'):
@@ -224,7 +229,7 @@ class GraphRequestView(views.APIView):
     @classmethod
     def getScatterPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.scatterplot(
-            data=data, x=x_feature, y=y_feature, hue=color_by)
+            data=data, x=x_feature, y=y_feature, hue=color_by, style='CohortType')
 
         return gr.figure
 

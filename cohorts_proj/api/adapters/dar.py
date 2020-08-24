@@ -52,4 +52,6 @@ def get_dataframe():
                   'UZN', 'Zn_IDL', 'Zn_BDL',
                   'UVA', 'V_IDL', 'V_BDL']
 
+    df['CohortType'] = 'Dartmouth'
+
     return df

@@ -74,6 +74,7 @@ ADDITIONAL_FEATURES = (
     ('Outcome', 'Outcome'),
     ('Member_c', 'Family Member'),
     ('TimePeriod', 'Collection Time'),
+    ('CohortType', 'Cohort Type'),
 )
 
 DAR_FEATURE_CHOICES = CAT_DAR_ANALYTES + ADDITIONAL_FEATURES

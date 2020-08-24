@@ -3,6 +3,7 @@ from django import forms
 from .choices.flowers import FLOWER_FEATURE_CHOICES
 from .choices.unm import UNM_FEATURE_CHOICES, UNM_CATEGORICAL_CHOICES
 from .choices.dar import DAR_FEATURE_CHOICES, DAR_CATEGORICAL_CHOICES
+from .choices.har import HAR_FEATURE_CHOICES, HAR_CATEGORICAL_CHOICES
 
 """ (Name that will be send on the http request, name of the feature) """
 
@@ -117,6 +118,30 @@ class DARForm(forms.Form):
     x_feature = forms.ChoiceField(choices=DAR_FEATURE_CHOICES)
     y_feature = forms.ChoiceField(choices=DAR_FEATURE_CHOICES)
     color_by = forms.ChoiceField(choices=DAR_CATEGORICAL_CHOICES)
+    fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
+                                help_text="low_res=100dpi, high_res=300dpi.")
+    dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
+                                     widget=forms.HiddenInput())
+
+class HARForm(forms.Form):
+    """Form to select what features from the harmonized dataset to plot"""
+
+    def __init__(self, *args, **kwargs):
+        super(HARForm, self).__init__(*args, **kwargs)
+        self.initial['plot_type'] = PLOT_TYPES[0][0]
+        self.initial['x_feature'] = HAR_FEATURE_CHOICES[0][0]
+        self.initial['y_feature'] = HAR_FEATURE_CHOICES[1][0]
+        self.initial['color_by'] = HAR_CATEGORICAL_CHOICES[0][0]
+        self.initial['fig_dpi'] = DPI_CHOICES[0][0]
+        self.initial['plot_name'] = 'New Harmonized Plot'
+        self.initial['dataset_type'] = DATASET_CHOICES[4][0]
+
+    plot_name = forms.CharField(max_length=100,
+                                help_text="Type the name of your next plot.")
+    plot_type = forms.ChoiceField(choices=PLOT_TYPES)
+    x_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
+    y_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
+    color_by = forms.ChoiceField(choices=HAR_CATEGORICAL_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
