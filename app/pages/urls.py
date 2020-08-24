@@ -12,7 +12,7 @@ urlpatterns = [
     path('graphs/unm/', GraphsUNMPagesView.as_view(), name='graphs-unm'),
     path('graphs/dar/', GraphsDARPagesView.as_view(), name='graphs-dar'),
     path('graphs/har/', GraphsHARPagesView.as_view(), name='graphs-har'),
-    path('graphs/', GraphsPageView.as_view(), name='graphs'),
+    path('graphs/', GraphsHARPagesView.as_view(), name='graphs'),
     path('about/', AboutPageView.as_view(), name='about'),
     path('', HomePageView.as_view(), name='home'),
 
