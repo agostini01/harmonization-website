@@ -1,51 +1,73 @@
 CAT_DAR_ANALYTES = (
-    ('BCD',  'Cadmium - Blood'),
-    ('BHGE', 'Ethyl Mercury - Blood'),
-    ('BHGM', 'Methyl Mercury - Blood'),
-    ('BMN',  'Manganese - Blood'),
-    ('BPB',  'Lead - Blood'),
-    ('BSE',  'Selenium - Blood'),
-    ('IHG',  'Inorganic Mercury - Blood'),
-    ('THG',  'Mercury Total - Blood'),
-    ('SCU',  'Copper - Serum'),
-    ('SSE',  'Selenium - Serum'),
-    ('SZN',  'Zinc - Serum'),
-    ('UAS3', 'Arsenous (III) acid - Urine'),
-    ('UAS5', 'Arsenic (V) acid - Urine'),
-    ('UASB', 'Arsenobetaine - Urine'),
-    ('UASC', 'Arsenocholine - Urine'),
-    ('UBA',  'Barium - Urine'),
-    ('UBE',  'Beryllium - Urine'),
-    ('UCD',  'Cadmium - Urine'),
-    ('UCO',  'Cobalt - Urine'),
-    ('UCS',  'Cesium - Urine'),
-    ('UDMA', 'Dimethylarsinic Acid - Urine'),
-    ('UHG',  'Mercury - Urine'),
-    ('UIO',  'Iodine - Urine'),
-    ('UMMA', 'Monomethylarsinic Acid - Urine'),
-    ('UMN',  'Manganese - Urine'),
-    ('UMO',  'Molybdenum - Urine'),
-    ('UPB',  'Lead - Urine'),
-    ('UPT',  'Platinum - Urine'),
-    ('USB',  'Antimony - Urine'),
-    ('USN',  'Tin - Urine'),
-    ('USR',  'Strontium - Urine'),
-    ('UTAS', 'Arsenic Total - Urine'),
-    ('UTL',  'Thallium - Urine'),
-    ('UTMO', 'Trimethylarsine - Urine'),
-    ('UTU',  'Tungsten -  Urine'),
-    ('UUR',  'Uranium - Urine'),
+    # Analyate acronym and name,                    Mapping in the dar DB
+    ('UAG', ' Silver - Urine'),                     # Ag
+    ('UAL', ' Aluminium - Urine'),                  # Al
+    ('UCR',  'Chromium - Urine'),                   # Cr
+    ('UCU',  'Copper - Urine'),                     # Cu
+    ('UFE',  'Iron - Urine'),                       # Fe
+    ('UNI',  'Niquel - Urine'),                     # Ni
+    ('UVA',  'Vanadium - Urine'),                   # V
+    ('UZN',  'Zinc - Urine'),                       # Zn
+    # ('BCD',  'Cadmium - Blood'),
+    # ('BHGE', 'Ethyl Mercury - Blood'),
+    # ('BHGM', 'Methyl Mercury - Blood'),
+    # ('BMN',  'Manganese - Blood'),
+    # ('BPB',  'Lead - Blood'),
+    # ('BSE',  'Selenium - Blood'),
+    # ('IHG',  'Inorganic Mercury - Blood'),
+    # ('THG',  'Mercury Total - Blood'),
+    # ('SCU',  'Copper - Serum'),
+    # ('SSE',  'Selenium - Serum'),
+    # ('SZN',  'Zinc - Serum'),
+    ('UAS3', 'Arsenous (III) acid - Urine'),        # As
+    # ('UAS5', 'Arsenic (V) acid - Urine'),
+    ('UASB', 'Arsenobetaine - Urine'),              # AsB
+    # ('UASC', 'Arsenocholine - Urine'),
+    ('UBA',  'Barium - Urine'),                     # Ba
+    ('UBE',  'Beryllium - Urine'),                  # Be
+    ('UCD',  'Cadmium - Urine'),                    # Cd
+    ('UCO',  'Cobalt - Urine'),                     # Co
+    ('UCS',  'Cesium - Urine'),                     # Cs
+    ('UDMA', 'Dimethylarsinic Acid - Urine'),       # DMA
+    ('UHG',  'Mercury - Urine'),                    # Hg
+    # ('UIO',  'Iodine - Urine'),
+    ('UMMA', 'Monomethylarsinic Acid - Urine'),     # MMA
+    ('UMN',  'Manganese - Urine'),                  # Mn
+    ('UMO',  'Molybdenum - Urine'),                 # Mo
+    ('UPB',  'Lead - Urine'),                       # PB
+    # ('UPT',  'Platinum - Urine'),
+    ('USB',  'Antimony - Urine'),                   # Sb
+    ('USN',  'Tin - Urine'),                        # Sn
+    ('USR',  'Strontium - Urine'),                  # Sr
+    ('UTAS', 'Arsenic Total - Urine'),              # iAs
+    ('UTL',  'Thallium - Urine'),                   # Tl
+    # ('UTMO', 'Trimethylarsine - Urine')
+    ('UTU',  'Tungsten -  Urine'),                  # W
+    ('UUR',  'Uranium - Urine'),                    # U
 )
 
 CAT_DAR_MEMBER_C = (
-    ('1', 'mother'),
+    ('1', 'mother'), # maps to maternal
     ('2', 'father'),
     ('3', 'child'),
 )
 
+# Available at the DAR DB
+# CAT_DAR_TIME_PERIOD = (
+#     ('12G', 'week 12 gestational'),
+#     ('24G', 'week 24 gestational'),
+#     ('6WP', 'week 6 portpartun'),
+#     ('6MP', 'month 6 postpartum'),
+#     ('1YP', 'year 1 postpartum'),
+#     ('2YP', 'year 2 postpartum'),
+#     ('3YP', 'year 3 postpartum'),
+#     ('5YP', 'year 5 postpartum'),
+# )
+
 CAT_DAR_TIME_PERIOD = (
-    ('1', 'enrollment'),
-    ('3', 'week 63/delivery'),
+    ('0', 'early enrollment'),  # maps to 12G
+    ('1', 'enrollment'),        # maps to 24G
+    ('3', 'week 63/delivery'),  # maps to 6WP
 )
 
 ADDITIONAL_FEATURES = (

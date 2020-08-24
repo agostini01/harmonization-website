@@ -184,8 +184,7 @@ class GraphRequestView(views.APIView):
                 RawNEU.objects.all().values(x_feature, y_feature, color_by))
 
         if dataset_type == 'dar_dataset':
-            df = pd.DataFrame.from_records(
-                RawDAR.objects.all().values(x_feature, y_feature, color_by))
+            df = adapters.dar.get_dataframe()
 
         # This is the harmonized dataset
         if dataset_type == 'har_dataset':

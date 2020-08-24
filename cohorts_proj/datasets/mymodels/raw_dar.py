@@ -1,17 +1,5 @@
 from django.db import models
 
-# TODO - This data dictionary received the following updates
-# Must implement the changes
-# iAs – Inorganic arsenic. Includes arsenite (AsIII) and arsenate (AsV).
-# AsB – Arsenobetaine
-# DMA – Dimethylarsinic acid
-# MMA – Monomethylarsonic acid
-# Ba – Barium
-# Cs – Caesium
-# Sr – Strontium
-# W - Tungsten
-
-
 # Each row of raw Dartmouth datset has the following fields
 # unq_id
 # assay
@@ -21,6 +9,14 @@ from django.db import models
 # batch
 # squid
 # sample_gestage_days
+# iAs, iAs_IDL, iAs_BDL
+# AsB, AsB_IDL, AsB_BDL
+# DMA, DMA_IDL, DMA_BDL
+# MMA, MMA_IDL, MMA_BDL
+# Ba, Ba_IDL, Ba_BDL
+# Cs, Cs_IDL, Cs_BDL
+# Sr, Sr_IDL, Sr_BDL
+# W,  W_IDL,  W_BDL
 # Ag, Ag_IDL, Ag_BDL
 # Al, Al_IDL, Al_BDL
 # As, As_IDL, As_BDL
@@ -108,92 +104,124 @@ class RawDAR(models.Model):
     # List of analytes, Index of detection level, Above/Below IDL
     # Floating values unit: 1ppb = 1ug/L
 
-    urine_specific_gravity = models.FloatField()
+    urine_specific_gravity = models.FloatField(blank=True, null=True)
+    
+    iAs = models.FloatField(blank=True, null=True)
+    iAs_IDL = models.FloatField(blank=True, null=True)
+    iAs_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
 
-    Ag = models.FloatField()
-    Ag_IDL = models.FloatField()
-    Ag_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+    AsB = models.FloatField(blank=True, null=True)
+    AsB_IDL = models.FloatField(blank=True, null=True)
+    AsB_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
 
-    Al = models.FloatField()
-    Al_IDL = models.FloatField()
-    Al_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+    DMA = models.FloatField(blank=True, null=True)
+    DMA_IDL = models.FloatField(blank=True, null=True)
+    DMA_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
 
-    As = models.FloatField()
-    As_IDL = models.FloatField()
-    As_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+    MMA = models.FloatField(blank=True, null=True)
+    MMA_IDL = models.FloatField(blank=True, null=True)
+    MMA_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
 
-    Be = models.FloatField()
-    Be_IDL = models.FloatField()
-    Be_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+    Ba = models.FloatField(blank=True, null=True)
+    Ba_IDL = models.FloatField(blank=True, null=True)
+    Ba_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
 
-    Cd = models.FloatField()
-    Cd_IDL = models.FloatField()
-    Cd_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+    Cs = models.FloatField(blank=True, null=True)
+    Cs_IDL = models.FloatField(blank=True, null=True)
+    Cs_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
 
-    Co = models.FloatField()
-    Co_IDL = models.FloatField()
-    Co_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+    Sr = models.FloatField(blank=True, null=True)
+    Sr_IDL = models.FloatField(blank=True, null=True)
+    Sr_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
 
-    Cr = models.FloatField()
-    Cr_IDL = models.FloatField()
-    Cr_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
-
-    Cu = models.FloatField()
-    Cu_IDL = models.FloatField()
-    Cu_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
-
-    Fe = models.FloatField()
-    Fe_IDL = models.FloatField()
-    Fe_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
-
-    Hg = models.FloatField()
-    Hg_IDL = models.FloatField()
-    Hg_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
-
-    Mn = models.FloatField()
-    Mn_IDL = models.FloatField()
-    Mn_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
-
-    Mo = models.FloatField()
-    Mo_IDL = models.FloatField()
-    Mo_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
-
-    Ni = models.FloatField()
-    Ni_IDL = models.FloatField()
-    Ni_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
-
-    Pb = models.FloatField()
-    Pb_IDL = models.FloatField()
-    Pb_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
-
-    Sb = models.FloatField()
-    Sb_IDL = models.FloatField()
-    Sb_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
-
-    Se = models.FloatField()
-    Se_IDL = models.FloatField()
-    Se_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
-
-    Sn = models.FloatField()
-    Sn_IDL = models.FloatField()
-    Sn_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
-
-    Tl = models.FloatField()
-    Tl_IDL = models.FloatField()
-    Tl_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
-
-    U = models.FloatField()
-    U_IDL = models.FloatField()
-    U_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
-
-    W = models.FloatField()
-    W_IDL = models.FloatField()
+    W = models.FloatField(blank=True, null=True)
+    W_IDL = models.FloatField(blank=True, null=True)
     W_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
 
-    Zn = models.FloatField()
-    Zn_IDL = models.FloatField()
+    Ag = models.FloatField(blank=True, null=True)
+    Ag_IDL = models.FloatField(blank=True, null=True)
+    Ag_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Al = models.FloatField(blank=True, null=True)
+    Al_IDL = models.FloatField(blank=True, null=True)
+    Al_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    As = models.FloatField(blank=True, null=True)
+    As_IDL = models.FloatField(blank=True, null=True)
+    As_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Be = models.FloatField(blank=True, null=True)
+    Be_IDL = models.FloatField(blank=True, null=True)
+    Be_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Cd = models.FloatField(blank=True, null=True)
+    Cd_IDL = models.FloatField(blank=True, null=True)
+    Cd_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Co = models.FloatField(blank=True, null=True)
+    Co_IDL = models.FloatField(blank=True, null=True)
+    Co_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Cr = models.FloatField(blank=True, null=True)
+    Cr_IDL = models.FloatField(blank=True, null=True)
+    Cr_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Cu = models.FloatField(blank=True, null=True)
+    Cu_IDL = models.FloatField(blank=True, null=True)
+    Cu_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Fe = models.FloatField(blank=True, null=True)
+    Fe_IDL = models.FloatField(blank=True, null=True)
+    Fe_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Hg = models.FloatField(blank=True, null=True)
+    Hg_IDL = models.FloatField(blank=True, null=True)
+    Hg_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Mn = models.FloatField(blank=True, null=True)
+    Mn_IDL = models.FloatField(blank=True, null=True)
+    Mn_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Mo = models.FloatField(blank=True, null=True)
+    Mo_IDL = models.FloatField(blank=True, null=True)
+    Mo_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Ni = models.FloatField(blank=True, null=True)
+    Ni_IDL = models.FloatField(blank=True, null=True)
+    Ni_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Pb = models.FloatField(blank=True, null=True)
+    Pb_IDL = models.FloatField(blank=True, null=True)
+    Pb_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Sb = models.FloatField(blank=True, null=True)
+    Sb_IDL = models.FloatField(blank=True, null=True)
+    Sb_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Se = models.FloatField(blank=True, null=True)
+    Se_IDL = models.FloatField(blank=True, null=True)
+    Se_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Sn = models.FloatField(blank=True, null=True)
+    Sn_IDL = models.FloatField(blank=True, null=True)
+    Sn_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Tl = models.FloatField(blank=True, null=True)
+    Tl_IDL = models.FloatField(blank=True, null=True)
+    Tl_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    U = models.FloatField(blank=True, null=True)
+    U_IDL = models.FloatField(blank=True, null=True)
+    U_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    W = models.FloatField(blank=True, null=True)
+    W_IDL = models.FloatField(blank=True, null=True)
+    W_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
+
+    Zn = models.FloatField(blank=True, null=True)
+    Zn_IDL = models.FloatField(blank=True, null=True)
     Zn_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
 
-    V = models.FloatField()
-    V_IDL = models.FloatField()
+    V = models.FloatField(blank=True, null=True)
+    V_IDL = models.FloatField(blank=True, null=True)
     V_BDL = models.CharField(max_length=3, choices=CAT_DAR_BDL)
