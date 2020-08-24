@@ -91,6 +91,13 @@ def saveDARToDB(csv_file):
             preterm=entry.preterm,
             sample_gestage_days=entry.sample_gestage_days,
             urine_specific_gravity=entry.urine_specific_gravity,
+            iAs=entry.iAs, iAs_IDL=entry.iAs_IDL, iAs_BDL=entry.iAs_BDL,
+            AsB=entry.AsB, AsB_IDL=entry.AsB_IDL, AsB_BDL=entry.AsB_BDL,
+            DMA=entry.DMA, DMA_IDL=entry.DMA_IDL, DMA_BDL=entry.DMA_BDL,
+            MMA=entry.MMA, MMA_IDL=entry.MMA_IDL, MMA_BDL=entry.MMA_BDL,
+            Ba=entry.Ba, Ba_IDL=entry.Ba_IDL, Ba_BDL=entry.Ba_BDL,
+            Cs=entry.Cs, Cs_IDL=entry.Cs_IDL, Cs_BDL=entry.Cs_BDL,
+            Sr=entry.Sr, Sr_IDL=entry.Sr_IDL, Sr_BDL=entry.Sr_BDL,
             Ag=entry.Ag, Ag_IDL=entry.Ag_IDL, Ag_BDL=entry.Ag_BDL,
             Al=entry.Al, Al_IDL=entry.Al_IDL, Al_BDL=entry.Al_BDL,
             As=entry.As, As_IDL=entry.As_IDL, As_BDL=entry.As_BDL,
@@ -229,8 +236,7 @@ class GraphRequestView(views.APIView):
     @classmethod
     def getScatterPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.scatterplot(
-            data=data, x=x_feature, y=y_feature, hue=color_by, style='CohortType')
-
+            data=data, x=x_feature, y=y_feature, hue=color_by, alpha=0.5, style='CohortType')
         return gr.figure
 
     @classmethod
