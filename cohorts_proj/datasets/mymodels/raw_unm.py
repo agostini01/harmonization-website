@@ -47,7 +47,7 @@ CAT_UNM_MEMBER_C = (
 
 CAT_UNM_TIME_PERIOD = (
     ('1', 'enrollment'),
-    ('3', 'week 63/delivery'),
+    ('3', 'week 36/delivery'),
 )
 
 # TODO Invert the outcome results

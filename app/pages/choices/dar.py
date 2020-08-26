@@ -67,7 +67,7 @@ CAT_DAR_MEMBER_C = (
 CAT_DAR_TIME_PERIOD = (
     ('0', 'early enrollment'),  # maps to 12G
     ('1', 'enrollment'),        # maps to 24G
-    ('3', 'week 63/delivery'),  # maps to 6WP
+    ('3', 'week 36/delivery'),  # maps to 6WP
 )
 
 ADDITIONAL_FEATURES = (
