@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 
 from .forms import FlowersForm, UNMForm, DARForm, HARForm
+from .validation import checkFormRequest, getErrorImage
 
 import requests
 
@@ -27,6 +28,11 @@ class GraphsPageView(LoginRequiredMixin, FormView):
     @classmethod
     def getApiPlot(cls, request):
         """This function requets graphs through the API container."""
+
+        err = checkFormRequest(request)
+
+        if (err[0]!=0):
+            return getErrorImage(err)
 
         plot_type = request.GET.get('plot_type')
         x_feature = request.GET.get('x_feature')
@@ -55,6 +61,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
             status=requests_response.status_code,
             content_type=requests_response.headers['Content-Type']
         )
+        
         return django_response
 
     def get_context_data(self, **kwargs):
