@@ -1,4 +1,4 @@
-CAT_UNM_ANALYTES = (
+CAT_UNM_ANALYTES = [('Analyates', (
     ('BCD',  'Cadmium - Blood'),
     ('BHGE', 'Ethyl Mercury - Blood'),
     ('BHGM', 'Methyl Mercury - Blood'),
@@ -35,7 +35,7 @@ CAT_UNM_ANALYTES = (
     ('UTMO', 'Trimethylarsine - Urine'),
     ('UTU',  'Tungsten -  Urine'),
     ('UUR',  'Uranium - Urine'),
-)
+))]
 
 CAT_UNM_MEMBER_C = (
     ('1', 'mother'),
@@ -48,12 +48,12 @@ CAT_UNM_TIME_PERIOD = (
     ('3', 'week 63/delivery'),
 )
 
-ADDITIONAL_FEATURES = (
+ADDITIONAL_FEATURES = [('Categorical', (
     ('Outcome', 'Outcome'),
     ('Member_c', 'Family Member'),
     ('TimePeriod', 'Collection Time'),
     ('CohortType', 'Cohort Type'),
-)
+))]
 
 UNM_FEATURE_CHOICES = CAT_UNM_ANALYTES + ADDITIONAL_FEATURES
 #UNM_FEATURE_CHOICES = CAT_UNM_ANALYTES

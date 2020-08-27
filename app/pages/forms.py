@@ -7,17 +7,28 @@ from .choices.har import HAR_FEATURE_CHOICES, HAR_CATEGORICAL_CHOICES
 
 """ (Name that will be send on the http request, name of the feature) """
 
-PLOT_TYPES = (
-    ("scatter_plot", "scatter_plot"),
-    ("pair_plot", "pair_plot"),
-    ("cat_plot", "cat_plot"),
-    ("violin_cat_plot", "violin_cat_plot"),
-    # TODO This is a 1D plot, and ignores y-feature
-    ("histogram_plot", "histogram_plot"),
-    ("linear_reg_plot", "linear_reg_plot"),
-    ("linear_reg_with_color_plot", "linear_reg_with_color_plot"),
-    ("linear_reg_detailed_plot", "linear_reg_detailed_plot")
-)
+PLOT_TYPES = [
+    ('2D plots', (
+        ("scatter_plot", "scatter_plot"),
+        ("pair_plot", "pair_plot"),
+    ),
+    ),
+    ('Categorical plots', (
+        ("cat_plot", "cat_plot"),
+        ("violin_cat_plot", "violin_cat_plot"),
+    ),
+    ),
+    ('1D plots', (
+        ("histogram_plot", "histogram_plot"),
+    ),
+    ),
+    ('Regressions', (
+        ("linear_reg_plot", "linear_reg_plot"),
+        ("linear_reg_with_color_plot", "linear_reg_with_color_plot"),
+        ("linear_reg_detailed_plot", "linear_reg_detailed_plot"),
+    ),
+    )
+]
 
 DPI_CHOICES = (
     (100, "low_res"),
@@ -25,7 +36,7 @@ DPI_CHOICES = (
 )
 
 DATASET_CHOICES = (
-    ("flowers_dataset", "flowers_dataset"),
+    # ("flowers_dataset", "flowers_dataset"),
     ("unm_dataset", "unm_dataset"),
     ("neu_dataset", "unm_dataset"),
     ("dar_dataset", "dar_dataset"),
@@ -43,7 +54,7 @@ class FlowersForm(forms.Form):
         self.initial['color_by'] = FLOWER_FEATURE_CHOICES[4][0]
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New Flowers Plot'
-        self.initial['dataset_type'] = DATASET_CHOICES[0][0]
+        self.initial['dataset_type'] = 'flowers_dataset'
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
@@ -72,12 +83,12 @@ class UNMForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(UNMForm, self).__init__(*args, **kwargs)
         self.initial['plot_type'] = PLOT_TYPES[0][0]
-        self.initial['x_feature'] = UNM_FEATURE_CHOICES[0][0]
-        self.initial['y_feature'] = UNM_FEATURE_CHOICES[1][0]
-        self.initial['color_by'] = UNM_CATEGORICAL_CHOICES[0][0]
+        self.initial['x_feature'] = UNM_FEATURE_CHOICES[0][1][0][0]
+        self.initial['y_feature'] = UNM_FEATURE_CHOICES[0][1][1][0]
+        self.initial['color_by'] = UNM_CATEGORICAL_CHOICES[0][1][0][0]
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New UNM Plot'
-        self.initial['dataset_type'] = DATASET_CHOICES[1][0]
+        self.initial['dataset_type'] = DATASET_CHOICES[0][0]
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
@@ -89,6 +100,7 @@ class UNMForm(forms.Form):
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
                                      widget=forms.HiddenInput())
+
 
 class DARForm(forms.Form):
     """Form to select what features from the Raw DAR csv file to plot.
@@ -105,12 +117,12 @@ class DARForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(DARForm, self).__init__(*args, **kwargs)
         self.initial['plot_type'] = PLOT_TYPES[0][0]
-        self.initial['x_feature'] = DAR_FEATURE_CHOICES[0][0]
-        self.initial['y_feature'] = DAR_FEATURE_CHOICES[1][0]
-        self.initial['color_by'] = DAR_CATEGORICAL_CHOICES[0][0]
+        self.initial['x_feature'] = DAR_FEATURE_CHOICES[0][1][0][0]
+        self.initial['y_feature'] = DAR_FEATURE_CHOICES[0][1][1][0]
+        self.initial['color_by'] = DAR_CATEGORICAL_CHOICES[0][1][0][0]
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New Dartmouth Plot'
-        self.initial['dataset_type'] = DATASET_CHOICES[3][0]
+        self.initial['dataset_type'] = DATASET_CHOICES[2][0]
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
@@ -123,18 +135,19 @@ class DARForm(forms.Form):
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
                                      widget=forms.HiddenInput())
 
+
 class HARForm(forms.Form):
     """Form to select what features from the harmonized dataset to plot"""
 
     def __init__(self, *args, **kwargs):
         super(HARForm, self).__init__(*args, **kwargs)
         self.initial['plot_type'] = PLOT_TYPES[0][0]
-        self.initial['x_feature'] = HAR_FEATURE_CHOICES[0][0]
-        self.initial['y_feature'] = HAR_FEATURE_CHOICES[1][0]
-        self.initial['color_by'] = HAR_CATEGORICAL_CHOICES[0][0]
+        self.initial['x_feature'] = HAR_FEATURE_CHOICES[0][1][0][0]
+        self.initial['y_feature'] = HAR_FEATURE_CHOICES[0][1][1][0]
+        self.initial['color_by'] = HAR_CATEGORICAL_CHOICES[0][1][0][0]
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New Harmonized Plot'
-        self.initial['dataset_type'] = DATASET_CHOICES[4][0]
+        self.initial['dataset_type'] = DATASET_CHOICES[3][0]
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")

@@ -1,4 +1,4 @@
-CAT_DAR_ANALYTES = (
+CAT_DAR_ANALYTES = [('Analyates', (
     # Analyate acronym and name,                    Mapping in the dar DB
     ('UAG', ' Silver - Urine'),                     # Ag
     ('UAL', ' Aluminium - Urine'),                  # Al
@@ -44,10 +44,10 @@ CAT_DAR_ANALYTES = (
     # ('UTMO', 'Trimethylarsine - Urine')
     ('UTU',  'Tungsten -  Urine'),                  # W
     ('UUR',  'Uranium - Urine'),                    # U
-)
+))]
 
 CAT_DAR_MEMBER_C = (
-    ('1', 'mother'), # maps to maternal
+    ('1', 'mother'),  # maps to maternal
     ('2', 'father'),
     ('3', 'child'),
 )
@@ -70,12 +70,12 @@ CAT_DAR_TIME_PERIOD = (
     ('3', 'week 36/delivery'),  # maps to 6WP
 )
 
-ADDITIONAL_FEATURES = (
+ADDITIONAL_FEATURES = [('Categorical', (
     ('Outcome', 'Outcome'),
     ('Member_c', 'Family Member'),
     ('TimePeriod', 'Collection Time'),
     ('CohortType', 'Cohort Type'),
-)
+))]
 
 DAR_FEATURE_CHOICES = CAT_DAR_ANALYTES + ADDITIONAL_FEATURES
 DAR_CATEGORICAL_CHOICES = ADDITIONAL_FEATURES
