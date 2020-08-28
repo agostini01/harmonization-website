@@ -196,16 +196,19 @@ class GraphRequestView(views.APIView):
 
         # This is the harmonized dataset
         if dataset_type == 'har_dataset':
-            selected_columns = [x_feature,y_feature,color_by,'CohortType']
-
             # TODO Handle early exit when selected columns are not present
-            df1 = adapters.unm.get_dataframe()#[selected_columns]
-            df2 = adapters.dar.get_dataframe()#[selected_columns]
-            df = pd.concat([df1,df2])
+            # selected_columns = [x_feature, y_feature, color_by, 'CohortType']
+            df1 = adapters.unm.get_dataframe()  # [selected_columns]
+            df2 = adapters.dar.get_dataframe()  # [selected_columns]
+            df = pd.concat([df1, df2])
 
         plt.clf()
         if (t == 'scatter_plot'):
             gr = cls.getScatterPlot(df, x_feature, y_feature, color_by)
+
+        if (t == 'individual_scatter_plot'):
+            gr = cls.getIndividualScatterPlot(
+                df, x_feature, y_feature, color_by)
 
         if (t == 'pair_plot'):
             gr = cls.getPairPlot(df, x_feature, y_feature, color_by)
@@ -232,6 +235,44 @@ class GraphRequestView(views.APIView):
         gr.savefig(response, format="jpg", dpi=fig_dpi)
 
         return response
+
+    @classmethod
+    def getIndividualScatterPlot(cls, data, x_feature, y_feature, color_by):
+
+        filtered_df = data[data[[x_feature, y_feature]].notnull().all(1)]
+        print(filtered_df.head())
+        info1 = str(filtered_df[[x_feature, y_feature]
+                                ].describe(include='all'))
+        info2 = str(filtered_df[[color_by]].describe(include='all'))
+        info = "Summary of intersection between analytes\n" + \
+            "(Not Null samples only):\n\n" + \
+            info1+"\n\n"+info2
+
+        color_by_options = data[color_by].unique()
+        color_by_count = len(color_by_options)
+        fig, ax = plt.subplots(1, color_by_count+1,
+                               sharey=True, figsize=(5*(color_by_count+1), 5))
+
+        for i, v in enumerate(color_by_options):
+            if i > 0:
+                sns.scatterplot(
+                    data=data[data[color_by] == v], x=x_feature, y=y_feature,
+                    hue=color_by, alpha=0.8, s=20, hue_order=color_by_options,
+                    legend=False, style='CohortType', ax=ax[i])
+            else:  # With legend
+                sns.scatterplot(
+                    data=data[data[color_by] == v], x=x_feature, y=y_feature,
+                    hue=color_by, alpha=0.8, s=20, hue_order=color_by_options,
+                    legend='brief', style='CohortType', ax=ax[i])
+
+        sns.despine(ax=ax[color_by_count], left=True, bottom=True, trim=True)
+        ax[color_by_count].set(xlabel=None)
+        ax[color_by_count].set(xticklabels=[])
+
+        ax[color_by_count].text(0, 0, info, style='italic',
+                                bbox={'facecolor': 'azure', 'alpha': 1.0, 'pad': 10})
+
+        return fig
 
     @classmethod
     def getScatterPlot(cls, data, x_feature, y_feature, color_by):

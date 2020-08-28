@@ -9,6 +9,7 @@ from .choices.har import HAR_FEATURE_CHOICES, HAR_CATEGORICAL_CHOICES
 
 PLOT_TYPES = [
     ('2D plots', (
+        ("individual_scatter_plot", "individual_scatter_plot"),
         ("scatter_plot", "scatter_plot"),
         ("pair_plot", "pair_plot"),
     ),
