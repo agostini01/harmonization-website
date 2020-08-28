@@ -1,4 +1,4 @@
-CAT_HAR_ANALYTES = [('Analyates', (
+CAT_HAR_ANALYTES = [('Analytes', (
     # Analyate acronym and name,
     # DAR only # ('UAG', ' Silver - Urine'),
     # DAR only # ('UAL', ' Aluminium - Urine'),

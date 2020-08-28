@@ -1,4 +1,4 @@
-CAT_UNM_ANALYTES = [('Analyates', (
+CAT_UNM_ANALYTES = [('Analytes', (
     ('BCD',  'Cadmium - Blood'),
     ('BHGE', 'Ethyl Mercury - Blood'),
     ('BHGM', 'Methyl Mercury - Blood'),

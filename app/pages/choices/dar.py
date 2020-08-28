@@ -1,4 +1,4 @@
-CAT_DAR_ANALYTES = [('Analyates', (
+CAT_DAR_ANALYTES = [('Analytes', (
     # Analyate acronym and name,                    Mapping in the dar DB
     ('UAG', ' Silver - Urine'),                     # Ag
     ('UAL', ' Aluminium - Urine'),                  # Al
