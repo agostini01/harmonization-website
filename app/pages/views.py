@@ -31,7 +31,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
 
         err = checkFormRequest(request)
 
-        if (err[0]!=0):
+        if (err[0] != 0):
             return getErrorImage(err)
 
         plot_type = request.GET.get('plot_type')
@@ -61,7 +61,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
             status=requests_response.status_code,
             content_type=requests_response.headers['Content-Type']
         )
-        
+
         return django_response
 
     def get_context_data(self, **kwargs):
@@ -76,11 +76,14 @@ class GraphsPageView(LoginRequiredMixin, FormView):
 class GraphsFlowersPagesView(GraphsPageView):
     form_class = FlowersForm
 
+
 class GraphsUNMPagesView(GraphsPageView):
     form_class = UNMForm
 
+
 class GraphsDARPagesView(GraphsPageView):
     form_class = DARForm
+
 
 class GraphsHARPagesView(GraphsPageView):
     form_class = HARForm
