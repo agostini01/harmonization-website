@@ -236,7 +236,9 @@ class GraphRequestView(views.APIView):
     @classmethod
     def getScatterPlot(cls, data, x_feature, y_feature, color_by):
         gr = sns.scatterplot(
-            data=data, x=x_feature, y=y_feature, hue=color_by, alpha=0.5, style='CohortType')
+            data=data, x=x_feature, y=y_feature,
+            hue=color_by, alpha=0.8, s=15, style='CohortType')
+
         return gr.figure
 
     @classmethod
