@@ -258,7 +258,7 @@ class GraphRequestView(views.APIView):
     @classmethod
     def getScatterPlot(cls, data, x_feature, y_feature, color_by, info=True):
         if info:
-            return graphs.getScatterPlot(
+            return graphs.getScatterPlotWithInfo(
                 data, x_feature, y_feature, color_by)
         else:
             return graphs.getScatterPlot(

@@ -22,6 +22,17 @@ def getInfoString(data, x_feature, y_feature, color_by):
 
     return info
 
+def addInfoToAxis(info, ax, id=1):
+    """Add info to axis ax, at position id."""
+    sns.despine(ax=ax[id], left=True, bottom=True, trim=True)
+    ax[id].set(xlabel=None)
+    ax[id].set(xticklabels=[])
+
+    ax[id].text(0, 0, info, style='italic',
+               bbox={'facecolor': 'azure', 'alpha': 1.0, 'pad': 10},
+               horizontalalignment='left',
+               verticalalignment='bottom',
+               transform=ax[1].transAxes)
 
 # ==============================================================================
 # Plots without statistics
@@ -124,6 +135,17 @@ def getRegDetailedPlot(data, x_feature, y_feature, color_by):
 # ==============================================================================
 # Plots with statistics
 
+def getScatterPlotWithInfo(data, x_feature, y_feature, color_by):
+    info = getInfoString(data, x_feature, y_feature, color_by)
+    fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
+
+    sns.scatterplot(
+        data=data, x=x_feature, y=y_feature,
+        hue=color_by, alpha=0.8, s=15, style='CohortType', ax=ax[0])
+
+    addInfoToAxis(info,ax)
+
+    return fig
 
 def getIndividualScatterPlotWithInfo(data, x_feature, y_feature, color_by):
 
