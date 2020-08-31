@@ -23,6 +23,18 @@ def getInfoString(data, x_feature, y_feature, color_by):
     return info
 
 
+def getHistInfoString(data, feature):
+    """Return high level statistics of unique samples for histogram plot."""
+
+    filtered_df = data[data[[feature]].notnull().all(1)]
+    info1 = str(filtered_df[[feature]].describe(include='all'))
+    info = "Summary of intersection between analytes\n" + \
+        "(Not Null samples only):\n\n" + \
+        info1+"\n\n"
+
+    return info
+
+
 def addInfoToAxis(info, ax, id=1):
     """Add info to axis ax, at position id."""
     sns.despine(ax=ax[id], left=True, bottom=True, trim=True)
@@ -156,19 +168,6 @@ def getRegDetailedPlot(data, x_feature, y_feature, color_by):
 # Plots with statistics
 
 
-def getScatterPlotWithInfo(data, x_feature, y_feature, color_by):
-    info = getInfoString(data, x_feature, y_feature, color_by)
-    fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
-
-    sns.scatterplot(
-        data=data, x=x_feature, y=y_feature,
-        hue=color_by, alpha=0.8, s=15, style='CohortType', ax=ax[0])
-
-    addInfoToAxis(info, ax)
-
-    return fig
-
-
 def getIndividualScatterPlotWithInfo(data, x_feature, y_feature, color_by):
 
     info = getInfoString(data, x_feature, y_feature, color_by)
@@ -199,3 +198,28 @@ def getIndividualScatterPlotWithInfo(data, x_feature, y_feature, color_by):
                             bbox={'facecolor': 'azure', 'alpha': 1.0, 'pad': 10})
 
     return fig
+
+
+def getScatterPlotWithInfo(data, x_feature, y_feature, color_by):
+    info = getInfoString(data, x_feature, y_feature, color_by)
+    fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
+
+    sns.scatterplot(
+        data=data, x=x_feature, y=y_feature,
+        hue=color_by, alpha=0.8, s=15, style='CohortType', ax=ax[0])
+
+    addInfoToAxis(info, ax)
+
+    return fig
+
+
+def getHistogramPlotWithInfo(data, x_feature, y_feature, color_by):
+    info = getHistInfoString(data, x_feature)
+    fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
+
+    sns.distplot(data[x_feature], ax=ax[0])
+
+    addInfoToAxis(info, ax)
+
+    return fig
+

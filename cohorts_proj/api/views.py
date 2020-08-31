@@ -301,7 +301,7 @@ class GraphRequestView(views.APIView):
     @classmethod
     def getHistogramPlot(cls, data, x_feature, y_feature, color_by, info=True):
         if info:
-            return graphs.getHistogramPlot(
+            return graphs.getHistogramPlotWithInfo(
                 data, x_feature, y_feature, color_by)
         else:
             return graphs.getHistogramPlot(
