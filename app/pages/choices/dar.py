@@ -65,6 +65,7 @@ CAT_DAR_MEMBER_C = (
 # )
 
 CAT_DAR_TIME_PERIOD = (
+    ('9', 'any'),               # all time periods ploted together
     ('0', 'early enrollment'),  # maps to 12G
     ('1', 'enrollment'),        # maps to 24G
     ('3', 'week 36/delivery'),  # maps to 6WP

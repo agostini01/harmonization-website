@@ -21,6 +21,7 @@ class GraphRequestSerializer(serializers.Serializer):
     x_feature = serializers.CharField()
     y_feature = serializers.CharField()
     color_by = serializers.CharField()
+    time_period = serializers.IntegerField()
     fig_dpi = serializers.IntegerField()
     plot_name = serializers.CharField()
     dataset_type = serializers.CharField()

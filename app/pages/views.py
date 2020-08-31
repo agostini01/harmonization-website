@@ -38,6 +38,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
         x_feature = request.GET.get('x_feature')
         y_feature = request.GET.get('y_feature')
         color_by = request.GET.get('color_by')
+        time_period = int(request.GET.get('time_period'))
         fig_dpi = int(request.GET.get('fig_dpi'))
         dataset_type = request.GET.get('dataset_type')
 
@@ -47,6 +48,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
                    'x_feature': x_feature,
                    'y_feature': y_feature,
                    'color_by': color_by,
+                   'time_period': time_period,
                    'fig_dpi': fig_dpi,
                    'plot_name': 'test',
                    'dataset_type': dataset_type}

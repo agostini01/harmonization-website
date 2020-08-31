@@ -50,5 +50,6 @@ def get_dataframe():
     # A0002M               1        1  1.547669  ...  0.387643  0.988567  1.081877
 
     df['CohortType'] = 'UNM'
+    df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
 
     return df

@@ -44,6 +44,7 @@ CAT_UNM_MEMBER_C = (
 )
 
 CAT_UNM_TIME_PERIOD = (
+    ('9', 'any'),               # all time periods ploted together
     ('1', 'enrollment'),
     ('3', 'week 63/delivery'),
 )

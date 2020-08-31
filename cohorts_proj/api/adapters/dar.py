@@ -44,7 +44,7 @@ def get_dataframe():
                   'UNI', 'Ni_IDL', 'Ni_BDL',
                   'UPB', 'Pb_IDL', 'Pb_BDL',
                   'USB', 'Sb_IDL', 'Sb_BDL',
-                  'USE', 'Se_IDL', 'Se_BDL', # Missing?
+                  'USE', 'Se_IDL', 'Se_BDL',  # Missing?
                   'USN', 'Sn_IDL', 'Sn_BDL',
                   'UTL', 'Tl_IDL', 'Tl_BDL',
                   'UUR', 'U_IDL', 'U_BDL',
@@ -53,5 +53,17 @@ def get_dataframe():
                   'UVA', 'V_IDL', 'V_BDL']
 
     df['CohortType'] = 'Dartmouth'
+
+    time_period_mapper = {
+        '12G': 0,
+        '24G': 1,
+        '6WP': 3,
+        '6MP': 8,
+        '1YP': 8,
+        '2YP': 8,
+        '3YP': 8,
+        '5YP': 8,
+    }
+    df['TimePeriod'] = df['TimePeriod'].map(time_period_mapper)
 
     return df

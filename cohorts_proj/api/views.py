@@ -170,6 +170,7 @@ class GraphRequestView(views.APIView):
         x_feature = request.data['x_feature']
         y_feature = request.data['y_feature']
         color_by = request.data['color_by']
+        time_period = int(request.data['time_period'])
         fig_dpi = int(request.data['fig_dpi'])
         dataset_type = request.data['dataset_type']
 
@@ -202,6 +203,16 @@ class GraphRequestView(views.APIView):
             df2 = adapters.dar.get_dataframe()  # [selected_columns]
             df = pd.concat([df1, df2])
 
+        # Apply Filters
+        if time_period != 9:
+            df = df[df['TimePeriod'] == time_period]
+        else:
+            pass
+
+        # Is there data after the filters?
+        # TODO
+
+        # Plot Graphs
         plt.clf()
         if (t == 'scatter_plot'):
             gr = cls.getScatterPlot(df, x_feature, y_feature, color_by)
@@ -240,7 +251,6 @@ class GraphRequestView(views.APIView):
     def getIndividualScatterPlot(cls, data, x_feature, y_feature, color_by):
 
         filtered_df = data[data[[x_feature, y_feature]].notnull().all(1)]
-        print(filtered_df.head())
         info1 = str(filtered_df[[x_feature, y_feature]
                                 ].describe(include='all'))
         info2 = str(filtered_df[[color_by]].describe(include='all'))
