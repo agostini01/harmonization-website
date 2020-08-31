@@ -22,6 +22,7 @@ def getInfoString(data, x_feature, y_feature, color_by):
 
     return info
 
+
 def addInfoToAxis(info, ax, id=1):
     """Add info to axis ax, at position id."""
     sns.despine(ax=ax[id], left=True, bottom=True, trim=True)
@@ -29,10 +30,29 @@ def addInfoToAxis(info, ax, id=1):
     ax[id].set(xticklabels=[])
 
     ax[id].text(0, 0, info, style='italic',
-               bbox={'facecolor': 'azure', 'alpha': 1.0, 'pad': 10},
-               horizontalalignment='left',
-               verticalalignment='bottom',
-               transform=ax[1].transAxes)
+                bbox={'facecolor': 'azure', 'alpha': 1.0, 'pad': 10},
+                horizontalalignment='left',
+                verticalalignment='bottom',
+                transform=ax[1].transAxes)
+
+
+def noDataMessage():
+    info = 'Error: There are no samples matching the criteria for\n' + \
+        'the dataset, features, and filters selected.\n\n' + \
+        'Solution: Select a different query combination.'
+
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+
+    ax.set(xlabel=None, ylabel=None, xticklabels=[], yticklabels=[])
+    sns.despine(ax=ax, left=True, bottom=True, trim=True)
+    ax.text(0.5, .5, info, style='italic', fontsize='large',
+            bbox={'facecolor': 'azure', 'alpha': 1.0, 'pad': 10},
+            horizontalalignment='center',
+            verticalalignment='center',
+            transform=ax.transAxes)
+
+    return fig
+
 
 # ==============================================================================
 # Plots without statistics
@@ -135,6 +155,7 @@ def getRegDetailedPlot(data, x_feature, y_feature, color_by):
 # ==============================================================================
 # Plots with statistics
 
+
 def getScatterPlotWithInfo(data, x_feature, y_feature, color_by):
     info = getInfoString(data, x_feature, y_feature, color_by)
     fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
@@ -143,9 +164,10 @@ def getScatterPlotWithInfo(data, x_feature, y_feature, color_by):
         data=data, x=x_feature, y=y_feature,
         hue=color_by, alpha=0.8, s=15, style='CohortType', ax=ax[0])
 
-    addInfoToAxis(info,ax)
+    addInfoToAxis(info, ax)
 
     return fig
+
 
 def getIndividualScatterPlotWithInfo(data, x_feature, y_feature, color_by):
 

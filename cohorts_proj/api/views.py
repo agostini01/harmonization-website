@@ -207,40 +207,47 @@ class GraphRequestView(views.APIView):
         else:
             pass
 
-        # Is there data after the filters?
-        # TODO
-
-        # Plot Graphs
-        plt.clf()
-        if (t == 'scatter_plot'):
-            gr = cls.getScatterPlot(df, x_feature, y_feature, color_by)
-
-        if (t == 'individual_scatter_plot'):
-            gr = cls.getIndividualScatterPlot(
-                df, x_feature, y_feature, color_by)
-
-        if (t == 'pair_plot'):
-            gr = cls.getPairPlot(df, x_feature, y_feature, color_by)
-
-        if (t == 'cat_plot'):
-            gr = cls.getCatPlot(df, x_feature, y_feature, color_by)
-
-        if (t == 'violin_cat_plot'):
-            gr = cls.getViolinCatPlot(df, x_feature, y_feature, color_by)
-
-        if (t == 'histogram_plot'):
-            gr = cls.getHistogramPlot(df, x_feature, y_feature, color_by)
-
-        if (t == 'linear_reg_plot'):
-            gr = cls.getRegPlot(df, x_feature, y_feature, color_by)
-
-        if (t == 'linear_reg_with_color_plot'):
-            gr = cls.getRegColorPlot(df, x_feature, y_feature, color_by)
-
-        if (t == 'linear_reg_detailed_plot'):
-            gr = cls.getRegDetailedPlot(df, x_feature, y_feature, color_by)
-
+        # Build response figure
         response = HttpResponse(content_type="image/jpg")
+        plt.clf()
+
+        # Is there data after the filters?
+        if(df.shape[0] == 0):
+            print('No data to plot after the filters')
+            gr = graphs.noDataMessage()
+            gr.savefig(response, format="jpg", dpi=fig_dpi)
+
+        else:
+            # Plot Graphs
+            if (t == 'scatter_plot'):
+                gr = cls.getScatterPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'individual_scatter_plot'):
+                gr = cls.getIndividualScatterPlot(
+                    df, x_feature, y_feature, color_by)
+
+            if (t == 'pair_plot'):
+                gr = cls.getPairPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'cat_plot'):
+                gr = cls.getCatPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'violin_cat_plot'):
+                gr = cls.getViolinCatPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'histogram_plot'):
+                gr = cls.getHistogramPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'linear_reg_plot'):
+                gr = cls.getRegPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'linear_reg_with_color_plot'):
+                gr = cls.getRegColorPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'linear_reg_detailed_plot'):
+                gr = cls.getRegDetailedPlot(df, x_feature, y_feature, color_by)
+
+        # response = HttpResponse(content_type="image/jpg")
         gr.savefig(response, format="jpg", dpi=fig_dpi)
 
         return response
