@@ -52,6 +52,19 @@ def get_dataframe():
                   'UZN', 'Zn_IDL', 'Zn_BDL',
                   'UVA', 'V_IDL', 'V_BDL']
 
+    numeric_columns = ['UTAS', 'UASB', 'UDMA',
+                       'UMMA', 'UBA', 'UCS',
+                       'USR', 'UAG', 'UAL',
+                       'UAS3', 'UBE', 'UCD',
+                       'UCO', 'UCR', 'UCU',
+                       'UFE', 'UHG', 'UMN',
+                       'UMO', 'UNI', 'UPB',
+                       'USB', 'USE', 'USN',
+                       'UTL', 'UUR', 'UTU',
+                       'UZN', 'UVA' ]
+    for c in numeric_columns:
+        df[c] = pd.to_numeric(df[c], errors='coerce')
+
     df['CohortType'] = 'Dartmouth'
 
     time_period_mapper = {
