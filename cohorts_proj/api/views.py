@@ -286,11 +286,12 @@ class GraphRequestView(views.APIView):
 
     @classmethod
     def getScatterPlot(cls, data, x_feature, y_feature, color_by):
-        gr = sns.scatterplot(
+        fig, _ = plt.subplots(1, 1, figsize=(5, 5))
+        sns.scatterplot(
             data=data, x=x_feature, y=y_feature,
             hue=color_by, alpha=0.8, s=15, style='CohortType')
 
-        return gr.figure
+        return fig
 
     @classmethod
     def getPairPlot(cls, data, x_feature, y_feature, color_by):
@@ -315,12 +316,14 @@ class GraphRequestView(views.APIView):
 
     @classmethod
     def getHistogramPlot(cls, data, x_feature, y_feature, color_by):
-        gr = sns.distplot(data[x_feature])
+        fig, _ = plt.subplots(1, 1, figsize=(5, 5))
+        sns.distplot(data[x_feature])
 
-        return gr.figure
+        return fig
 
     @classmethod
     def getRegPlot(cls, data, x_feature, y_feature, color_by):
+        fig, _ = plt.subplots(1, 1, figsize=(5, 5))
         gr = sns.regplot(data=data, x=x_feature,
                          y=y_feature)
         slope, intercept, r_value, p_value, std_err = stats.linregress(
