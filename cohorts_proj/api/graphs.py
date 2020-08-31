@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import scipy.stats as stats
 
+import traceback
+
 # Functions to generate different types of plots
 
 # ==============================================================================
@@ -122,6 +124,12 @@ def getRegPlot(data, x_feature, y_feature, color_by):
 
 
 def getRegColorPlot(data, x_feature, y_feature, color_by):
+
+    filtered_df = data[data[[x_feature, y_feature]].notnull().all(1)]
+    color_by_options = filtered_df[color_by].unique()
+
+    reg_info0 = ''
+    reg_info1 = ''
     gr = sns.lmplot(data=data, x=x_feature,
                     y=y_feature, hue=color_by, legend_out=True)
 
@@ -131,11 +139,20 @@ def getRegColorPlot(data, x_feature, y_feature, color_by):
     reg_info0 = "f(x)={:.3f}x + {:.3f}".format(
         slope, intercept)
 
-    slope, intercept, r_value, p_value, std_err = stats.linregress(
-        x=gr.axes.flat[0].get_lines()[1].get_xdata(),
-        y=gr.axes.flat[0].get_lines()[1].get_ydata())
-    reg_info1 = "g(x)={:.3f}x + {:.3f}".format(
-        slope, intercept)
+    # for x in xrange(len(color_by_options)):
+
+    if (len(color_by_options) > 1):
+        try:
+            slope, intercept, r_value, p_value, std_err = stats.linregress(
+                x=gr.axes.flat[0].get_lines()[1].get_xdata(),
+                y=gr.axes.flat[0].get_lines()[1].get_ydata())
+            reg_info1 = "g(x)={:.3f}x + {:.3f}".format(
+                slope, intercept)
+
+        except Exception as exc:
+            print('Error: We need 2 points to create a line...')
+            print(traceback.format_exc())
+            print(exc)
 
     reg_info = "{}  |  {}".format(reg_info0, reg_info1)
 
@@ -222,4 +239,3 @@ def getHistogramPlotWithInfo(data, x_feature, y_feature, color_by):
     addInfoToAxis(info, ax)
 
     return fig
-
