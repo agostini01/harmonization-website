@@ -123,6 +123,19 @@ def saveDARToDB(csv_file):
         )
 
 
+def getInfoString(data, x_feature, y_feature, color_by):
+    """Return unique samples high level statistics."""
+
+    filtered_df = data[data[[x_feature, y_feature]].notnull().all(1)]
+    info1 = str(filtered_df[[x_feature, y_feature]].describe(include='all'))
+    info2 = str(filtered_df[[color_by]].describe(include='all'))
+    info = "Summary of intersection between analytes\n" + \
+        "(Not Null samples only):\n\n" + \
+        info1+"\n\n"+info2
+
+    return info
+
+
 class DatasetUploadView(generics.CreateAPIView):
     """Handles only POST methods."""
     serializer_class = DatasetUploadSerializer
@@ -250,13 +263,7 @@ class GraphRequestView(views.APIView):
     @classmethod
     def getIndividualScatterPlot(cls, data, x_feature, y_feature, color_by):
 
-        filtered_df = data[data[[x_feature, y_feature]].notnull().all(1)]
-        info1 = str(filtered_df[[x_feature, y_feature]
-                                ].describe(include='all'))
-        info2 = str(filtered_df[[color_by]].describe(include='all'))
-        info = "Summary of intersection between analytes\n" + \
-            "(Not Null samples only):\n\n" + \
-            info1+"\n\n"+info2
+        info = getInfoString(data, x_feature, y_feature, color_by)
 
         color_by_options = data[color_by].unique()
         color_by_count = len(color_by_options)
@@ -274,6 +281,7 @@ class GraphRequestView(views.APIView):
                     data=data[data[color_by] == v], x=x_feature, y=y_feature,
                     hue=color_by, alpha=0.8, s=20, hue_order=color_by_options,
                     legend='brief', style='CohortType', ax=ax[i])
+            ax[i].set_title(color_by+': '+v)
 
         sns.despine(ax=ax[color_by_count], left=True, bottom=True, trim=True)
         ax[color_by_count].set(xlabel=None)
