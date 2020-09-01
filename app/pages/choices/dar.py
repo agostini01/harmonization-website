@@ -1,13 +1,13 @@
 CAT_DAR_ANALYTES = [('Analytes', (
     # Analyate acronym and name,                    Mapping in the dar DB
-    ('UAG', ' Silver - Urine'),                     # Ag
-    ('UAL', ' Aluminium - Urine'),                  # Al
-    ('UCR',  'Chromium - Urine'),                   # Cr
-    ('UCU',  'Copper - Urine'),                     # Cu
-    ('UFE',  'Iron - Urine'),                       # Fe
-    ('UNI',  'Niquel - Urine'),                     # Ni
-    ('UVA',  'Vanadium - Urine'),                   # V
-    ('UZN',  'Zinc - Urine'),                       # Zn
+    ('UAG', ' Silver - Urine'),                     # Ag in ug/L
+    ('UAL', ' Aluminium - Urine'),                  # Al in ug/L
+    ('UCR',  'Chromium - Urine'),                   # Cr in ug/L
+    ('UCU',  'Copper - Urine'),                     # Cu in ug/L
+    ('UFE',  'Iron - Urine'),                       # Fe in ug/L
+    ('UNI',  'Niquel - Urine'),                     # Ni in ug/L
+    ('UVA',  'Vanadium - Urine'),                   # V in ug/L
+    ('UZN',  'Zinc - Urine'),                       # Zn in ug/L
     # ('BCD',  'Cadmium - Blood'),
     # ('BHGE', 'Ethyl Mercury - Blood'),
     # ('BHGM', 'Methyl Mercury - Blood'),
@@ -19,31 +19,31 @@ CAT_DAR_ANALYTES = [('Analytes', (
     # ('SCU',  'Copper - Serum'),
     # ('SSE',  'Selenium - Serum'),
     # ('SZN',  'Zinc - Serum'),
-    ('UAS3', 'Arsenous (III) acid - Urine'),        # As
+    ('UAS3', 'Arsenous (III) acid - Urine'),        # As  ---- in mg/dL TODO
     # ('UAS5', 'Arsenic (V) acid - Urine'),
-    ('UASB', 'Arsenobetaine - Urine'),              # AsB
+    ('UASB', 'Arsenobetaine - Urine'),              # AsB ---- in mg/dL TODO
     # ('UASC', 'Arsenocholine - Urine'),
-    ('UBA',  'Barium - Urine'),                     # Ba
-    ('UBE',  'Beryllium - Urine'),                  # Be
-    ('UCD',  'Cadmium - Urine'),                    # Cd
-    ('UCO',  'Cobalt - Urine'),                     # Co
-    ('UCS',  'Cesium - Urine'),                     # Cs
-    ('UDMA', 'Dimethylarsinic Acid - Urine'),       # DMA
-    ('UHG',  'Mercury - Urine'),                    # Hg
+    ('UBA',  'Barium - Urine'),                     # Ba in ug/L
+    ('UBE',  'Beryllium - Urine'),                  # Be in ug/L
+    ('UCD',  'Cadmium - Urine'),                    # Cd in ug/L
+    ('UCO',  'Cobalt - Urine'),                     # Co in ug/L
+    ('UCS',  'Cesium - Urine'),                     # Cs in ug/L
+    ('UDMA', 'Dimethylarsinic Acid - Urine'),       # DMA ---- in mg/dL TODO
+    ('UHG',  'Mercury - Urine'),                    # Hg in ug/L
     # ('UIO',  'Iodine - Urine'),
-    ('UMMA', 'Monomethylarsinic Acid - Urine'),     # MMA
-    ('UMN',  'Manganese - Urine'),                  # Mn
-    ('UMO',  'Molybdenum - Urine'),                 # Mo
-    ('UPB',  'Lead - Urine'),                       # PB
+    ('UMMA', 'Monomethylarsinic Acid - Urine'),     # MMA ---- in mg/dL TODO
+    ('UMN',  'Manganese - Urine'),                  # Mn in ug/L
+    ('UMO',  'Molybdenum - Urine'),                 # Mo in ug/L
+    ('UPB',  'Lead - Urine'),                       # PB in ug/L
     # ('UPT',  'Platinum - Urine'),
-    ('USB',  'Antimony - Urine'),                   # Sb
-    ('USN',  'Tin - Urine'),                        # Sn
-    ('USR',  'Strontium - Urine'),                  # Sr
-    ('UTAS', 'Arsenic Total - Urine'),              # iAs
-    ('UTL',  'Thallium - Urine'),                   # Tl
+    ('USB',  'Antimony - Urine'),                   # Sb in ug/L
+    ('USN',  'Tin - Urine'),                        # Sn in ug/L
+    ('USR',  'Strontium - Urine'),                  # Sr in ug/L
+    ('UTAS', 'Arsenic Total - Urine'),              # iAs ---- in mg/dL TODO
+    ('UTL',  'Thallium - Urine'),                   # Tl in ug/L
     # ('UTMO', 'Trimethylarsine - Urine')
-    ('UTU',  'Tungsten -  Urine'),                  # W
-    ('UUR',  'Uranium - Urine'),                    # U
+    ('UTU',  'Tungsten - Urine'),                   # W in ug/L
+    ('UUR',  'Uranium - Urine'),                    # U in ug/L
 ))]
 
 CAT_DAR_MEMBER_C = (

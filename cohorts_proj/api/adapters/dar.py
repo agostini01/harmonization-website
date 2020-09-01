@@ -52,6 +52,7 @@ def get_dataframe():
                   'UZN', 'Zn_IDL', 'Zn_BDL',
                   'UVA', 'V_IDL', 'V_BDL']
 
+    # Read numeric columns as numeric
     numeric_columns = ['UTAS', 'UASB', 'UDMA',
                        'UMMA', 'UBA', 'UCS',
                        'USR', 'UAG', 'UAL',
@@ -64,6 +65,19 @@ def get_dataframe():
                        'UZN', 'UVA' ]
     for c in numeric_columns:
         df[c] = pd.to_numeric(df[c], errors='coerce')
+
+    # TODO Must confirm that these units are actually wrong
+    # # To convert from mg/dL to ug/L we must multiply by 10,000
+    # analytes_for_mg_dl_to_ug_L = [
+    #     'UAS3',  # 'Arsenous (III) acid - Urine'),        # As ---- in mg/dL
+    #     'UASB',  # 'Arsenobetaine - Urine'),              # AsB ---- in mg/dL
+    #     'UDMA',  # 'Dimethylarsinic Acid - Urine'),       # DMA ---- in mg/dL
+    #     'UMMA',  # 'Monomethylarsinic Acid - Urine'),     # MMA ---- in mg/dL
+    #     'UTAS',  # 'Arsenic Total - Urine'),              # iAs ---- in mg/dL
+    # ]
+
+    # for a in analytes_for_mg_dl_to_ug_L:
+    #     df[a]=df[a]*10000
 
     df['CohortType'] = 'Dartmouth'
 
