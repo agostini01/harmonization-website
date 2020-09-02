@@ -5,8 +5,8 @@ from .choices.neu import NEU_FEATURE_CHOICES, NEU_CATEGORICAL_CHOICES, CAT_NEU_T
 from .choices.unm import UNM_FEATURE_CHOICES, UNM_CATEGORICAL_CHOICES, CAT_UNM_TIME_PERIOD
 from .choices.dar import DAR_FEATURE_CHOICES, DAR_CATEGORICAL_CHOICES, CAT_DAR_TIME_PERIOD
 
-# from .choices.unmneu import UNMNEU_FEATURE_CHOICES, UNMNEU_CATEGORICAL_CHOICES, CAT_UNMNEU_TIME_PERIOD
-# from .choices.neudar import NEUDAR_FEATURE_CHOICES, NEUDAR_CATEGORICAL_CHOICES, CAT_NEUDAR_TIME_PERIOD
+from .choices.unmneu import UNMNEU_FEATURE_CHOICES, UNMNEU_CATEGORICAL_CHOICES, CAT_UNMNEU_TIME_PERIOD
+from .choices.neudar import NEUDAR_FEATURE_CHOICES, NEUDAR_CATEGORICAL_CHOICES, CAT_NEUDAR_TIME_PERIOD
 from .choices.darunm import DARUNM_FEATURE_CHOICES, DARUNM_CATEGORICAL_CHOICES, CAT_DARUNM_TIME_PERIOD
 
 from .choices.har import HAR_FEATURE_CHOICES, HAR_CATEGORICAL_CHOICES, CAT_HAR_TIME_PERIOD
@@ -197,10 +197,10 @@ class UNMNEUForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(UNMNEUForm, self).__init__(*args, **kwargs)
         self.initial['plot_type'] = PLOT_TYPES[0][0]
-        self.initial['x_feature'] = HAR_FEATURE_CHOICES[0][1][0][0]
-        self.initial['y_feature'] = HAR_FEATURE_CHOICES[0][1][1][0]
-        self.initial['color_by'] = HAR_CATEGORICAL_CHOICES[0][1][0][0]
-        self.initial['time_period'] = CAT_HAR_TIME_PERIOD[0][0]
+        self.initial['x_feature'] = UNMNEU_FEATURE_CHOICES[0][1][0][0]
+        self.initial['y_feature'] = UNMNEU_FEATURE_CHOICES[0][1][1][0]
+        self.initial['color_by'] = UNMNEU_CATEGORICAL_CHOICES[0][1][0][0]
+        self.initial['time_period'] = CAT_UNMNEU_TIME_PERIOD[0][0]
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New UNM and NEU Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[3][0]
@@ -208,10 +208,10 @@ class UNMNEUForm(forms.Form):
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
     plot_type = forms.ChoiceField(choices=PLOT_TYPES)
-    x_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
-    y_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
-    color_by = forms.ChoiceField(choices=HAR_CATEGORICAL_CHOICES)
-    time_period = forms.ChoiceField(choices=CAT_HAR_TIME_PERIOD,
+    x_feature = forms.ChoiceField(choices=UNMNEU_FEATURE_CHOICES)
+    y_feature = forms.ChoiceField(choices=UNMNEU_FEATURE_CHOICES)
+    color_by = forms.ChoiceField(choices=UNMNEU_CATEGORICAL_CHOICES)
+    time_period = forms.ChoiceField(choices=CAT_UNMNEU_TIME_PERIOD,
                                     label='Time Period Filter')
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
@@ -225,10 +225,10 @@ class NEUDARForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(NEUDARForm, self).__init__(*args, **kwargs)
         self.initial['plot_type'] = PLOT_TYPES[0][0]
-        self.initial['x_feature'] = HAR_FEATURE_CHOICES[0][1][0][0]
-        self.initial['y_feature'] = HAR_FEATURE_CHOICES[0][1][1][0]
-        self.initial['color_by'] = HAR_CATEGORICAL_CHOICES[0][1][0][0]
-        self.initial['time_period'] = CAT_HAR_TIME_PERIOD[0][0]
+        self.initial['x_feature'] = NEUDAR_FEATURE_CHOICES[0][1][0][0]
+        self.initial['y_feature'] = NEUDAR_FEATURE_CHOICES[0][1][1][0]
+        self.initial['color_by'] = NEUDAR_CATEGORICAL_CHOICES[0][1][0][0]
+        self.initial['time_period'] = CAT_NEUDAR_TIME_PERIOD[0][0]
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New NEU and DAR Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[4][0]
@@ -236,10 +236,10 @@ class NEUDARForm(forms.Form):
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
     plot_type = forms.ChoiceField(choices=PLOT_TYPES)
-    x_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
-    y_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
-    color_by = forms.ChoiceField(choices=HAR_CATEGORICAL_CHOICES)
-    time_period = forms.ChoiceField(choices=CAT_HAR_TIME_PERIOD,
+    x_feature = forms.ChoiceField(choices=NEUDAR_FEATURE_CHOICES)
+    y_feature = forms.ChoiceField(choices=NEUDAR_FEATURE_CHOICES)
+    color_by = forms.ChoiceField(choices=NEUDAR_CATEGORICAL_CHOICES)
+    time_period = forms.ChoiceField(choices=CAT_NEUDAR_TIME_PERIOD,
                                     label='Time Period Filter')
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
@@ -264,10 +264,10 @@ class DARUNMForm(forms.Form):
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
     plot_type = forms.ChoiceField(choices=PLOT_TYPES)
-    x_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
-    y_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
-    color_by = forms.ChoiceField(choices=HAR_CATEGORICAL_CHOICES)
-    time_period = forms.ChoiceField(choices=CAT_HAR_TIME_PERIOD,
+    x_feature = forms.ChoiceField(choices=DARUNM_FEATURE_CHOICES)
+    y_feature = forms.ChoiceField(choices=DARUNM_FEATURE_CHOICES)
+    color_by = forms.ChoiceField(choices=DARUNM_CATEGORICAL_CHOICES)
+    time_period = forms.ChoiceField(choices=CAT_DARUNM_TIME_PERIOD,
                                     label='Time Period Filter')
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")

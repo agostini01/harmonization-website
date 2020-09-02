@@ -221,17 +221,17 @@ class GraphRequestView(views.APIView):
 
         if dataset_type == 'dar_dataset':
             df = adapters.dar.get_dataframe()
-        
+
         if dataset_type == 'unmneu_dataset':
             df1 = adapters.unm.get_dataframe()
             df2 = adapters.neu.get_dataframe()
             df = pd.concat([df1, df2])
-        
+
         if dataset_type == 'neudar_dataset':
             df1 = adapters.neu.get_dataframe()
             df2 = adapters.dar.get_dataframe()
             df = pd.concat([df1, df2])
-        
+
         if dataset_type == 'darunm_dataset':
             df1 = adapters.unm.get_dataframe()
             df2 = adapters.dar.get_dataframe()
@@ -243,8 +243,9 @@ class GraphRequestView(views.APIView):
             # selected_columns = [x_feature, y_feature, color_by, 'CohortType']
             # TODO add NEU dataset here
             df1 = adapters.unm.get_dataframe()  # [selected_columns]
-            df2 = adapters.dar.get_dataframe()  # [selected_columns]
-            df = pd.concat([df1, df2])
+            df2 = adapters.neu.get_dataframe()  # [selected_columns]
+            df3 = adapters.dar.get_dataframe()  # [selected_columns]
+            df = pd.concat([df1, df2, df3])
 
         # Apply Filters
         if time_period != 9:
