@@ -10,7 +10,7 @@
 {% if user.is_authenticated %}
 <p>Hello {{ user.email }}!</p>
 <p>Use this interface to upload the datasets to the website.</p>
-<p>If you observe an error here, it is because the data dictionary provide does not match with the dictionary expected.
+<p>If you observe an error here, it is because the data dictionary provided does not match with the dictionary expected.
 </p>
 
 <form action="" method="POST" enctype="multipart/form-data" id="post_form">
@@ -27,7 +27,7 @@
     <p><a href="{% url 'account_logout' %}">Log Out</a></p>
 </div>
 
-<div class="csv-sample">
+<!-- <div class="csv-sample">
     <div class="bd-example bd-example-images">
         <div class="text-center">
             <img src="{% static 'images/flowers_csv_sample.png' %}" class="img-fluid rounded mx-auto d-block"
@@ -35,7 +35,7 @@
             <p>Flowers Dataset Sample</p>
         </div>
     </div>
-</div>
+</div> -->
 
 <div class="csv-sample">
     <div class="bd-example bd-example-images">
@@ -43,6 +43,16 @@
             <img src="{% static 'images/unm_csv_sample.png' %}" class="img-fluid rounded mx-auto d-block"
                 alt="UNM Dataset CSV Sample">
             <p>UNM Dataset Sample*</p>
+        </div>
+    </div>
+</div>
+
+<div class="csv-sample">
+    <div class="bd-example bd-example-images">
+        <div class="text-center">
+            <img src="{% static 'images/neu_csv_sample.png' %}" class="img-fluid rounded mx-auto d-block"
+                alt="NEU Dataset CSV Sample">
+            <p>NEU Dataset Sample*</p>
         </div>
     </div>
 </div>

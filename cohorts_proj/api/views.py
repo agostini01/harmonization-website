@@ -6,7 +6,7 @@ from .models import DatasetUploadModel
 
 from .serializers import GraphRequestSerializer
 
-from datasets.models import RawFlower, RawUNM, RawDAR
+from datasets.models import RawFlower, RawUNM, RawNEU, RawDAR
 
 from api import adapters
 from api import graphs
@@ -63,6 +63,32 @@ def saveUNMToDB(csv_file):
             Analyte=entry.Analyte,
             Result=entry.Result,
             Creat_Corr_Result=entry.Creat_Corr_Result,
+            Outcome=entry.PretermBirth,
+        )
+
+
+def saveNEUToDB(csv_file):
+    df = pd.read_csv(csv_file,
+                     skip_blank_lines=True,
+                     header=0)
+
+    # TODO droping if no outcome was provided
+    df.dropna(subset=['PretermBirth'], inplace=True)
+    df['PretermBirth'] = df['PretermBirth'].astype(int)
+    df['Member_c'] = df['Member_c'].astype(int)
+    df['TimePeriod'] = df['TimePeriod'].astype(int)
+
+    # Delete database
+    RawNEU.objects.all().delete()
+
+    for entry in df.itertuples():
+        entry = RawNEU.objects.create(
+            PIN_Patient=entry.PIN_Patient,
+            Member_c=entry.Member_c,
+            TimePeriod=entry.TimePeriod,
+            LOD=entry.LOD,
+            Analyte=entry.Analyte,
+            Result=entry.Result,
             Outcome=entry.PretermBirth,
         )
 
@@ -137,6 +163,10 @@ class DatasetUploadView(generics.CreateAPIView):
             csv_file = request.data['dataset_file']
             saveUNMToDB(csv_file)
 
+        if request.data['dataset_type'] == 'NEU_dataset':
+            csv_file = request.data['dataset_file']
+            saveNEUToDB(csv_file)
+
         if request.data['dataset_type'] == 'Dartmouth_dataset':
             csv_file = request.data['dataset_file']
             saveDARToDB(csv_file)
@@ -187,8 +217,7 @@ class GraphRequestView(views.APIView):
             df = adapters.unm.get_dataframe()
 
         if dataset_type == 'neu_dataset':
-            df = pd.DataFrame.from_records(
-                RawNEU.objects.all().values(x_feature, y_feature, color_by))
+            df = adapters.neu.get_dataframe()
 
         if dataset_type == 'dar_dataset':
             df = adapters.dar.get_dataframe()
@@ -197,6 +226,7 @@ class GraphRequestView(views.APIView):
         if dataset_type == 'har_dataset':
             # TODO Handle early exit when selected columns are not present
             # selected_columns = [x_feature, y_feature, color_by, 'CohortType']
+            # TODO add NEU dataset here
             df1 = adapters.unm.get_dataframe()  # [selected_columns]
             df2 = adapters.dar.get_dataframe()  # [selected_columns]
             df = pd.concat([df1, df2])

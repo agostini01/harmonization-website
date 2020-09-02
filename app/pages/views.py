@@ -2,7 +2,7 @@ from django.views.generic import TemplateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 
-from .forms import FlowersForm, UNMForm, DARForm, HARForm
+from .forms import FlowersForm, UNMForm, NEUForm, DARForm, HARForm
 from .validation import checkFormRequest, getErrorImage
 
 import requests
@@ -81,6 +81,10 @@ class GraphsFlowersPagesView(GraphsPageView):
 
 class GraphsUNMPagesView(GraphsPageView):
     form_class = UNMForm
+
+
+class GraphsNEUPagesView(GraphsPageView):
+    form_class = NEUForm
 
 
 class GraphsDARPagesView(GraphsPageView):

@@ -1,6 +1,7 @@
 from django import forms
 
 from .choices.flowers import FLOWER_FEATURE_CHOICES
+from .choices.neu import NEU_FEATURE_CHOICES, NEU_CATEGORICAL_CHOICES, CAT_NEU_TIME_PERIOD
 from .choices.unm import UNM_FEATURE_CHOICES, UNM_CATEGORICAL_CHOICES, CAT_UNM_TIME_PERIOD
 from .choices.dar import DAR_FEATURE_CHOICES, DAR_CATEGORICAL_CHOICES, CAT_DAR_TIME_PERIOD
 from .choices.har import HAR_FEATURE_CHOICES, HAR_CATEGORICAL_CHOICES, CAT_HAR_TIME_PERIOD
@@ -102,6 +103,43 @@ class UNMForm(forms.Form):
     y_feature = forms.ChoiceField(choices=UNM_FEATURE_CHOICES)
     color_by = forms.ChoiceField(choices=UNM_CATEGORICAL_CHOICES)
     time_period = forms.ChoiceField(choices=CAT_UNM_TIME_PERIOD,
+                                    label='Time Period Filter')
+    fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
+                                help_text="low_res=100dpi, high_res=300dpi.")
+    dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
+                                     widget=forms.HiddenInput())
+
+
+class NEUForm(forms.Form):
+    """Form to select what features from the Raw NEU csv file to plot.
+
+    This form must match the RawNEU model features. Restriction of choices here,
+    will reflect there. 
+
+    Other Files Involved:
+        $PROJ_SOURCE/cohorts_proj/api/adapters/neu.py
+        $PROJ_SOURCE/cohorts_proj/datasets/models.py
+        $PROJ_SOURCE/cohorts_proj/datasets/mymodels/raw_neu.py
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(NEUForm, self).__init__(*args, **kwargs)
+        self.initial['plot_type'] = PLOT_TYPES[0][0]
+        self.initial['x_feature'] = NEU_FEATURE_CHOICES[0][1][0][0]
+        self.initial['y_feature'] = NEU_FEATURE_CHOICES[0][1][1][0]
+        self.initial['color_by'] = NEU_CATEGORICAL_CHOICES[0][1][0][0]
+        self.initial['time_period'] = CAT_NEU_TIME_PERIOD[0][0]
+        self.initial['fig_dpi'] = DPI_CHOICES[0][0]
+        self.initial['plot_name'] = 'New NEU Plot'
+        self.initial['dataset_type'] = DATASET_CHOICES[1][0]
+
+    plot_name = forms.CharField(max_length=100,
+                                help_text="Type the name of your next plot.")
+    plot_type = forms.ChoiceField(choices=PLOT_TYPES)
+    x_feature = forms.ChoiceField(choices=NEU_FEATURE_CHOICES)
+    y_feature = forms.ChoiceField(choices=NEU_FEATURE_CHOICES)
+    color_by = forms.ChoiceField(choices=NEU_CATEGORICAL_CHOICES)
+    time_period = forms.ChoiceField(choices=CAT_NEU_TIME_PERIOD,
                                     label='Time Period Filter')
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")

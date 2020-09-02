@@ -3,6 +3,7 @@ from django.urls import path
 from .views import HomePageView, AboutPageView, GraphsPageView
 from .views import GraphsFlowersPagesView
 from .views import GraphsUNMPagesView
+from .views import GraphsNEUPagesView
 from .views import GraphsDARPagesView
 from .views import GraphsHARPagesView
 
@@ -10,6 +11,7 @@ from .views import GraphsHARPagesView
 urlpatterns = [
     path('graphs/flowers/', GraphsFlowersPagesView.as_view(), name='graphs-flowers'),
     path('graphs/unm/', GraphsUNMPagesView.as_view(), name='graphs-unm'),
+    path('graphs/neu/', GraphsNEUPagesView.as_view(), name='graphs-neu'),
     path('graphs/dar/', GraphsDARPagesView.as_view(), name='graphs-dar'),
     path('graphs/har/', GraphsHARPagesView.as_view(), name='graphs-har'),
     path('graphs/', GraphsHARPagesView.as_view(), name='graphs'),

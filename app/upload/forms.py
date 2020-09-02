@@ -4,7 +4,7 @@ from .validators import validate_csv
 
 
 DATASET_CHOICES = (
-    ("flowers_dataset", "flowers_dataset"),
+    # ("flowers_dataset", "flowers_dataset"),
     ("UNM_dataset", "UNM_dataset"),
     ("NEU_dataset", "NEU_dataset"),
     ("Dartmouth_dataset", "Dartmouth_dataset")
