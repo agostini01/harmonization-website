@@ -19,19 +19,19 @@ CAT_DAR_ANALYTES = [('Analytes', (
     # ('SCU',  'Copper - Serum'),
     # ('SSE',  'Selenium - Serum'),
     # ('SZN',  'Zinc - Serum'),
-    ('UAS3', 'Arsenous (III) acid - Urine'),        # As  ---- in mg/dL TODO
+    ('UAS3', 'Arsenous (III) acid - Urine'),        # As in ug/L
     # ('UAS5', 'Arsenic (V) acid - Urine'),
-    ('UASB', 'Arsenobetaine - Urine'),              # AsB ---- in mg/dL TODO
+    ('UASB', 'Arsenobetaine - Urine'),              # AsB in ug/L
     # ('UASC', 'Arsenocholine - Urine'),
     ('UBA',  'Barium - Urine'),                     # Ba in ug/L
     ('UBE',  'Beryllium - Urine'),                  # Be in ug/L
     ('UCD',  'Cadmium - Urine'),                    # Cd in ug/L
     ('UCO',  'Cobalt - Urine'),                     # Co in ug/L
     ('UCS',  'Cesium - Urine'),                     # Cs in ug/L
-    ('UDMA', 'Dimethylarsinic Acid - Urine'),       # DMA ---- in mg/dL TODO
+    ('UDMA', 'Dimethylarsinic Acid - Urine'),       # DMA in ug/L
     ('UHG',  'Mercury - Urine'),                    # Hg in ug/L
     # ('UIO',  'Iodine - Urine'),
-    ('UMMA', 'Monomethylarsinic Acid - Urine'),     # MMA ---- in mg/dL TODO
+    ('UMMA', 'Monomethylarsinic Acid - Urine'),     # MMA in ug/L
     ('UMN',  'Manganese - Urine'),                  # Mn in ug/L
     ('UMO',  'Molybdenum - Urine'),                 # Mo in ug/L
     ('UPB',  'Lead - Urine'),                       # PB in ug/L
@@ -39,7 +39,7 @@ CAT_DAR_ANALYTES = [('Analytes', (
     ('USB',  'Antimony - Urine'),                   # Sb in ug/L
     ('USN',  'Tin - Urine'),                        # Sn in ug/L
     ('USR',  'Strontium - Urine'),                  # Sr in ug/L
-    ('UTAS', 'Arsenic Total - Urine'),              # iAs ---- in mg/dL TODO
+    ('UTAS', 'Arsenic Total - Urine'),              # iAs in ug/L
     ('UTL',  'Thallium - Urine'),                   # Tl in ug/L
     # ('UTMO', 'Trimethylarsine - Urine')
     ('UTU',  'Tungsten - Urine'),                   # W in ug/L
