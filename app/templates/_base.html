@@ -20,10 +20,13 @@
       <nav class="my-2 my-md-0 mr-md-3">
         {% if user.is_authenticated %}
         <a class="p-2 text-dark" href="{% url 'upload' %}">Dataset Upload</a>
-        <a class="p-2 text-dark" href="{% url 'graphs-unm' %}">Graph UNM</a>
-        <a class="p-2 text-dark" href="{% url 'graphs-neu' %}">Graph NEU</a>
-        <a class="p-2 text-dark" href="{% url 'graphs-dar' %}">Graph DAR</a>
-        <a class="p-2 text-dark" href="{% url 'graphs-har' %}">Graph Harmonization</a>
+        <a class="p-2 text-dark" href="{% url 'graphs-unm' %}">UNM</a>
+        <a class="p-2 text-dark" href="{% url 'graphs-neu' %}">NEU</a>
+        <a class="p-2 text-dark" href="{% url 'graphs-dar' %}">DAR</a>
+        <a class="p-2 text-dark" href="{% url 'graphs-unm-neu' %}">UNM+NEU</a>
+        <a class="p-2 text-dark" href="{% url 'graphs-neu-dar' %}">NEU+DAR</a>
+        <a class="p-2 text-dark" href="{% url 'graphs-dar-unm' %}">DAR+UNM</a>
+        <a class="p-2 text-dark" href="{% url 'graphs-har' %}">ALL</a>
         <a class="p-2 text-dark" href="{% url 'about' %}">About</a>
         <a class="p-2 text-dark" href="{% url 'account_logout' %}">Log Out</a>
         {% else %}

@@ -117,7 +117,7 @@ class RawNEU(models.Model):
     # Member_c – categorical variable: 1 = mother; 2 = father; 3 = child
     Member_c = models.CharField(max_length=1, choices=CAT_NEU_MEMBER_C)
 
-    # TimePeriod – categorical: 1 = enrollment; 3 = week 63/delivery
+    # TimePeriod – categorical: 1, 2 , 3
     TimePeriod = models.CharField(max_length=1, choices=CAT_NEU_TIME_PERIOD)
 
     # Analyte – categorical:

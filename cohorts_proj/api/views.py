@@ -221,6 +221,21 @@ class GraphRequestView(views.APIView):
 
         if dataset_type == 'dar_dataset':
             df = adapters.dar.get_dataframe()
+        
+        if dataset_type == 'unmneu_dataset':
+            df1 = adapters.unm.get_dataframe()
+            df2 = adapters.neu.get_dataframe()
+            df = pd.concat([df1, df2])
+        
+        if dataset_type == 'neudar_dataset':
+            df1 = adapters.neu.get_dataframe()
+            df2 = adapters.dar.get_dataframe()
+            df = pd.concat([df1, df2])
+        
+        if dataset_type == 'darunm_dataset':
+            df1 = adapters.unm.get_dataframe()
+            df2 = adapters.dar.get_dataframe()
+            df = pd.concat([df1, df2])
 
         # This is the harmonized dataset
         if dataset_type == 'har_dataset':

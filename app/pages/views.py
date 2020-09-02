@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 
 from .forms import FlowersForm, UNMForm, NEUForm, DARForm, HARForm
+from .forms import UNMNEUForm, NEUDARForm, DARUNMForm
 from .validation import checkFormRequest, getErrorImage
 
 import requests
@@ -89,6 +90,18 @@ class GraphsNEUPagesView(GraphsPageView):
 
 class GraphsDARPagesView(GraphsPageView):
     form_class = DARForm
+
+
+class GraphsUNMNEUPagesView(GraphsPageView):
+    form_class = UNMNEUForm
+
+
+class GraphsNEUDARPagesView(GraphsPageView):
+    form_class = NEUDARForm
+
+
+class GraphsDARUNMPagesView(GraphsPageView):
+    form_class = DARUNMForm
 
 
 class GraphsHARPagesView(GraphsPageView):

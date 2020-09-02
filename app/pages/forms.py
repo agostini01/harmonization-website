@@ -4,6 +4,11 @@ from .choices.flowers import FLOWER_FEATURE_CHOICES
 from .choices.neu import NEU_FEATURE_CHOICES, NEU_CATEGORICAL_CHOICES, CAT_NEU_TIME_PERIOD
 from .choices.unm import UNM_FEATURE_CHOICES, UNM_CATEGORICAL_CHOICES, CAT_UNM_TIME_PERIOD
 from .choices.dar import DAR_FEATURE_CHOICES, DAR_CATEGORICAL_CHOICES, CAT_DAR_TIME_PERIOD
+
+# from .choices.unmneu import UNMNEU_FEATURE_CHOICES, UNMNEU_CATEGORICAL_CHOICES, CAT_UNMNEU_TIME_PERIOD
+# from .choices.neudar import NEUDAR_FEATURE_CHOICES, NEUDAR_CATEGORICAL_CHOICES, CAT_NEUDAR_TIME_PERIOD
+from .choices.darunm import DARUNM_FEATURE_CHOICES, DARUNM_CATEGORICAL_CHOICES, CAT_DARUNM_TIME_PERIOD
+
 from .choices.har import HAR_FEATURE_CHOICES, HAR_CATEGORICAL_CHOICES, CAT_HAR_TIME_PERIOD
 
 """ (Name that will be send on the http request, name of the feature) """
@@ -38,10 +43,12 @@ DPI_CHOICES = (
 )
 
 DATASET_CHOICES = (
-    # ("flowers_dataset", "flowers_dataset"),
     ("unm_dataset", "unm_dataset"),
     ("neu_dataset", "unm_dataset"),
     ("dar_dataset", "dar_dataset"),
+    ("unmneu_dataset", "unmneu_dataset"),
+    ("neudar_dataset", "unmdar_dataset"),
+    ("darunm_dataset", "darunm_dataset"),
     ("har_dataset", "har_dataset"),
 )
 
@@ -184,6 +191,90 @@ class DARForm(forms.Form):
                                      widget=forms.HiddenInput())
 
 
+class UNMNEUForm(forms.Form):
+    """Form to select what features from the harmonized dataset to plot"""
+
+    def __init__(self, *args, **kwargs):
+        super(UNMNEUForm, self).__init__(*args, **kwargs)
+        self.initial['plot_type'] = PLOT_TYPES[0][0]
+        self.initial['x_feature'] = HAR_FEATURE_CHOICES[0][1][0][0]
+        self.initial['y_feature'] = HAR_FEATURE_CHOICES[0][1][1][0]
+        self.initial['color_by'] = HAR_CATEGORICAL_CHOICES[0][1][0][0]
+        self.initial['time_period'] = CAT_HAR_TIME_PERIOD[0][0]
+        self.initial['fig_dpi'] = DPI_CHOICES[0][0]
+        self.initial['plot_name'] = 'New UNM and NEU Plot'
+        self.initial['dataset_type'] = DATASET_CHOICES[3][0]
+
+    plot_name = forms.CharField(max_length=100,
+                                help_text="Type the name of your next plot.")
+    plot_type = forms.ChoiceField(choices=PLOT_TYPES)
+    x_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
+    y_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
+    color_by = forms.ChoiceField(choices=HAR_CATEGORICAL_CHOICES)
+    time_period = forms.ChoiceField(choices=CAT_HAR_TIME_PERIOD,
+                                    label='Time Period Filter')
+    fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
+                                help_text="low_res=100dpi, high_res=300dpi.")
+    dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
+                                     widget=forms.HiddenInput())
+
+
+class NEUDARForm(forms.Form):
+    """Form to select what features from the harmonized dataset to plot"""
+
+    def __init__(self, *args, **kwargs):
+        super(NEUDARForm, self).__init__(*args, **kwargs)
+        self.initial['plot_type'] = PLOT_TYPES[0][0]
+        self.initial['x_feature'] = HAR_FEATURE_CHOICES[0][1][0][0]
+        self.initial['y_feature'] = HAR_FEATURE_CHOICES[0][1][1][0]
+        self.initial['color_by'] = HAR_CATEGORICAL_CHOICES[0][1][0][0]
+        self.initial['time_period'] = CAT_HAR_TIME_PERIOD[0][0]
+        self.initial['fig_dpi'] = DPI_CHOICES[0][0]
+        self.initial['plot_name'] = 'New NEU and DAR Plot'
+        self.initial['dataset_type'] = DATASET_CHOICES[4][0]
+
+    plot_name = forms.CharField(max_length=100,
+                                help_text="Type the name of your next plot.")
+    plot_type = forms.ChoiceField(choices=PLOT_TYPES)
+    x_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
+    y_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
+    color_by = forms.ChoiceField(choices=HAR_CATEGORICAL_CHOICES)
+    time_period = forms.ChoiceField(choices=CAT_HAR_TIME_PERIOD,
+                                    label='Time Period Filter')
+    fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
+                                help_text="low_res=100dpi, high_res=300dpi.")
+    dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
+                                     widget=forms.HiddenInput())
+
+
+class DARUNMForm(forms.Form):
+    """Form to select what features from the harmonized dataset to plot"""
+
+    def __init__(self, *args, **kwargs):
+        super(DARUNMForm, self).__init__(*args, **kwargs)
+        self.initial['plot_type'] = PLOT_TYPES[0][0]
+        self.initial['x_feature'] = DARUNM_FEATURE_CHOICES[0][1][0][0]
+        self.initial['y_feature'] = DARUNM_FEATURE_CHOICES[0][1][1][0]
+        self.initial['color_by'] = DARUNM_CATEGORICAL_CHOICES[0][1][0][0]
+        self.initial['time_period'] = CAT_DARUNM_TIME_PERIOD[0][0]
+        self.initial['fig_dpi'] = DPI_CHOICES[0][0]
+        self.initial['plot_name'] = 'New DAR and UNM Plot'
+        self.initial['dataset_type'] = DATASET_CHOICES[5][0]
+
+    plot_name = forms.CharField(max_length=100,
+                                help_text="Type the name of your next plot.")
+    plot_type = forms.ChoiceField(choices=PLOT_TYPES)
+    x_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
+    y_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
+    color_by = forms.ChoiceField(choices=HAR_CATEGORICAL_CHOICES)
+    time_period = forms.ChoiceField(choices=CAT_HAR_TIME_PERIOD,
+                                    label='Time Period Filter')
+    fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
+                                help_text="low_res=100dpi, high_res=300dpi.")
+    dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
+                                     widget=forms.HiddenInput())
+
+
 class HARForm(forms.Form):
     """Form to select what features from the harmonized dataset to plot"""
 
@@ -196,7 +287,7 @@ class HARForm(forms.Form):
         self.initial['time_period'] = CAT_HAR_TIME_PERIOD[0][0]
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New Harmonized Plot'
-        self.initial['dataset_type'] = DATASET_CHOICES[3][0]
+        self.initial['dataset_type'] = DATASET_CHOICES[6][0]
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
