@@ -69,7 +69,7 @@ class RawUNM(models.Model):
     # Member_c – categorical variable: 1 = mother; 2 = father; 3 = child
     Member_c = models.CharField(max_length=1, choices=CAT_UNM_MEMBER_C)
 
-    # TimePeriod – categorical: 1 = enrollment; 3 = week 63/delivery
+    # TimePeriod – categorical: 1 = enrollment; 3 = week 36/delivery
     TimePeriod = models.CharField(max_length=1, choices=CAT_UNM_TIME_PERIOD)
 
     # Analyte – categorical:
