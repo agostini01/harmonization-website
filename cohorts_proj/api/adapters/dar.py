@@ -63,6 +63,7 @@ def get_dataframe():
                        'USB', 'USE', 'USN',
                        'UTL', 'UUR', 'UTU',
                        'UZN', 'UVA' ]
+
     for c in numeric_columns:
         df[c] = pd.to_numeric(df[c], errors='coerce')
 

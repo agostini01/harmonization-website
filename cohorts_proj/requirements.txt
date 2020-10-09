@@ -14,3 +14,4 @@ pillow==6.2.2
 jupyter==1.0.0
 ipython==7.16.1
 django-extensions==3.0.3
+statsmodels

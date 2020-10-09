@@ -191,6 +191,7 @@ def getIndividualScatterPlotWithInfo(data, x_feature, y_feature, color_by):
 
     color_by_options = data[color_by].unique()
     color_by_count = len(color_by_options)
+
     fig, ax = plt.subplots(1, color_by_count+1,
                            sharey=True, figsize=(5*(color_by_count+1), 5))
 
@@ -239,3 +240,25 @@ def getHistogramPlotWithInfo(data, x_feature, y_feature, color_by):
     addInfoToAxis(info, ax)
 
     return fig
+
+# ax = sns.regplot(x="total_bill", y="big_tip", data=tips,
+                #  logistic=True, n_boot=500, y_jitter=.03)
+
+def getLogisticRegPlotWithInfo(data, x_feature, y_feature, color_by):
+
+    fig, _ = plt.subplots(1, 1, figsize=(5, 5))
+
+    data[color_by] = data[color_by].astype(float)
+
+    gr = sns.regplot(data=data, x=x_feature, logistic=True,
+                     y=color_by, y_jitter=.03)
+
+    slope, intercept, r_value, p_value, std_err = stats.linregress(
+        x=gr.get_lines()[0].get_xdata(),
+        y=gr.get_lines()[0].get_ydata())
+    reg_info = "f(x)={:.3f}x + {:.3f}".format(
+        slope, intercept)
+
+    gr.set_title(reg_info)
+
+    return gr.figure
