@@ -16,6 +16,10 @@ def upload_file(uploader_name, uploader_email, dataset_type, f):
 
     return response
 
+def handle_csv_only_file(uploader_name, uploader_email, dataset_type, f):
+
+    response = upload_file(uploader_name, uploader_email, dataset_type, f)
+    return response
 
 def handle_flowers_file(uploader_name, uploader_email, dataset_type, f):
     #default_storage.save('datasets/flowers/flowers.csv', f)

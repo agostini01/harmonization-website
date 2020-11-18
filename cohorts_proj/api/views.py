@@ -154,22 +154,24 @@ class DatasetUploadView(generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         """Saves CSV to DatasetModel database and populate raw databases."""
+        
+        if request.data['dataset_type'] != 'csv_only':
 
-        if request.data['dataset_type'] == 'flowers_dataset':
-            csv_file = request.data['dataset_file']
-            saveFlowersToDB(csv_file)
+            if request.data['dataset_type'] == 'flowers_dataset':
+                csv_file = request.data['dataset_file']
+                saveFlowersToDB(csv_file)
 
-        if request.data['dataset_type'] == 'UNM_dataset':
-            csv_file = request.data['dataset_file']
-            saveUNMToDB(csv_file)
+            if request.data['dataset_type'] == 'UNM_dataset':
+                csv_file = request.data['dataset_file']
+                saveUNMToDB(csv_file)
 
-        if request.data['dataset_type'] == 'NEU_dataset':
-            csv_file = request.data['dataset_file']
-            saveNEUToDB(csv_file)
+            if request.data['dataset_type'] == 'NEU_dataset':
+                csv_file = request.data['dataset_file']
+                saveNEUToDB(csv_file)
 
-        if request.data['dataset_type'] == 'Dartmouth_dataset':
-            csv_file = request.data['dataset_file']
-            saveDARToDB(csv_file)
+            if request.data['dataset_type'] == 'Dartmouth_dataset':
+                csv_file = request.data['dataset_file']
+                saveDARToDB(csv_file)
 
         # Commit model upload of the regular dataset
         try:

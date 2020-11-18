@@ -33,6 +33,11 @@ class UploadPageView(LoginRequiredMixin, FormView):
                 uploader_email = request.POST.get('uploader_email')
                 dataset_type = request.POST.get('dataset_type')
                 f = request.FILES['dataset_file']
+                
+                if (dataset_type == 'csv_only'):
+                    # print('CSV Only Upload')
+                    response = handle_csv_only_file(
+                        uploader_name, uploader_email, dataset_type, f)
 
                 if (dataset_type == 'flowers_dataset'):
                     # print('Got Flowers Dataset')
