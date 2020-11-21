@@ -7,7 +7,10 @@ import scipy.stats as stats
 import traceback
 
 # Functions to generate different types of plots
+# temporary function for quick outlier removal
 
+def removeoutlier(data):
+    print('hello')
 # ==============================================================================
 # Common functions
 
@@ -36,7 +39,6 @@ def getHistInfoString(data, feature):
 
     return info
 
-
 def addInfoToAxis(info, ax, id=1):
     """Add info to axis ax, at position id."""
     sns.despine(ax=ax[id], left=True, bottom=True, trim=True)
@@ -48,7 +50,6 @@ def addInfoToAxis(info, ax, id=1):
                 horizontalalignment='left',
                 verticalalignment='bottom',
                 transform=ax[1].transAxes)
-
 
 def noDataMessage():
     info = 'Error: There are no samples matching the criteria for\n' + \
@@ -66,8 +67,6 @@ def noDataMessage():
             transform=ax.transAxes)
 
     return fig
-
-
 # ==============================================================================
 # Plots without statistics
 
@@ -88,6 +87,7 @@ def getPairPlot(data, x_feature, y_feature, color_by):
 
 
 def getCatPlot(data, x_feature, y_feature, color_by):
+
     gr = sns.catplot(data=data, x=x_feature,
                      y=y_feature, hue=color_by)
 
@@ -95,18 +95,30 @@ def getCatPlot(data, x_feature, y_feature, color_by):
 
 
 def getViolinCatPlot(data, x_feature, y_feature, color_by):
-    gr = sns.catplot(data=data, x=x_feature,
+    
+
+    #data[y_feature] = np.log(data[y_feature])+
+    ##get standard deviation
+    ##filter 
+    std = np.std(data[y_feature])
+    data_rem = data.loc[data[y_feature] < 2*std]
+
+    if len(data_rem.shape[0]) > 20:
+        data_c = data_rem
+    else:
+        data_c = data
+
+    gr = sns.catplot(data=data_c, x=x_feature,
                      y=y_feature, hue=color_by, kind="violin")
 
     return gr
 
-
 def getHistogramPlot(data, x_feature, y_feature, color_by):
     fig, _ = plt.subplots(1, 1, figsize=(5, 5))
-    sns.distplot(data[x_feature])
+
+    sns.distplot(data[x_feature], hue = 'distplot')
 
     return fig
-
 
 def getRegPlot(data, x_feature, y_feature, color_by):
     fig, _ = plt.subplots(1, 1, figsize=(5, 5))
@@ -232,10 +244,17 @@ def getScatterPlotWithInfo(data, x_feature, y_feature, color_by):
 
 def getHistogramPlotWithInfo(data, x_feature, y_feature, color_by):
     info = getHistInfoString(data, x_feature)
-    fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
 
-    sns.distplot(data[x_feature], ax=ax[0])
+    fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
+    
+    std = np.std(data[x_feature])
+    d_outliers = data.loc[data[x_feature] < 2* std,x_feature]
+
+    sns.distplot(d_outliers, ax=ax[0])
 
     addInfoToAxis(info, ax)
 
     return fig
+
+
+
