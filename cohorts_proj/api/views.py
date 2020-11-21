@@ -295,6 +295,9 @@ class GraphRequestView(views.APIView):
             if (t == 'linear_reg_detailed_plot'):
                 gr = cls.getRegDetailedPlot(df, x_feature, y_feature, color_by)
 
+            if (t == 'logistic_reg_plot'):
+                gr = cls.getLogisticRegPlot(df, x_feature, y_feature, color_by)
+
         # response = HttpResponse(content_type="image/jpg")
         gr.savefig(response, format="jpg", dpi=fig_dpi)
 
@@ -380,4 +383,13 @@ class GraphRequestView(views.APIView):
                 data, x_feature, y_feature, color_by)
         else:
             return graphs.getRegDetailedPlot(
+                data, x_feature, y_feature, color_by)
+    
+    @classmethod
+    def getLogisticRegPlot(cls, data, x_feature, y_feature, color_by, info=True):
+        if info:
+            return graphs.getLogisticRegPlotWithInfo(
+                data, x_feature, y_feature, color_by)
+        else:
+            return graphs.getLogisticRegPlotWithInfo(
                 data, x_feature, y_feature, color_by)

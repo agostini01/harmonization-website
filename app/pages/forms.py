@@ -33,6 +33,7 @@ PLOT_TYPES = [
         ("linear_reg_plot", "linear_reg_plot"),
         ("linear_reg_with_color_plot", "linear_reg_with_color_plot"),
         ("linear_reg_detailed_plot", "linear_reg_detailed_plot"),
+        ("logistic_reg_plot", "logistic_reg_plot")
     ),
     )
 ]
