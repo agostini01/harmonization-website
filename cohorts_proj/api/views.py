@@ -243,7 +243,6 @@ class GraphRequestView(views.APIView):
         if dataset_type == 'har_dataset':
             # TODO Handle early exit when selected columns are not present
             # selected_columns = [x_feature, y_feature, color_by, 'CohortType']
-            # TODO add NEU dataset here
             df1 = adapters.unm.get_dataframe()  # [selected_columns]
             df2 = adapters.neu.get_dataframe()  # [selected_columns]
             df3 = adapters.dar.get_dataframe()  # [selected_columns]
