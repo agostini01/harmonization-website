@@ -9,8 +9,6 @@ import traceback
 # Functions to generate different types of plots
 # temporary function for quick outlier removal
 
-def removeoutlier(data):
-    print('hello')
 # ==============================================================================
 # Common functions
 
