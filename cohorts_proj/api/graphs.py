@@ -7,11 +7,9 @@ import scipy.stats as stats
 import traceback
 
 # Functions to generate different types of plots
-# temporary function for quick outlier removal
 
 # ==============================================================================
 # Common functions
-
 
 def getInfoString(data, x_feature, y_feature, color_by):
     """Return high level statistics of unique samples."""
@@ -24,7 +22,6 @@ def getInfoString(data, x_feature, y_feature, color_by):
         info1+"\n\n"+info2
 
     return info
-
 
 def getHistInfoString(data, feature):
     """Return high level statistics of unique samples for histogram plot."""
@@ -114,8 +111,7 @@ def getViolinCatPlot(data, x_feature, y_feature, color_by):
 def getHistogramPlot(data, x_feature, y_feature, color_by):
     fig, _ = plt.subplots(1, 1, figsize=(5, 5))
 
-    sns.distplot(data[x_feature], hue = 'distplot')
-
+    sns.distplot(data[x_feature])
     return fig
 
 def getRegPlot(data, x_feature, y_feature, color_by):
