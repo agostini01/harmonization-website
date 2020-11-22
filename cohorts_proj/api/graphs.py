@@ -239,14 +239,27 @@ def getScatterPlotWithInfo(data, x_feature, y_feature, color_by):
 def getHistogramPlotWithInfo(data, x_feature, y_feature, color_by):
     info = getHistInfoString(data, x_feature)
 
-    fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
+    #fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
+    fig, ax = plt.subplots()
     
     std = np.std(data[x_feature])
-    d_outliers = data.loc[data[x_feature] < 2* std,x_feature]
 
-    sns.distplot(d_outliers, ax=ax[0])
+    data_rem = data.loc[data[x_feature] < 2* std]
 
-    addInfoToAxis(info, ax)
+    if data_rem.shape[0] > 20:
+        data_c = data_rem
+    else:
+        data_c = data
+
+    #sns.distplot(d_outliers, ax=ax[0])
+    ##kdeplot temprary substitution for histogram
+    sns.kdeplot(
+        data=data_c, x=x_feature, hue=color_by, palette='tab20',
+        fill=True, common_norm=False, 
+        alpha=.5, linewidth=0,
+     )    
+
+    #addInfoToAxis(info, ax)
 
     return fig
 
