@@ -98,7 +98,7 @@ def getViolinCatPlot(data, x_feature, y_feature, color_by):
     std = np.std(data[y_feature])
     data_rem = data.loc[data[y_feature] < 2*std]
 
-    if len(data_rem.shape[0]) > 20:
+    if data_rem.shape[0] > 20:
         data_c = data_rem
     else:
         data_c = data
