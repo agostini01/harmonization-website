@@ -254,7 +254,7 @@ def getHistogramPlotWithInfo(data, x_feature, y_feature, color_by):
     #sns.distplot(d_outliers, ax=ax[0])
     ##kdeplot temprary substitution for histogram
     sns.kdeplot(
-        data=data_c, x=x_feature, hue=color_by, palette='tab20',
+        data=data_c, x=x_feature, hue=color_by,
         fill=True, common_norm=False, 
         alpha=.5, linewidth=0,
      )    
