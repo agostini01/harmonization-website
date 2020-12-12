@@ -34,6 +34,41 @@ def getHistInfoString(data, feature):
 
     return info
 
+def getKdeInfoString(data, feature,color_by):
+    """Return high level statistics of unique samples for kde plot."""
+
+    filtered_df = data[data[[feature]].notnull().all(1)]
+    cohorts = data['CohortType'].unique().tolist()
+    pivot_filt_df = pd.pivot_table(data, values=feature, index = data.index,
+                    columns='CohortType').reset_index()
+
+    info1 = str(pivot_filt_df[cohorts].describe(include='all'))
+
+    info = "Summary per cohort\n" + \
+        "(Not Null samples only):\n\n" + \
+        info1+"\n\n"
+
+    return info
+    
+def getViolinCatInfoString(data, x_feature,y_feature, color_by):
+    """Return high level statistics of unique samples for violin plot."""
+
+    filtered_df = data[data[[x_feature]].notnull().all(1)]
+    cohorts = data['CohortType'].unique().tolist()
+
+    df = data.groupby([x_feature,color_by]).agg({y_feature:
+        ['count',np.mean,np.var]}).reset_index()
+
+    info1 = str(df)
+
+    info = "Summary \n" \
+        "(Not Null samples only):\n\n" + \
+        info1+"\n\n"
+
+    info += '***************************'
+
+    return info
+
 def addInfoToAxis(info, ax, id=1):
     """Add info to axis ax, at position id."""
     sns.despine(ax=ax[id], left=True, bottom=True, trim=True)
@@ -237,11 +272,10 @@ def getScatterPlotWithInfo(data, x_feature, y_feature, color_by):
 
 
 def getHistogramPlotWithInfo(data, x_feature, y_feature, color_by):
-    info = getHistInfoString(data, x_feature)
+    info = getKdeInfoString(data, x_feature, color_by)
 
-    #fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
-    fig, ax = plt.subplots()
-    
+    fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
+
     std = np.std(data[x_feature])
 
     data_rem = data.loc[data[x_feature] < 2* std]
@@ -253,15 +287,42 @@ def getHistogramPlotWithInfo(data, x_feature, y_feature, color_by):
 
     #sns.distplot(d_outliers, ax=ax[0])
     ##kdeplot temprary substitution for histogram
-    sns.kdeplot(
+    b = sns.kdeplot(
         data=data_c, x=x_feature, hue=color_by,
         fill=True, common_norm=False, 
-        alpha=.5, linewidth=0,
+        alpha=.5, linewidth=0, ax = ax[0]
      )    
 
-    #addInfoToAxis(info, ax)
+    ax[0].set(xlim=(0,None))
+
+    addInfoToAxis(info, ax) 
 
     return fig
 
+def getViolinCatPlotWithInfo(data, x_feature, y_feature, color_by):
+
+    info = getViolinCatInfoString(data, x_feature, y_feature,color_by)
+
+    fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
+
+    std = np.std(data[y_feature])
+    data_rem = data.loc[data[y_feature] < 2*std]
+
+    if data_rem.shape[0] > 20:
+        data_c = data_rem
+    else:
+        data_c = data
+    
+    sns.violinplot(data=data_c, x=x_feature,
+                     y=y_feature, 
+                     hue=color_by, 
+                     kind="box", 
+                     #inner = 'quartile',
+                     ax = ax[0],
+                     split = False)
+    
+    addInfoToAxis(info, ax) 
+
+    return fig
 
 
