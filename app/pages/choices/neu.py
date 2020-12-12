@@ -1,6 +1,6 @@
 CAT_NEU_ANALYTES = [('Analytes', (
     ('USB', 'Antimony - Urine'),
-    ('UTAS', 'Arsenic - Urine'),
+    ('UTAS', 'Arsenic Total - Urine'), #modified just for poster - change back later/check if it's actually total 
     ('UBA', 'Barium - Urine'),
     ('UBE', 'Beryllium - Urine'),
     ('UCD', 'Cadmium - Urine'),

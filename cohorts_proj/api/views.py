@@ -339,10 +339,10 @@ class GraphRequestView(views.APIView):
     @classmethod
     def getViolinCatPlot(cls, data, x_feature, y_feature, color_by, info=True):
         if info:
-            return graphs.getViolinCatPlot(
+            return graphs.getViolinCatPlotWithInfo(
                 data, x_feature, y_feature, color_by)
         else:
-            return graphs.getViolinCatPlot(
+            return graphs.getViolinCatPlotWithInfo(
                 data, x_feature, y_feature, color_by)
 
     @classmethod
