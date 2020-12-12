@@ -316,9 +316,11 @@ def getViolinCatPlotWithInfo(data, x_feature, y_feature, color_by):
     sns.violinplot(data=data_c, x=x_feature,
                      y=y_feature, 
                      hue=color_by, 
+                     scale = 'width',
                      kind="box", 
                      #inner = 'quartile',
                      ax = ax[0],
+                     linewidth = .58,
                      split = False)
     
     addInfoToAxis(info, ax) 
