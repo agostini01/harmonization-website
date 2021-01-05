@@ -27,6 +27,7 @@ PLOT_TYPES = [
     ),
     ('1D plots', (
         ("histogram_plot", "histogram_plot"),
+         ("kde_plot", "kde_plot")
     ),
     ),
     ('Regressions', (

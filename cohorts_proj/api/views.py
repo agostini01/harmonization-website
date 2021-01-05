@@ -284,6 +284,8 @@ class GraphRequestView(views.APIView):
 
             if (t == 'histogram_plot'):
                 gr = cls.getHistogramPlot(df, x_feature, y_feature, color_by)
+            if (t == 'kde_plot'):
+                gr = cls.getKdePlot(df, x_feature, y_feature, color_by)
 
             if (t == 'linear_reg_plot'):
                 gr = cls.getRegPlot(df, x_feature, y_feature, color_by)
@@ -352,6 +354,14 @@ class GraphRequestView(views.APIView):
                 data, x_feature, y_feature, color_by)
         else:
             return graphs.getHistogramPlot(
+                data, x_feature, y_feature, color_by)
+    @classmethod
+    def getKdePlot(cls, data, x_feature, y_feature, color_by, info=True):
+        if info:
+            return graphs.getKdePlotWithInfo(
+                data, x_feature, y_feature, color_by)
+        else:
+            return graphs.getKdePlot(
                 data, x_feature, y_feature, color_by)
 
     @classmethod
