@@ -11,6 +11,8 @@ from datasets.models import RawFlower, RawUNM, RawNEU, RawDAR
 from api import adapters
 from api import graphs
 
+import numpy as np
+
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -64,7 +66,26 @@ def saveUNMToDB(csv_file):
             Result=entry.Result,
             Creat_Corr_Result=entry.Creat_Corr_Result,
             Outcome=entry.PretermBirth,
+            Outcome_weeks = entry.gestAge,
+            age = entry.age,
+            ethnicity = entry.ethnicity,
+            race = entry.race,
+            education = entry.education,
+            BMI = entry.BMI,
+            income = entry.income,
+            smoking = entry.smoking,
+            parity = entry.parity,
+            preg_complications	= entry.preg_complications,
+            folic_acid_supp	= entry.folic_acid_supp,
+            fish = entry.fish,
+            babySex	= entry.babySex,
+            birthWt = entry.birthWt,
+            birthLen = entry.birthLen
+
+
         )
+
+
 
 
 def saveNEUToDB(csv_file):
@@ -77,19 +98,35 @@ def saveNEUToDB(csv_file):
     df['PretermBirth'] = df['PretermBirth'].astype(int)
     df['Member_c'] = df['Member_c'].astype(int)
     df['TimePeriod'] = df['TimePeriod'].astype(int)
-
+    df = df.replace(np.nan, None, regex=True)
     # Delete database
     RawNEU.objects.all().delete()
 
     for entry in df.itertuples():
         entry = RawNEU.objects.create(
-            PIN_Patient=entry.PIN_Patient,
+            PIN_Patient=entry.studyid,
             Member_c=entry.Member_c,
             TimePeriod=entry.TimePeriod,
             LOD=entry.LOD,
             Analyte=entry.Analyte,
             Result=entry.Result,
             Outcome=entry.PretermBirth,
+            Outcome_weeks = entry.gestationAge,
+            age = entry.isage,
+            ethnicity = entry.hisporg,
+            race = entry.race,
+            ed = entry.ed,
+            BMI = entry.BMI,
+            fvinc =entry.fvinc,
+            smoking =entry.smoking,
+            pregnum = entry.pregnum,
+            preg_complications	=entry.preg_complications,
+            folic_acid_supp	=entry.folic,
+            fish =entry.fish,
+            babySex	=entry.babySex,
+            birthWt =entry.weightkg,
+            birthLen =entry.ppnblength,
+            headCirc = entry.ppheadcircumference
         )
 
 
