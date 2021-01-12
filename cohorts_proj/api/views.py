@@ -54,6 +54,8 @@ def saveUNMToDB(csv_file):
     df['Member_c'] = df['Member_c'].astype(int)
     df['TimePeriod'] = df['TimePeriod'].astype(int)
 
+    df = df.replace(np.nan, None, regex=True)
+
     # Delete database
     RawUNM.objects.all().delete()
 
