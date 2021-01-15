@@ -137,6 +137,8 @@ def saveDARToDB(csv_file):
                      skip_blank_lines=True,
                      header=0)
 
+    df = df.replace(np.nan, None, regex=True)
+
     # Delete database
     RawDAR.objects.all().delete()
 
