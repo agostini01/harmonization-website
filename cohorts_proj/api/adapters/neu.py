@@ -19,6 +19,16 @@ def get_dataframe():
         values()
     )
 
+    df['birthWt'] = df['birthWt'] * 1000
+    df['birthLen'] = df['birthLen'] * 2.54
+
+    #df.rename(columns = {'pregnum':'parity'}, inplace = True)
+    #new covars
+    covars = ['Outcome_weeks', 'age', 'ethnicity', 'race', 
+    'BMI', 'smoking', 'parity', 'preg_complications',
+    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen']
+
+    df['parity'] = df['pregnum']
 
     # Pivoting the table and reseting index
     numerical_values = 'Result'
@@ -45,3 +55,7 @@ def get_dataframe():
     df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
 
     return df
+
+
+
+
