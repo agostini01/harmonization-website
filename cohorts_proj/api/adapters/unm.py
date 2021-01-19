@@ -19,6 +19,10 @@ def get_dataframe():
         values()
     )
 
+    covars = ['Outcome_weeks', 'age', 'ethnicity',
+       'race', 'education', 'BMI', 'income', 'smoking', 'parity',
+       'preg_complications', 'folic_acid_supp', 'fish', 'babySex', 'birthWt',
+       'birthLen']
     # RAW SAMPLE
     # id PIN_Patient Member_c TimePeriod Analyte    Result  Creat_Corr_Result
     #  1      A0000M        1          1     BCD  1.877245           -99999.0
@@ -30,9 +34,9 @@ def get_dataframe():
     # Pivoting the table and reseting index
     # TODO - Do we want to plot Result or Creat_Corr_Result
     numerical_values = 'Result'
-    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome']
+    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome'] + covars
     categorical_to_columns = ['Analyte']
-    indexes_to_columns = ['Member_c', 'TimePeriod', 'Outcome']
+    indexes_to_columns = ['Member_c', 'TimePeriod', 'Outcome'] + covars
     df = pd.pivot_table(df, values=numerical_values,
                         index=columns_to_indexes,
                         columns=categorical_to_columns,
