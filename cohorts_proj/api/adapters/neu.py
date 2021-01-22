@@ -32,14 +32,16 @@ def get_dataframe():
 
     # Pivoting the table and reseting index
     numerical_values = 'Result'
-    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome']
+    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome'] + covars
     categorical_to_columns = ['Analyte']
-    indexes_to_columns = ['Member_c', 'TimePeriod', 'Outcome']
+    indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
     df = pd.pivot_table(df, values=numerical_values,
                         index=columns_to_indexes,
                         columns=categorical_to_columns,
                         aggfunc=np.average)
+                        
     df = df.reset_index(level=indexes_to_columns)
+
     # TODO - Should we drop NaN here?
 
     # After pivot

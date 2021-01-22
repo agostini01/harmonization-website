@@ -117,7 +117,7 @@ def get_dataframe():
     # for a in analytes_for_mg_dl_to_ug_L:
     #     df[a]=df[a]*10000
 
-    df['CohortType'] = 'Dartmouth'
+    df['CohortType'] = 'DAR'
 
     time_period_mapper = {
         '12G': 0,
