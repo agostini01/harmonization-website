@@ -234,6 +234,14 @@ class RawDAR(models.Model):
     PropDMAtoMMA = models.FloatField(blank = True, default = -9.0)
 
     urine_specific_gravity = models.FloatField(blank=True, null=True, default = -9.0)
+
+    WeightZScore = models.FloatField(blank = True, default = -9.0)
+    
+    WeightCentile = models.FloatField(blank = True, default = -9.0)	
+    
+    LGA	= models.FloatField(blank = True, default = -9.0)
+    
+    SGA= models.FloatField(blank = True, default = -9.0)
     
     iAs = models.FloatField(blank=True, null=True, default = -9.0)
     iAs_IDL = models.FloatField(blank=True, null=True, default = -9.0)

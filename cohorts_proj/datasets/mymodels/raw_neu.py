@@ -229,4 +229,22 @@ class RawNEU(models.Model):
 
     headCirc = models.FloatField(blank = True, default = -9.0)
 
+    fvdate = models.CharField(max_length=10, blank=True, default = '-9')
+
+    svdate = models.CharField(max_length=10, blank=True, default = '-9')
+
+    tvdate = models.CharField(max_length=10, blank=True, default = '-9')
+
+    SPECIFICGRAVITY_V1 = models.FloatField(blank = True, default = -9.0)
+
+    SPECIFICGRAVITY_V2 = models.FloatField(blank = True, default = -9.0)
+
+    SPECIFICGRAVITY_V3 = models.FloatField(blank = True, default = -9.0)
+
+    sga = models.FloatField(blank = True, default = -9.0)
+
+    lga = models.FloatField(blank = True, default = -9.0)
+
+    PPDATEDEL = models.FloatField(blank = True, default = -9.0)
+
 
