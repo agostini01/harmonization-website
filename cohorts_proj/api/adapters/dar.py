@@ -29,7 +29,7 @@ def get_dataframe():
                   'PNFFQFR_FISH_KIDS','PNFFQSHRIMP_CKD','PNFFQDK_FISH','PNFFQOTH_FISH',
                   'mfsp_6','fish','TOTALFISH_SERV','folic_acid','income5y','urine_batchno_bulk','urine_batchno_spec',
                   'collect_age_days','collect_age_src','collection_season',
-                  'pH','TotAs_noAsB','PropMMAtoiAs','PropDMAtoMMA','urine_specific_gravity',
+                  'pH','UTAS','PropMMAtoiAs','PropDMAtoMMA','urine_specific_gravity',
                   'UIAS', 'iAs_IDL', 'iAs_BDL','iAs_N',
                   'UASB', 'AsB_IDL', 'AsB_BDL','AsB__N',
                   'UAS3', 'AsIII_IDL', 'AsIII_BDL','AsIII_N',

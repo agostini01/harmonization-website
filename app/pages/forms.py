@@ -18,6 +18,7 @@ PLOT_TYPES = [
         ("individual_scatter_plot", "individual_scatter_plot"),
         ("scatter_plot", "scatter_plot"),
         ("pair_plot", "pair_plot"),
+        ("corr_plot", "corr_plot")
     ),
     ),
     ('Categorical plots', (

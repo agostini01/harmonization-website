@@ -10,6 +10,8 @@ from datasets.models import RawFlower, RawUNM, RawNEU, RawDAR
 
 from api import adapters
 from api import graphs
+from api import analysis
+import os
 
 import numpy as np
 
@@ -29,9 +31,7 @@ def saveFlowersToDB(csv_file):
     for entry in df.itertuples():
         entry = RawFlower.objects.create(
             # Just a number for the sample
-
             PIN_ID=entry.PIN_ID,
-
             # Result: value in cm
             sepal_length=entry.sepal_length,
             sepal_width=entry.sepal_width,
@@ -83,12 +83,7 @@ def saveUNMToDB(csv_file):
             babySex	= entry.babySex,
             birthWt = entry.birthWt,
             birthLen = entry.birthLen
-
-
         )
-
-
-
 
 def saveNEUToDB(csv_file):
     df = pd.read_csv(csv_file,
@@ -128,7 +123,16 @@ def saveNEUToDB(csv_file):
             babySex	=entry.babySex,
             birthWt =entry.weightkg,
             birthLen =entry.ppnblength,
-            headCirc = entry.ppheadcircumference
+            headCirc = entry.ppheadcircumference,
+            fvdate = entry.fvdate,
+            svdate = entry.svdate,
+            tvdate = entry.tvdate,
+            SPECIFICGRAVITY_V1 = entry.SPECIFICGRAVITY_V1,
+            SPECIFICGRAVITY_V2 = entry.SPECIFICGRAVITY_V2,
+            SPECIFICGRAVITY_V3 = entry.SPECIFICGRAVITY_V3,
+            sga = entry.sga,
+            lga = entry.lga,
+            PPDATEDEL = entry.PPDATEDEL
         )
 
 
@@ -458,6 +462,15 @@ class GraphRequestView(views.APIView):
             if (t == 'individual_scatter_plot'):
                 gr = cls.getIndividualScatterPlot(
                     df, x_feature, y_feature, color_by)
+                    
+            if (t == 'corr_plot'):
+
+                print(os.listdir())
+                analysis.runcustomanalysis()
+
+                gr = cls.getIndividualScatterPlot(
+                    df, x_feature, y_feature, color_by)
+
 
             if (t == 'pair_plot'):
                 gr = cls.getPairPlot(df, x_feature, y_feature, color_by)
