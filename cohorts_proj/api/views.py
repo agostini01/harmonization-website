@@ -133,6 +133,8 @@ def saveNEUToDB(csv_file):
             sga = entry.sga,
             lga = entry.lga,
             PPDATEDEL = entry.PPDATEDEL
+
+            
         )
 
 
@@ -187,7 +189,10 @@ def saveDARToDB(csv_file):
             PropMMAtoiAs=entry.urine_m24G_PropMMAtoiAs,
             PropDMAtoMMA=entry.urine_m24G_PropDMAtoMMA,
             # squid=entry.squid,
-
+            WeightZScore = entry.WeightZScore,
+            WeightCentile = entry.WeightCentile,
+            LGA	= etry.LGA,
+            SGA= entry.SGA,
             Ag=entry.urine_m24G_Ag,
             Ag_BDL=entry.urine_m24G_bdl_Ag,
             Ag_IDL=entry.urine_m24G_dl_Ag,
