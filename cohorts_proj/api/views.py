@@ -191,7 +191,7 @@ def saveDARToDB(csv_file):
             # squid=entry.squid,
             WeightZScore = entry.WeightZScore,
             WeightCentile = entry.WeightCentile,
-            LGA	= etry.LGA,
+            LGA	= entry.LGA,
             SGA= entry.SGA,
             Ag=entry.urine_m24G_Ag,
             Ag_BDL=entry.urine_m24G_bdl_Ag,
