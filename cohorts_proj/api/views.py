@@ -86,7 +86,8 @@ def saveUNMToDB(csv_file):
             WeightZScore = entry.WeightZScore,
             WeightCentile = entry.WeightCentile,
             LGA	= entry.LGA,
-            SGA= entry.SGA
+            SGA= entry.SGA,
+            gestAge_collection = entry.gestAge_collection
         )
 
 def saveNEUToDB(csv_file):

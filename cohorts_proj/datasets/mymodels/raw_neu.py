@@ -173,7 +173,7 @@ class RawNEU(models.Model):
     # PIN_Patient: unique identifier
     # TODO: Maybe update to UUIDField
     # TODO: Maybe create a ManyToManyField for UUID
-    PIN_Patient = models.CharField(max_length=100)
+    PIN_Patient = models.CharField(max_length=500)
 
     # Member_c – categorical variable: 1 = mother; 2 = father; 3 = child
     Member_c = models.CharField(max_length=1, choices=CAT_NEU_MEMBER_C)
@@ -182,7 +182,7 @@ class RawNEU(models.Model):
     TimePeriod = models.CharField(max_length=1, choices=CAT_NEU_TIME_PERIOD)
 
     # Analyte – categorical:
-    Analyte = models.CharField(max_length=10, choices=CAT_NEU_ANALYTES)
+    Analyte = models.CharField(max_length=50, choices=CAT_NEU_ANALYTES)
 
     # Result: value, corrected for detection levels, in ug/L
     Result = models.FloatField()
@@ -201,27 +201,27 @@ class RawNEU(models.Model):
 
     age = models.IntegerField(blank=True, default = -9)	
     
-    ethnicity = models.CharField(max_length=10, choices=CAT_NEU_ETHNICITY, blank=True, default = '-9')
+    ethnicity = models.CharField(max_length=50, choices=CAT_NEU_ETHNICITY, blank=True, default = '-9')
     
-    race = models.CharField(max_length=10, choices=CAT_NEU_RACE, blank=True, default = '-9')
+    race = models.CharField(max_length=50, choices=CAT_NEU_RACE, blank=True, default = '-9')
     
-    ed = models.CharField(max_length=10,  blank=True, default = '-9')
+    ed = models.CharField(max_length=50,  blank=True, default = '-9')
     
     BMI = models.FloatField(blank = True, default = -9.0)	
     
-    fvinc = models.CharField(max_length=10, blank=True, default = '-9')
+    fvinc = models.CharField(max_length=50, blank=True, default = '-9')
     
-    smoking = models.CharField(max_length=10, choices=CAT_NEU_SMOKING, blank=True, default = '-9')
+    smoking = models.CharField(max_length=50, choices=CAT_NEU_SMOKING, blank=True, default = '-9')
     
-    pregnum = models.IntegerField(max_length=10, blank=True, default = -9)
+    pregnum = models.IntegerField(max_length=50, blank=True, default = -9)
     
-    preg_complications	= models.CharField(max_length=10, choices=CAT_NEU_COMPLICATIONS, blank=True, default = '-9')
+    preg_complications	= models.CharField(max_length=50, choices=CAT_NEU_COMPLICATIONS, blank=True, default = '-9')
     
-    folic_acid_supp	= models.CharField(max_length=10, choices=CAT_NEU_FOLIC, blank=True, default = '-9')
+    folic_acid_supp	= models.CharField(max_length=50, choices=CAT_NEU_FOLIC, blank=True, default = '-9')
     
     fish = models.FloatField(blank = True, default = -9.0)
     
-    babySex	= models.CharField(max_length=10, choices=CAT_NEU_SEX, blank=True, default = '-9')
+    babySex	= models.CharField(max_length=50, choices=CAT_NEU_SEX, blank=True, default = '-9')
     
     birthWt = models.FloatField(blank = True, default = -9.0)
     
@@ -229,11 +229,11 @@ class RawNEU(models.Model):
 
     headCirc = models.FloatField(blank = True, default = -9.0)
 
-    fvdate = models.CharField(max_length=10, blank=True, default = '-9')
+    fvdate = models.CharField(max_length=50, blank=True, default = '-9')
 
-    svdate = models.CharField(max_length=10, blank=True, default = '-9')
+    svdate = models.CharField(max_length=50, blank=True, default = '-9')
 
-    tvdate = models.CharField(max_length=10, blank=True, default = '-9')
+    tvdate = models.CharField(max_length=50, blank=True, default = '-9')
 
     SPECIFICGRAVITY_V1 = models.FloatField(blank = True, default = -9.0)
 
@@ -249,6 +249,6 @@ class RawNEU(models.Model):
     
     SGA= models.FloatField(blank = True, default = -9.0)
 
-    PPDATEDEL = models.CharField(blank = True, max_length = 12, default = -9.0)
+    PPDATEDEL = models.CharField(blank = True, max_length = 50, default = -9.0)
 
 
