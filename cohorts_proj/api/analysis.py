@@ -365,12 +365,12 @@ def runcustomanalysis():
     print(output_path)
 
     df_merged.groupby(['CohortType'])['PIN_Patient'].nunique()\
-            .to_csv(output_path + 'number_unique_participats.csv', index = False)
+            .to_csv(output_path + 'number_unique_participats.csv', index = True)
 
     ## Number of Records
 
     df_merged.groupby(['CohortType'])['PIN_Patient'].count()\
-            .to_csv(output_path + 'number_unique_records.csv', index = False)
+            .to_csv(output_path + 'number_unique_records.csv', index = True)
     
 
     ## Number of participants per visit
