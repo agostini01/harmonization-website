@@ -241,10 +241,14 @@ class RawNEU(models.Model):
 
     SPECIFICGRAVITY_V3 = models.FloatField(blank = True, default = -9.0)
 
-    sga = models.FloatField(blank = True, default = -9.0)
+    WeightZScore = models.FloatField(blank = True, default = -9.0)
+    
+    WeightCentile = models.FloatField(blank = True, default = -9.0)	
+    
+    LGA	= models.FloatField(blank = True, default = -9.0)
+    
+    SGA= models.FloatField(blank = True, default = -9.0)
 
-    lga = models.FloatField(blank = True, default = -9.0)
-
-    PPDATEDEL = models.FloatField(blank = True, default = -9.0)
+    PPDATEDEL = models.CharField(blank = True, max_length = 12, default = -9.0)
 
 

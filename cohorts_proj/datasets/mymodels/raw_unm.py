@@ -180,5 +180,13 @@ class RawUNM(models.Model):
     
     birthLen = models.FloatField(blank = True, default = -9.0)
 
+    WeightZScore = models.FloatField(blank = True, default = -9.0)
+    
+    WeightCentile = models.FloatField(blank = True, default = -9.0)	
+    
+    LGA	= models.FloatField(blank = True, default = -9.0)
+    
+    SGA= models.FloatField(blank = True, default = -9.0)
+
 
 

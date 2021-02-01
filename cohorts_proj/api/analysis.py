@@ -6,6 +6,8 @@ import scipy.stats as stats
 import os
 import matplotlib.pyplot as plt
 import traceback
+import statsmodels.api as sm
+
 
 from datasets.models import RawFlower, RawUNM, RawDAR
 from django.contrib.auth.models import User
@@ -183,6 +185,16 @@ def oneHotEncoding(df, toencode):
 def merge3CohortFrames(df1,df2,df3):
     'merge on feature intersections'
 
+    for as_feature in ['UASB', 'UDMA', 'UAS5', 'UIAS', 'UAS3', 'UMMA']:
+        if as_feature not in df1.columns:
+            df1[as_feature] = np.nan
+        if as_feature not in df2.columns:
+            df2[as_feature] = np.nan
+        if as_feature not in df3.columns:
+            df3[as_feature] = np.nan
+
+
+
     s1 = set(df1.columns)
     s2 = set(df2.columns)
     s3 = set(df3.columns)
@@ -244,6 +256,54 @@ def categoricalCounts(df,categorical, indv_or_all = 1):
 
     return df33.reset_index()
 
+def linearreg(df, covars, target):
+
+    Y = df[target]
+    X = df[covars]
+    X = sm.add_constant(X)
+    model = sm.OLS(Y,X)
+    results = model.fit()
+    
+    return results
+
+def linearreg(df, x_vars, targets, cohort):
+
+    rez = []
+
+    df = df.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+
+
+    for period in df['TimePeriod'].unique():
+        df_period = df[df['TimePeriod'] == period]
+
+        for x in x_vars:
+            for y in targets:
+                try:
+                    df_temp = df_period[(~df_period[x].isna()) & (~df_period[y].isna()) ]
+                    print('*************')
+                    print(df_temp.shape)
+
+                    X = df_temp[x]
+                    Y = df_temp[y]
+                    
+                    res = stats.linregress(X, Y)
+                    print(res)
+                    rez.append([cohort, x, y, len(X),res.slope, res.intercept, 
+                                            res.rvalue, res.pvalue, res.stderr,res.intercept_stderr])
+                    #except Exception as e:
+                    #    print(e)
+                        
+                    #    rez.append([cohort, x, y, len(X), np.nan, np.nan, np.nan, np.nan, np.nan, np.nan])
+                except Exception as e:
+                    print(e)
+
+    rez_df = pd.DataFrame(rez, columns = ['cohort','x','y', 'N','slope', 'intercept','rvalue', 'pvalue', 'stderr','intercept_stderr'])
+
+    return rez_df
+
+
+
+
 
 def runcustomanalysis():
 
@@ -261,8 +321,6 @@ def runcustomanalysis():
             df2[as_feature] = np.nan
         if as_feature not in df3.columns:
             df3[as_feature] = np.nan
-
-
 
     df_merged2 = merge2CohortFrames(df2,df3)
 
@@ -292,26 +350,27 @@ def runcustomanalysis():
 
     analytes_arsenic_unm = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
 
-    continuous = ['Outcome_weeks','age','BMI','fish','birthWt','birthLen'] + analytes_arsenic_neu 
+    continuous = ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] + analytes_arsenic_neu 
 
     categorical = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp',
-                'ethnicity','race','smoking','preg_complications','babySex']
+                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA']
 
 
     ## Number of Participants
 
     output_path = 'mediafiles/analysisresults/'
+    #output_path = '../mediafiles/analysisresults/'
 
     print('Files written to:')
     print(output_path)
 
     df_merged.groupby(['CohortType'])['PIN_Patient'].nunique()\
-            .to_csv(output_path + 'number_unique_participats.csv', index = True)
+            .to_csv(output_path + 'number_unique_participats.csv', index = False)
 
     ## Number of Records
 
     df_merged.groupby(['CohortType'])['PIN_Patient'].count()\
-            .to_csv(output_path + 'number_unique_records.csv', index = True)
+            .to_csv(output_path + 'number_unique_records.csv', index = False)
     
 
     ## Number of participants per visit
@@ -346,65 +405,51 @@ def runcustomanalysis():
 
     df22['percent'] = df22['value_x'] / df22['value_y']
     df22.round(4)\
-        .to_csv(output_path + 'categorical_counts_and_percentage.csv')
-
-    ####################################################################################################################################
-
-
-    ### look at distrubutions of harmonized data
-    data = pd.melt(df_merged,id_vars=['CohortType'], var_name = 'variable')
-
-    data = data[data['variable']!='PIN_Patient']
-    sns.set()
-
-    ### need to be recoded for visualization
-    data.loc[data['value'].isin([97,888,999,-9]),'value'] = np.nan
-
-    g = sns.FacetGrid(data, col="variable", hue = 'CohortType',
-                    col_wrap=6, sharex = False, sharey = False)
-
-    g2 = g.map_dataframe(sns.histplot, x="value", binwidth=.25)
-
-    g2.savefig(output_path + 'combiend_distributions.png')
-
-    ######################################################################################################################################
-    ##correlationns
+        .to_csv(output_path + 'categorical_counts_and_percentage.csv', index = False)
 
     to_corr_cols = continuous
 
     ##correlatiom heatmap
 
-    fig, ax = plt.subplots()
     corr1 = getCorrelationHeatmap(df_merged, continuous)
-
 
     plt.savefig(output_path + '_combiend_correlations.png')
 
     ##correlatiom heatmap
 
     for cohort in df_merged['CohortType'].unique():
-        df_indv = df_merged[df_merged['CohortType']== cohort]
-        fig, ax = plt.subplots()
-        corr_i = getCorrelationHeatmap(df_indv, continuous)
-        plt.savefig(output_path + cohort + '_combiend_correlations.png')
-    
+        df_cohort = df_merged[df_merged['CohortType'] == cohort]
 
-    ## correlations written to file
+        for period in df_cohort['TimePeriod'].unique():
+
+            df_indv = df_cohort[df_cohort['CohortType']== cohort]
+            
+            corr_i = getCorrelationHeatmap(df_indv, continuous)
+
+            plt.savefig(output_path + cohort + str(period) + '_indiv_correlations.png')
+    
+    ## spearma correlations written to file
 
     x_cols =  [ 'age',
-            'BMI', 'smoking', 'parity', 'preg_complications',
+            'BMI', 'parity',
             'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen'] + analytes_arsenic_neu
+    
     y_cols = ['Outcome_weeks','birthWt','birthLen']
 
+    for cohort in df_merged['CohortType'].unique():
+        df_cohort = df_merged[df_merged['CohortType'] == cohort]
 
-    for period in df_merged['TimePeriod'].unique():
-        df_period = df_merged[df_merged['TimePeriod'] == period]
-        
-        corr_period = getCorrelation(df_period, x_cols, y_cols,'spearman').round(4)
-        
-        corr_period['TimePeriod'] = period
-        
-        corr_period.round(4).to_csv(output_path + str(period) + '_period_correlations.csv')
+        for period in df_cohort['TimePeriod'].unique():
+            
+            df_period = df_cohort[df_cohort['TimePeriod'] == period]
+            
+            corr_period = getCorrelation(df_period, x_cols, y_cols,'spearman').round(4)
+            
+            corr_period['TimePeriod'] = period
+
+            corr_period['Cohort'] = cohort
+            
+            corr_period.round(4).to_csv(output_path + str(cohort) + str(period)  + '_period_correlations.csv', index = False)
     
     ##correlatiom heatmap
     
@@ -421,9 +466,19 @@ def runcustomanalysis():
 
     ###
 
-    x_cols = ['UIAS', 'UASB', 'UAS3', 'UAS5','UHG','UAS','age','BMI']
+    x_cols = ['UIAS', 'UASB', 'UAS3', 'UAS5','UHG','UAS','UTAS']
     y_cols = ['Outcome_weeks']
 
     #getCorrelation(df3, x_cols, y_cols,'spearman').round(4).to_csv(output_path + 'dar_3_correlations.csv')
 
-    
+    ### univariate linear regression:
+
+    confound = continuous + x_cols
+
+    neu = linearreg(df1, confound, ['Outcome_weeks','birthWt'], 'NEU')
+
+    unm = linearreg(df2, confound, ['Outcome_weeks','birthWt'], 'UNM')
+
+    dar = linearreg(df3, confound, ['Outcome_weeks','birthWt'], 'DAR')
+
+    pd.concat([neu,unm,dar]).round(4).to_csv(output_path +  'liregress_results.csv', index = False)

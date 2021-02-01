@@ -35,6 +35,8 @@ CAT_UNM_ANALYTES = [('Analytes', (
     ('UTMO', 'Trimethylarsine - Urine'),
     ('UTU',  'Tungsten -  Urine'),
     ('UUR',  'Uranium - Urine'),
+
+
 ))]
 
 CAT_UNM_MEMBER_C = (
@@ -54,7 +56,12 @@ ADDITIONAL_FEATURES = [('Categorical', (
     ('Member_c', 'Family Member'),
     ('TimePeriod', 'Collection Time'),
     ('CohortType', 'Cohort Type'),
-))]
+)), 
+('Outcomes', (
+    ('birthWt',  'Birth Weight'),
+    ('Outcome_weeks',  'Outcome Weeks')
+)
+)]
 
 UNM_FEATURE_CHOICES = CAT_UNM_ANALYTES + ADDITIONAL_FEATURES
 #UNM_FEATURE_CHOICES = CAT_UNM_ANALYTES
