@@ -82,7 +82,11 @@ def saveUNMToDB(csv_file):
             fish = entry.fish,
             babySex	= entry.babySex,
             birthWt = entry.birthWt,
-            birthLen = entry.birthLen
+            birthLen = entry.birthLen,
+            WeightZScore = entry.WeightZScore,
+            WeightCentile = entry.WeightCentile,
+            LGA	= entry.LGA,
+            SGA= entry.SGA
         )
 
 def saveNEUToDB(csv_file):
@@ -130,8 +134,10 @@ def saveNEUToDB(csv_file):
             SPECIFICGRAVITY_V1 = entry.SPECIFICGRAVITY_V1,
             SPECIFICGRAVITY_V2 = entry.SPECIFICGRAVITY_V2,
             SPECIFICGRAVITY_V3 = entry.SPECIFICGRAVITY_V3,
-            sga = entry.sga,
-            lga = entry.lga,
+            WeightZScore = entry.weightzscore,
+            WeightCentile = entry.weightcentile,
+            LGA	= entry.lga,
+            SGA= entry.sga,
             PPDATEDEL = entry.PPDATEDEL
 
             
@@ -441,8 +447,12 @@ class GraphRequestView(views.APIView):
             df1 = adapters.unm.get_dataframe()  # [selected_columns]
             df2 = adapters.neu.get_dataframe()  # [selected_columns]
             df3 = adapters.dar.get_dataframe()  # [selected_columns]
-            df = pd.concat([df1, df2, df3])
+            #df = pd.concat([df1, df2, df3])
 
+            df = analysis.merge3CohortFrames(df1, df2, df3)
+
+        print('((((((')   
+        print(time_period)
         # Apply Filters
         if time_period != 9:
             df = df[df['TimePeriod'] == time_period]
@@ -476,6 +486,19 @@ class GraphRequestView(views.APIView):
                 gr = cls.getIndividualScatterPlot(
                     df, x_feature, y_feature, color_by)
 
+            if (t == 'custom_facet_continous'):
+
+                gr = cls.getCustomFacetContinuousPlot1(
+                df, x_feature, y_feature, color_by)
+
+            if (t == 'custom_facet_categorical'):
+                
+                gr = cls.getCustomFacetCategoricalPlot1(
+                df, x_feature, y_feature, color_by)
+            
+            if (t == 'custom_facet_LM_plot'):
+                gr = cls.getCustomFacetLMPlot1(
+                df, x_feature, y_feature, color_by)
 
             if (t == 'pair_plot'):
                 gr = cls.getPairPlot(df, x_feature, y_feature, color_by)
@@ -514,6 +537,36 @@ class GraphRequestView(views.APIView):
         else:
             return graphs.getIndividualScatterPlotWithInfo(
                 data, x_feature, y_feature, color_by)
+
+    @classmethod
+    def getCustomFacetContinuousPlot1(cls, data, x_feature, y_feature, time_period,
+                                 info=True):
+        if info:
+            return graphs.getCustomFacetContinuousPlot1(
+                data, x_feature, y_feature, time_period)
+        else:
+            return graphs.getCustomFacetContinuousPlot1(
+                data, x_feature, y_feature, time_period)
+
+    @classmethod
+    def getCustomFacetCategoricalPlot1(cls, data, x_feature, y_feature, time_period,
+                                 info=True):
+        if info:
+            return graphs.getCustomFacetCategoricalPlot1(
+                data, x_feature, y_feature, time_period)
+        else:
+            return graphs.getCustomFacetCategoricalPlot1(
+                data, x_feature, y_feature, time_period)
+    
+    @classmethod
+    def getCustomFacetLMPlot1(cls, data, x_feature, y_feature, time_period,
+                                 info=True):
+        if info:
+            return graphs.getCustomFacetLMPlot1(
+                data, x_feature, y_feature, time_period)
+        else:
+            return graphs.getCustomFacetLMPlot1(
+                data, x_feature, y_feature, time_period)
 
     @classmethod
     def getScatterPlot(cls, data, x_feature, y_feature, color_by, info=True):

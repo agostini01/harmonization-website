@@ -19,10 +19,12 @@ def get_dataframe():
         values()
     )
 
+    print(df)
+
     covars = ['Outcome_weeks', 'age', 'ethnicity',
        'race', 'education', 'BMI', 'income', 'smoking', 'parity',
        'preg_complications', 'folic_acid_supp', 'fish', 'babySex', 'birthWt',
-       'birthLen']
+       'birthLen','WeightCentile','LGA','SGA']
        
     # RAW SAMPLE
     # id PIN_Patient Member_c TimePeriod Analyte    Result  Creat_Corr_Result

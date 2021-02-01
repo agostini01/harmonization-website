@@ -22,11 +22,19 @@ def get_dataframe():
     df['birthWt'] = df['birthWt'] * 1000
     df['birthLen'] = df['birthLen'] * 2.54
 
+    ## fish conversion
+
+    ## new covariates
+
+    ## add gestational age stuff
+
+    
+
     #df.rename(columns = {'pregnum':'parity'}, inplace = True)
     #new covars
     covars = ['Outcome_weeks', 'age', 'ethnicity', 'race', 
     'BMI', 'smoking', 'parity', 'preg_complications',
-    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen']
+    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen','WeightCentile','LGA','SGA']
 
     df['parity'] = df['pregnum']
 

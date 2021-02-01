@@ -348,4 +348,94 @@ def getViolinCatPlotWithInfo(data, x_feature, y_feature, color_by):
 
     return fig
 
+def getCustomFacetContinuousPlot1(df_merged, x_feature, y_feature, time_period):
 
+    print(time_period)
+    #if time_period != 9:
+
+    #    df_merged = df_merged[df_merged['TimePeriod']==time_period]
+
+    continuous = ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] + ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
+
+    data = pd.melt(df_merged[continuous + ['CohortType']],id_vars=['CohortType'], var_name = 'variable')
+
+    data.loc[data['value'].isin([97,888,999,-9]),'value'] = np.nan
+
+    sns.set(font_scale = 1.5)
+
+    g = sns.FacetGrid(data, col="variable", 
+                col_wrap=6, sharex = False, sharey = False)
+
+    g2 = g.map_dataframe(sns.histplot, x="value", 
+                        hue = 'CohortType',
+                        common_norm = False, 
+                        common_bins = True,
+                        multiple = 'dodge')
+
+    return g
+
+def getCustomFacetCategoricalPlot1(df_merged, x_feature, y_feature, time_period):
+
+    categorical = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp',
+                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA']
+
+
+    for x in categorical:
+        try:
+            df_merged[x] = df_merged[x].astype(int)
+        except:
+            print(x)
+
+    data = pd.melt(df_merged[categorical],id_vars=['CohortType'], var_name = 'variable')
+
+    data.loc[data['value'].isin([97,888,999,-9]),'value'] = np.nan
+
+    #sns.displot(data, x="value", hue="CohortType", col = 'variable', col_wrap = 6, sharex = False, sharey = False,
+    # stat="density", common_norm=False)
+
+    sns.set(font_scale = 1.5)
+
+    g = sns.FacetGrid(data, col="variable", 
+                    col_wrap=6, sharex = False, sharey = False, legend_out = True)
+
+    g2 = g.map_dataframe(sns.histplot, x="value", 
+                        hue = 'CohortType',
+                        common_norm = False, 
+                        common_bins = True,
+                        multiple = 'dodge')
+
+    for ax in g.axes.ravel():
+        ax.legend()
+
+    return g
+
+def getCustomFacetLMPlot1(df_merged, x_feature, y_feature, time_period):
+
+    categorical = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp',
+                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA']
+
+    df_merged_copy = df_merged.copy()
+
+    continuous = ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] + ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
+
+    for x in ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA']:
+        
+        df_merged_copy[x] = np.log(df_merged_copy[x])
+
+
+        
+    data = pd.melt(df_merged_copy[continuous+['CohortType']],id_vars=['CohortType',y_feature], var_name = 'variable')
+
+    data = data[data['variable']!='PIN_Patient']
+
+    data.loc[data['value'].isin([97,888,999,-9]),'value'] = np.nan
+    
+    sns.set(font_scale = 1.5)
+
+
+    g = sns.lmplot(y=y_feature, 
+                    x="value", hue="CohortType", 
+                    col="variable", col_wrap = 5,
+                data=data, x_jitter=.1, sharex = False, sharey = False)
+
+    return g

@@ -44,6 +44,7 @@ CAT_DAR_ANALYTES = [('Analytes', (
     # ('UTMO', 'Trimethylarsine - Urine')
     ('UTU',  'Tungsten - Urine'),                   # W in ug/L
     ('UUR',  'Uranium - Urine'),                    # U in ug/L
+
 ))]
 
 CAT_DAR_MEMBER_C = (
@@ -76,7 +77,13 @@ ADDITIONAL_FEATURES = [('Categorical', (
     ('Member_c', 'Family Member'),
     ('TimePeriod', 'Collection Time'),
     ('CohortType', 'Cohort Type'),
-))]
+)), 
+('Outcomes', (
+    ('birthWt',  'Birth Weight'),
+    ('Outcome_weeks',  'Outcome Weeks')
+)
+)]
+
 
 DAR_FEATURE_CHOICES = CAT_DAR_ANALYTES + ADDITIONAL_FEATURES
 DAR_CATEGORICAL_CHOICES = ADDITIONAL_FEATURES
