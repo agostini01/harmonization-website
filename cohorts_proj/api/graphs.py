@@ -364,7 +364,7 @@ def getCustomFacetContinuousPlot1(df_merged, x_feature, y_feature, time_period):
 
     data = pd.melt(df_merged_copy[continuous + ['CohortType']],id_vars=['CohortType'], var_name = 'x')
 
-    data.loc[data['v alue'].isin([97,888,999,-9]),'value'] = np.nan
+    data.loc[data['value'].isin([97,888,999,-9]),'value'] = np.nan
 
     sns.set(font_scale = 1.5)
 
@@ -524,8 +524,7 @@ def getCustomFacetCategoricalPlot1(df_merged, x_feature, y_feature, time_period)
 
     g = g.map_dataframe(sns.histplot, x="value", 
                         common_norm = False, 
-                        common_bins = True,
-                        multiple = 'dodge')
+                        common_bins = True)
     g.add_legend()
 
     g.set_xticklabels(rotation=90) 
@@ -565,7 +564,7 @@ def getCustomFacetLMPlot1(df_merged, x_feature, y_feature, time_period):
     g = sns.lmplot(y=y_feature, 
                     x="value", hue="CohortType", 
                     col="variable", col_wrap = 7,
-                   
+                   scatter_kws={"s": 25},
                 data=data, x_jitter=.1, sharex = False, sharey = True)
 
     return g
