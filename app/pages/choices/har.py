@@ -31,7 +31,9 @@ ADDITIONAL_FEATURES = [('Categorical', (
 )), 
 ('Outcomes', (
     ('birthWt',  'Birth Weight'),
-    ('Outcome_weeks',  'Outcome Weeks')
+    ('Outcome_weeks',  'Outcome Weeks'),
+    ('fish','Total Fish Consum.')
+
 )
 )]
 
