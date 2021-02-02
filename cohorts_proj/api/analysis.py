@@ -95,8 +95,10 @@ def corr_sig(df=None):
 
             df_temp = df[(~df[col].isna()) & (~df[col2].isna())]
             if df_temp.shape[0] > 2:
-                _ , p = stats.pearsonr(df_temp[col], df_temp[col2])
-                p_matrix[df.columns.to_list().index(col),df.columns.to_list().index(col2)] = p
+               
+                spearman = stats.spearmanr(df_temp[col], df_temp[col2])
+
+                p_matrix[df.columns.to_list().index(col),df.columns.to_list().index(col2)] = spearman.pvalue
             else:
                 p_matrix[df.columns.to_list().index(col),df.columns.to_list().index(col2)] = 1
 
@@ -144,6 +146,8 @@ def getCorrelationHeatmap(data, to_corr_cols):
 
 def cohortdescriptive(df_all):
     'fuction that returns count, mean, and std per cohort'
+
+    df_all = df_all.drop_duplicates(['CohortType','PIN_Patient','TimePeriod'])
 
     b = df_all.groupby(['CohortType']).agg(['count','mean','std']).transpose().reset_index()
 
@@ -252,6 +256,7 @@ def numberParticipants(df_all):
 
 def categoricalCounts(df,categorical, indv_or_all = 1):
 
+    
     df22 = df[categorical].drop_duplicates(['PIN_Patient'])
 
     categorical.remove('PIN_Patient')
@@ -301,7 +306,7 @@ def linearreg(df, x_vars, targets, cohort):
         for x in x_vars:
             for y in targets:
                 try:
-                    df_temp = df_period[(~df_period[x].isna()) & (~df_period[y].isna()) ]
+                    df_temp = df_period[(~df_period[x].isna()) & (~df_period[y].isna())  & (df_period[y] >= 0) & (df_period[x] >= 0) ]
                     print('*************')
                     print(df_temp.shape)
 
@@ -442,7 +447,7 @@ def runcustomanalysis():
 
     ## Continous descriptions
 
-    cohortdescriptive(df_merged[['CohortType'] + continuous]).reset_index().round(4)\
+    cohortdescriptive(df_merged[['CohortType','PIN_Patient','TimePeriod'] + continuous]).reset_index().round(4)\
         .to_csv(output_path + 'continous_merged_descriptive_all.csv')
 
     ####################################################################################################################################

@@ -27,7 +27,7 @@ def get_dataframe():
                   'folic_acid_supp','babySex',
                   'birthWt','birthLen','headCirc','ponderal','PNFFQTUNA',
                   'PNFFQFR_FISH_KIDS','PNFFQSHRIMP_CKD','PNFFQDK_FISH','PNFFQOTH_FISH',
-                  'mfsp_6','fish','TOTALFISH_SERV','folic_acid','income5y','urine_batchno_bulk','urine_batchno_spec',
+                  'mfsp_6','TOTALFISH_SERV','fish','folic_acid','income5y','urine_batchno_bulk','urine_batchno_spec',
                   'collect_age_days','collect_age_src','collection_season',
                   'pH','UTAS','PropMMAtoiAs','PropDMAtoMMA','urine_specific_gravity',
                   'WeightZScore',

@@ -387,6 +387,7 @@ def getCustomFacetCategoricalPlot1(df_merged, x_feature, y_feature, time_period)
     categorical = ['CohortType','TimePeriod','folic_acid_supp',
                 'ethnicity','race','smoking','preg_complications','babySex','Outcome','LGA','SGA']
 
+    df_merged = df_merged[categorical +['PIN_Patient']].drop_duplicates(['PIN_Patient'])
 
     for x in categorical:
         try:
