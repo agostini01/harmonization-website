@@ -442,14 +442,14 @@ def runcustomanalysis():
 
     ## Continous descriptions
 
-    cohortdescriptive(df_merged[['CohortType'] + continuous]).reset_index().roundn(4)\
+    cohortdescriptive(df_merged[['CohortType'] + continuous]).reset_index().round(4)\
         .to_csv(output_path + 'continous_merged_descriptive_all.csv')
 
     ####################################################################################################################################
 
     ## Describe by outcome
 
-    cohortDescriptiveByOutcome(df_merged[continuous + ['Outcome']]).reset_index(),roundn(4)\
+    cohortDescriptiveByOutcome(df_merged[continuous + ['Outcome']]).reset_index(),round(4)\
         .to_csv(output_path + 'continous_merged_descriptive_by_outcome.csv')
 
     ####################################################################################################################################
