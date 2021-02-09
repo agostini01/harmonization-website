@@ -20,7 +20,7 @@ CAT_NEU_ANALYTES = [('Analytes', (
     ('UTU', 'Tungsten - Urine'),
     ('UUR', 'Uranium - Urine'),
     ('UVA', 'Vanadium - Urine'),
-    ('UZN', 'Zinc - Urine'),
+    ('UZN', 'Zinc - Urine')
     # Blood
     # ('BSB', 'Antimony - Blood'   ),
     # ('BTAS','Arsenic - Blood'    ),
@@ -68,7 +68,13 @@ ADDITIONAL_FEATURES = [('Categorical', (
     ('Member_c', 'Family Member'),
     ('TimePeriod', 'Collection Time'),
     ('CohortType', 'Cohort Type'),
-))]
+)), 
+('Outcomes', (
+    ('birthWt',  'Birth Weight'),
+    ('Outcome_weeks',  'Outcome Weeks')
+)
+)]
+
 
 NEU_FEATURE_CHOICES = CAT_NEU_ANALYTES + ADDITIONAL_FEATURES
 NEU_CATEGORICAL_CHOICES = ADDITIONAL_FEATURES

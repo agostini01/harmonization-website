@@ -19,17 +19,37 @@ def get_dataframe():
         values()
     )
 
+    df['birthWt'] = df['birthWt'] * 1000
+    df['birthLen'] = df['birthLen'] * 2.54
+
+    ## fish conversion
+
+    ## new covariates
+
+    ## add gestational age stuff
+
+    
+
+    #df.rename(columns = {'pregnum':'parity'}, inplace = True)
+    #new covars
+    covars = ['Outcome_weeks', 'age', 'ethnicity', 'race', 
+    'BMI', 'smoking', 'parity', 'preg_complications',
+    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen','WeightCentile','LGA','SGA']
+
+    df['parity'] = df['pregnum']
 
     # Pivoting the table and reseting index
     numerical_values = 'Result'
-    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome']
+    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome'] + covars
     categorical_to_columns = ['Analyte']
-    indexes_to_columns = ['Member_c', 'TimePeriod', 'Outcome']
+    indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
     df = pd.pivot_table(df, values=numerical_values,
                         index=columns_to_indexes,
                         columns=categorical_to_columns,
                         aggfunc=np.average)
+                        
     df = df.reset_index(level=indexes_to_columns)
+
     # TODO - Should we drop NaN here?
 
     # After pivot
@@ -45,3 +65,7 @@ def get_dataframe():
     df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
 
     return df
+
+
+
+

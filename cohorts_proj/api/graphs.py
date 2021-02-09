@@ -3,7 +3,8 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 import scipy.stats as stats
-
+from api import analysis
+import matplotlib
 import traceback
 
 # Functions to generate different types of plots
@@ -17,6 +18,7 @@ def getInfoString(data, x_feature, y_feature, color_by):
     filtered_df = data[data[[x_feature, y_feature]].notnull().all(1)]
     info1 = str(filtered_df[[x_feature, y_feature]].describe(include='all'))
     info2 = str(filtered_df[[color_by]].describe(include='all'))
+
     info = "Summary of intersection between analytes\n" + \
         "(Not Null samples only):\n\n" + \
         info1+"\n\n"+info2
@@ -39,12 +41,13 @@ def getKdeInfoString(data, feature,color_by):
 
     filtered_df = data[data[[feature]].notnull().all(1)]
     cohorts = data['CohortType'].unique().tolist()
-    pivot_filt_df = pd.pivot_table(data, values=feature, index = data.index,
-                    columns='CohortType').reset_index()
+    
+    df = filtered_df.groupby(['CohortType']).agg({feature:
+        ['count',np.mean,np.var]}).reset_index()
 
-    info1 = str(pivot_filt_df[cohorts].describe(include='all'))
+    info1 = str(df)
 
-    info = "Summary per cohort\n" + \
+    info = "Summary \n" \
         "(Not Null samples only):\n\n" + \
         info1+"\n\n"
 
@@ -54,6 +57,7 @@ def getViolinCatInfoString(data, x_feature,y_feature, color_by):
     """Return high level statistics of unique samples for violin plot."""
 
     filtered_df = data[data[[x_feature]].notnull().all(1)]
+
     cohorts = data['CohortType'].unique().tolist()
 
     df = data.groupby([x_feature,color_by]).agg({y_feature:
@@ -64,8 +68,6 @@ def getViolinCatInfoString(data, x_feature,y_feature, color_by):
     info = "Summary \n" \
         "(Not Null samples only):\n\n" + \
         info1+"\n\n"
-
-    info += '***************************'
 
     return info
 
@@ -285,6 +287,26 @@ def getHistogramPlotWithInfo(data, x_feature, y_feature, color_by):
     else:
         data_c = data
 
+    sns.distplot(data_c[x_feature], ax=ax[0])
+
+    addInfoToAxis(info, ax) 
+
+    return fig
+
+def getKdePlotWithInfo(data, x_feature, y_feature, color_by):
+    info = getKdeInfoString(data, x_feature, color_by)
+
+    fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
+
+    std = np.std(data[x_feature])
+
+    data_rem = data.loc[data[x_feature] < 2* std]
+
+    if data_rem.shape[0] > 20:
+        data_c = data_rem
+    else:
+        data_c = data
+
     #sns.distplot(d_outliers, ax=ax[0])
     ##kdeplot temprary substitution for histogram
     b = sns.kdeplot(
@@ -318,7 +340,6 @@ def getViolinCatPlotWithInfo(data, x_feature, y_feature, color_by):
                      hue=color_by, 
                      scale = 'width',
                      kind="box", 
-                     #inner = 'quartile',
                      ax = ax[0],
                      linewidth = .58,
                      split = False)
@@ -327,4 +348,224 @@ def getViolinCatPlotWithInfo(data, x_feature, y_feature, color_by):
 
     return fig
 
+def getCustomFacetContinuousPlot1(df_merged, x_feature, y_feature, time_period):
 
+    print(time_period)
+    #if time_period != 9:
+
+    #    df_merged = df_merged[df_merged['TimePeriod']==time_period]
+
+    continuous = ['age','BMI','fish','birthWt','birthLen','WeightCentile','Outcome_weeks'] + ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
+    df_merged_copy = df_merged.copy()
+
+    for x in ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA']:
+        
+        df_merged_copy[x] = np.log(df_merged_copy[x])
+
+    data = pd.melt(df_merged_copy[continuous + ['CohortType']],id_vars=['CohortType'], var_name = 'x')
+
+    data.loc[data['value'].isin([97,888,999,-9]),'value'] = np.nan
+
+    sns.set(font_scale = 1.5)
+
+    g = sns.FacetGrid(data, col="x", 
+                col_wrap=5, sharex = False, sharey = False, legend_out = True,hue = 'CohortType')
+
+    g = g.map_dataframe(sns.histplot, x="value",             
+                        common_norm = False, 
+                        common_bins = True,
+                        multiple = 'dodge')
+
+    # The color cycles are going to all the same, doesn't matter which axes we use
+    
+    g.add_legend()
+
+    return g
+
+def getCustomFacetCategoricalPlot1(df_merged, x_feature, y_feature, time_period):
+
+    categorical = ['CohortType','TimePeriod','folic_acid_supp',
+                'ethnicity','race','smoking','preg_complications','babySex','Outcome','LGA','SGA']
+
+    df_merged = df_merged[categorical +['PIN_Patient']].drop_duplicates(['PIN_Patient'])
+
+    for x in categorical:
+        try:
+            df_merged[x] = df_merged[x].astype(str)
+        except:
+            print(x)
+
+    conditions = [
+        (df_merged['babySex'] == '1.0'),
+        (df_merged['babySex'] == '2.0'),
+        (df_merged['babySex'] == '3.0'),
+        (df_merged['babySex'] == 'NaN')
+    ]
+
+    choices = ['M','F','A','Miss']
+
+    df_merged['babySex'] = np.select(conditions, choices, default='-9')
+
+    conditions = [
+        (df_merged['race'] == '1.0'),
+        (df_merged['race'] == '2.0'),
+        (df_merged['race'] == '3.0'),
+        (df_merged['race'] == '4.0'),
+        (df_merged['race'] == '5.0'),
+        (df_merged['race'] == '6.0'),
+        (df_merged['race'] == '97'),
+        (df_merged['race'] == '888'),
+        (df_merged['race'] == '999')
+    ]
+
+      
+    choices =  ['Whte', 'AfrA', 'AIAN', 'Asian','NHPI', 'Mult', 'Oth', 'Ref', 'DK']
+
+    df_merged['race'] = np.select(conditions, choices, default='-9')
+
+
+    conditions = [
+        (df_merged['ethnicity'] == '1.0'),
+        (df_merged['ethnicity'] == '2.0'),
+        (df_merged['ethnicity'] == '3.0'),
+        (df_merged['ethnicity'] == '4.0'),
+        (df_merged['ethnicity'] == '5.0'),
+        (df_merged['ethnicity'] == '6.0'),
+        (df_merged['ethnicity'] == '97'),
+        (df_merged['ethnicity'] == '888'),
+        (df_merged['ethnicity'] == '999')
+    ]
+
+      
+    choices =  ['PR', 'Cuban', 'Domin.', 'Mex.','MexA', 'SouthA', 'Oth', 'Ref', 'DK']
+
+    CAT_NEU_SMOKING = [
+    ('0', 'never smoked'),
+    ('1', 'past smoker'),
+    ('2', 'current smoker'), 
+    ('3', 'smoke during pregnancy')
+    ]
+
+    df_merged['ethnicity'] = np.select(conditions, choices, default='-9')
+
+
+    conditions = [
+        (df_merged['smoking'] == '0.0'),
+        (df_merged['smoking'] == '1.0'),
+        (df_merged['smoking'] == '2.0'),
+        (df_merged['smoking'] == '3.0'),
+       
+    ]
+
+      
+    choices =  ['Never', 'past', 'curr', 'Pregsmk']
+
+    df_merged['smoking'] = np.select(conditions, choices, default='Miss')
+
+
+    conditions = [
+        (df_merged['folic_acid_supp'] == '0.0'),
+        (df_merged['folic_acid_supp'] == '1.0'),
+        (df_merged['folic_acid_supp'] == '999.0'),
+    ]
+    choices =  ['No','Yes','Ref']
+
+    df_merged['folic_acid_supp'] = np.select(conditions, choices, default='Miss')
+
+
+    conditions = [
+        (df_merged['preg_complications'] == '0.0'),
+        (df_merged['preg_complications'] == '1.0'),
+        (df_merged['preg_complications'] == '999.0'),
+    ]
+    choices =  ['No','Yes','Ref']
+
+    df_merged['preg_complications'] = np.select(conditions, choices, default='Miss')
+
+    conditions = [
+        (df_merged['Outcome'] == '0.0'),
+        (df_merged['Outcome'] == '1.0'),
+        (df_merged['Outcome'] == '999.0'),
+    ]
+    choices =  ['FullTerm','Preterm','Miss']
+
+    df_merged['Outcome'] = np.select(conditions, choices, default='Miss')
+
+
+    conditions = [
+        (df_merged['LGA'] == '0.0'),
+        (df_merged['LGA'] == '1.0'),
+        (df_merged['LGA'] == '999.0'),
+    ]
+    choices =  ['No','Yes','Miss']
+
+    df_merged['LGA'] = np.select(conditions, choices, default='Miss')
+
+    conditions = [
+        (df_merged['SGA'] == '0.0'),
+        (df_merged['SGA'] == '1.0'),
+        (df_merged['SGA'] == '999.0'),
+    ]
+    choices =  ['No','Yes','Miss']
+
+    df_merged['SGA'] = np.select(conditions, choices, default='Miss')
+
+
+    data = pd.melt(df_merged[categorical],id_vars=['CohortType'], var_name = 'x')
+
+    data.loc[data['value'].isin(['97','888','999','-9']),'value'] = 'Miss'
+
+    #sns.displot(data, x="value", hue="CohortType", col = 'variable', col_wrap = 6, sharex = False, sharey = False,
+    # stat="density", common_norm=False)
+
+    sns.set(font_scale = 1.5)
+
+    g = sns.FacetGrid(data, col="x", 
+                    col_wrap=5, sharex = False, sharey = False, legend_out = True,hue = 'CohortType')
+
+    g = g.map_dataframe(sns.histplot, x="value", 
+                        common_norm = False, 
+                        common_bins = True)
+    g.add_legend()
+
+    g.set_xticklabels(rotation=90) 
+    #g.fig.tight_layout()
+    g.set_xticklabels(rotation=75, size = 15)
+
+    plt.subplots_adjust(hspace=0.7, wspace=0.4)
+    
+    return g
+
+def getCustomFacetLMPlot1(df_merged, x_feature, y_feature, time_period):
+
+    
+
+    categorical = ['CohortType','TimePeriod','folic_acid_supp',
+                'ethnicity','race','smoking','preg_complications','babySex','Outcome','LGA','SGA']
+
+    df_merged_copy = df_merged.copy()
+
+    continuous =  ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
+
+    for x in ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA']:
+        
+        df_merged_copy[x] = np.log(df_merged_copy[x])
+        
+    data = pd.melt(df_merged_copy[continuous+['CohortType'] +[y_feature]],id_vars=['CohortType',y_feature], var_name = 'variable')
+
+    data = data[data['variable']!='PIN_Patient']
+
+    data.loc[data['value'].isin([97,888,999,-9]),'value'] = np.nan
+
+    data = data[data[y_feature] > 0]
+    
+    sns.set(font_scale = 1.5,style = 'whitegrid')
+
+
+    g = sns.lmplot(y=y_feature, 
+                    x="value", hue="CohortType", 
+                    col="variable", col_wrap = 7,
+                   scatter_kws={"s": 25},
+                data=data, x_jitter=.1, sharex = False, sharey = True)
+
+    return g

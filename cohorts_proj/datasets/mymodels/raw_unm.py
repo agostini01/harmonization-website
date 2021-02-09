@@ -58,6 +58,72 @@ CAT_UNM_OUTCOME = (
     ('1', 'preterm'),
 )
 
+CAT_UNM_ETHNICITY = [
+    ('1', 'Puerto Rican'), 
+    ('2', 'Cuban or Cuban-American') ,
+    ('3', 'Dominican'),
+    ('4', 'Mexican'), 
+    ('5', 'Mexican-American' ),
+    ('6', 'Central or South American' ),
+    ('97', 'Other'),
+    ('888', 'Refused'),
+    ('999', 'Don"t Know')
+]
+
+CAT_UNM_RACE = [
+    ('1', 'White'), 
+    ('2', 'Black or African American'), 
+    ('3', 'American Indian or Alaska Native'), 
+    ('4', 'Asian'), 
+    ('5', 'Native to Hawaii or Other Pacific Islands'),
+    ('6', 'More than one race'),
+    ('97', 'Some other race'),
+    ('888', 'Refused'),
+    ('999', 'Don"t know')
+]
+
+CAT_UNM_EDUCATION = [
+    ('1', 'Less than 11th grade' ),
+    ('2', 'High school graduate or equivalent' ),
+    ('3', 'Junior college graduate') ,
+    ('4', 'College graduate'),
+    ('5', 'Any post-graduate schooling')]
+
+CAT_UNM_INCOME = [
+    ('1', '0 - 4999'),
+    ('2', '5000 - 9999'),
+    ('3', '10000, 19999'), 
+    ('4', '20000 - 39999'),
+    ('5', '40000 - 69999'),
+    ('6', '70000+')
+]
+
+CAT_UNM_SMOKING = [
+    ('0', 'never smoked'),
+    ('1', 'past smoker'),
+    ('2', 'current smoker'), 
+    ('3', 'smoke during pregnancy')
+]
+
+CAT_UNM_COMPLICATIONS = [
+    ('0', 'none'), 
+    ('1', 'complications present')
+]
+CAT_UNM_FOLIC = [
+    ('0', 'none'), 
+    ('1', 'complications present')
+]
+
+CAT_UNM_FISH = [
+    ('0', 'no'), 
+    ('1', 'yes')
+]
+
+CAT_UNM_SEX = [
+    ('1','Female'),
+    ('2', 'Male'),
+    ('3', 'Ambiguos Genitalia')
+]
 
 class RawUNM(models.Model):
 
@@ -83,3 +149,46 @@ class RawUNM(models.Model):
     
     # Outcome – categorical variable: 1 = preterm birth; 0 = term
     Outcome = models.CharField(max_length=1, choices=CAT_UNM_OUTCOME, blank=True)
+
+    Outcome_weeks = models.FloatField(blank = True, default = -9.0)
+
+    age = models.IntegerField(blank=True, default = -9)	
+    
+    ethnicity = models.CharField(max_length=4, choices=CAT_UNM_ETHNICITY, blank=True, default = '-9')
+    
+    race = models.CharField(max_length=4, choices=CAT_UNM_RACE, blank=True, default = '-9')
+    
+    education = models.CharField(max_length=4, choices=CAT_UNM_EDUCATION, blank=True, default = '-9')
+    
+    BMI = models.FloatField(blank = True, default = -9.0)	
+    
+    income = models.CharField(max_length=4, choices=CAT_UNM_INCOME, blank=True, default = '-9')
+    
+    smoking = models.CharField(max_length=4, choices=CAT_UNM_SMOKING, blank=True, default = '-9')
+    
+    parity = models.IntegerField(max_length=4, blank=True, default = -9)
+    
+    preg_complications	= models.CharField(max_length=4, choices=CAT_UNM_COMPLICATIONS, blank=True, default = '-9')
+    
+    folic_acid_supp	= models.CharField(max_length=4, choices=CAT_UNM_FOLIC, blank=True, default = '-9')
+    
+    fish = models.CharField(max_length=4, choices=CAT_UNM_FISH, blank=True, default = '-9')
+    
+    babySex	= models.CharField(max_length=4, choices=CAT_UNM_SEX, blank=True, default = '-9')
+    
+    birthWt = models.FloatField(blank = True, default = -9.0)
+    
+    birthLen = models.FloatField(blank = True, default = -9.0)
+
+    WeightZScore = models.FloatField(blank = True, default = -9.0)
+    
+    WeightCentile = models.FloatField(blank = True, default = -9.0)	
+    
+    LGA	= models.FloatField(blank = True, default = -9.0)
+    
+    SGA= models.FloatField(blank = True, default = -9.0)
+
+    gestAge_collection = models.FloatField(blank = True, default = -9.0)
+
+
+
