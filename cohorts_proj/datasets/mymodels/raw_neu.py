@@ -249,6 +249,10 @@ class RawNEU(models.Model):
     
     SGA= models.FloatField(blank = True, default = -9.0)
 
-    PPDATEDEL = models.CharField(blank = True, max_length = 50, default = -9.0)
+    PPDATEDEL = models.CharField(blank = True, max_length = 50, default = '-9.0')
+
+    ga_collection = models.FloatField(blank = True, default = -9.0)	
+ 
+    
 
 

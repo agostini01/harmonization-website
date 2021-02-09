@@ -19,6 +19,10 @@ def get_dataframe():
         values()
     )
 
+    print('************************')
+
+    print(df.shape)
+
     df['birthWt'] = df['birthWt'] * 1000
     df['birthLen'] = df['birthLen'] * 2.54
 
@@ -26,17 +30,21 @@ def get_dataframe():
 
     ## new covariates
 
-    ## add gestational age stuff
-
-    
-
     #df.rename(columns = {'pregnum':'parity'}, inplace = True)
     #new covars
+
     covars = ['Outcome_weeks', 'age', 'ethnicity', 'race', 
     'BMI', 'smoking', 'parity', 'preg_complications',
-    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen','WeightCentile','LGA','SGA']
+    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen',
+    'WeightCentile','LGA','SGA','ga_collection']
 
+    #calculate extra variables
+    #parity
     df['parity'] = df['pregnum']
+    #ga at collection
+
+   
+    print(df.columns) 
 
     # Pivoting the table and reseting index
     numerical_values = 'Result'
@@ -47,7 +55,7 @@ def get_dataframe():
                         index=columns_to_indexes,
                         columns=categorical_to_columns,
                         aggfunc=np.average)
-                        
+    print(df.columns)                   
     df = df.reset_index(level=indexes_to_columns)
 
     # TODO - Should we drop NaN here?
@@ -60,6 +68,8 @@ def get_dataframe():
     # A0001M               1        1  1.458583  ...  0.514317  1.262910  1.554346
     # A0001M               3        1  1.365789  ...  0.143302  1.692582  0.020716
     # A0002M               1        1  1.547669  ...  0.387643  0.988567  1.081877
+
+    
 
     df['CohortType'] = 'NEU'
     df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')

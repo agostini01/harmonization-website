@@ -139,7 +139,8 @@ def saveNEUToDB(csv_file):
             WeightCentile = entry.weightcentile,
             LGA	= entry.lga,
             SGA= entry.sga,
-            PPDATEDEL = entry.PPDATEDEL
+            PPDATEDEL = entry.PPDATEDEL,
+            ga_collection = entry.ga_collection
 
             
         )
