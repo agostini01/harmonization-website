@@ -169,10 +169,15 @@ def getRegPlot(data, x_feature, y_feature, color_by):
 def getRegColorPlot(data, x_feature, y_feature, color_by):
 
     filtered_df = data[data[[x_feature, y_feature]].notnull().all(1)]
+
+    #take log transform
+    filtered_df[x_feature] = np.log(filtered_df[x_feature])
+
     color_by_options = filtered_df[color_by].unique()
 
     reg_info0 = ''
     reg_info1 = ''
+
     gr = sns.lmplot(data=data, x=x_feature,
                     y=y_feature, hue=color_by, legend_out=True)
 
@@ -335,6 +340,7 @@ def getViolinCatPlotWithInfo(data, x_feature, y_feature, color_by):
     else:
         data_c = data
     
+    
     sns.violinplot(data=data_c, x=x_feature,
                      y=y_feature, 
                      hue=color_by, 
@@ -348,6 +354,14 @@ def getViolinCatPlotWithInfo(data, x_feature, y_feature, color_by):
 
     return fig
 
+def vertical_mean_line(x, **kwargs):
+    ls = {"0":"-","1":"--"}
+    plt.axvline(x.mean(), linestyle =ls[kwargs.get("label","0")], 
+                color = kwargs.get("color", "g"))
+    txkw = dict(size=12, color = kwargs.get("color", "g"), rotation=90)
+    tx = "mean: {:.2f}, std: {:.2f}".format(x.mean(),x.std())
+    plt.text(x.mean()+1, 0.052, tx, **txkw)
+
 def getCustomFacetContinuousPlot1(df_merged, x_feature, y_feature, time_period):
 
     print(time_period)
@@ -355,7 +369,7 @@ def getCustomFacetContinuousPlot1(df_merged, x_feature, y_feature, time_period):
 
     #    df_merged = df_merged[df_merged['TimePeriod']==time_period]
 
-    continuous = ['age','BMI','fish','birthWt','birthLen','WeightCentile','Outcome_weeks'] + ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
+    continuous = ['age','BMI','fish','birthWt','birthLen','WeightCentile','Outcome_weeks','ga_collection'] + ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
     df_merged_copy = df_merged.copy()
 
     for x in ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA']:
