@@ -169,9 +169,9 @@ def getRegPlot(data, x_feature, y_feature, color_by):
 def getRegColorPlot(data, x_feature, y_feature, color_by):
 
     filtered_df = data[data[[x_feature, y_feature]].notnull().all(1)]
-    
+
     #take log transform
-    filtered_df['x_feature'] = np.log(filtered_df['x_feature'])
+    filtered_df[x_feature] = np.log(filtered_df[x_feature])
 
     color_by_options = filtered_df[color_by].unique()
 
