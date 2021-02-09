@@ -168,6 +168,7 @@ def q3(x):
 
 #5-number summary; minimum, quartile 1, median, quartile 3, and maximum.
 def cohortdescriptive_all(df_all):
+    
     'fuction that returns count, mean, and std per cohort'
 
     df_all = df_all.drop_duplicates(['CohortType','PIN_Patient','TimePeriod'])
@@ -175,6 +176,9 @@ def cohortdescriptive_all(df_all):
     df_all = df_all.select_dtypes(include=['float64'])
 
     #b = df_all.agg(['count','mean','std',lambda x: x.quantile(0.25), lambda x: x.quantile(0.50)])
+
+    df_all[df_all < 0 ] = np.nan
+
     b = df_all.agg(['count','mean','std','min',  q1, 'median', q3, 'max']).transpose()
 
     return b
