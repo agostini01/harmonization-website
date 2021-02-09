@@ -427,13 +427,15 @@ def runcustomanalysis():
                 'UMN', 'UMO', 'UNI', 'UPB', 'UPT', 'USB', 'USE', 'USN', 'UTAS', 'UTL',
                 'UTU', 'UUR', 'UVA', 'UZN']
 
+    analytes2 = ['UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMN', 'USE', 'UTAS', 'UBA', 'UMN', 'UCO']
+
     analytes_arsenic_neu = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
 
     analytes_arsenic_dar = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
 
     analytes_arsenic_unm = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
 
-    continuous = ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] + analytes_arsenic_neu 
+    continuous = ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] + analytes_arsenic_neu + analytes2
 
     categorical = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp',
                 'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA']
