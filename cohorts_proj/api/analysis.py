@@ -427,7 +427,7 @@ def runcustomanalysis():
                 'UMN', 'UMO', 'UNI', 'UPB', 'UPT', 'USB', 'USE', 'USN', 'UTAS', 'UTL',
                 'UTU', 'UUR', 'UVA', 'UZN']
 
-    analytes2 = ['UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMN', 'USE', 'UTAS', 'UBA', 'UMN', 'UCO']
+    analytes2 = ['UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMN', 'UMO', 'UTAS', 'UBA', 'UMN', 'UCO']
 
     analytes_arsenic_neu = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
 
