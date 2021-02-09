@@ -157,6 +157,28 @@ def cohortdescriptive(df_all):
 
     return df2
 
+def q1(x):
+    return x.quantile(0.25)
+
+def q2(x):
+    return x.median()
+
+def q3(x):
+    return x.quantile(0.75)
+
+#5-number summary; minimum, quartile 1, median, quartile 3, and maximum.
+def cohortdescriptive_all(df_all):
+    'fuction that returns count, mean, and std per cohort'
+
+    df_all = df_all.drop_duplicates(['CohortType','PIN_Patient','TimePeriod'])
+
+    df_all = df_all.select_dtypes(include=['float64'])
+
+    #b = df_all.agg(['count','mean','std',lambda x: x.quantile(0.25), lambda x: x.quantile(0.50)])
+    b = df_all.agg(['count','mean','std','min',  q1, 'median', q3, 'max']).transpose()
+
+    return b
+
 def cohortdescriptiveOverall(data):
 
     for col in data.columns:
@@ -254,9 +276,9 @@ def numberParticipants(df_all):
 
     df_all
 
-def categoricalCounts(df,categorical, indv_or_all = 1):
+def categoricalCounts(df,categorical, indv_or_all):
 
-    
+    #each participant should only have 1 measurment per continous variable
     df22 = df[categorical].drop_duplicates(['PIN_Patient'])
 
     categorical.remove('PIN_Patient')
@@ -272,7 +294,7 @@ def categoricalCounts(df,categorical, indv_or_all = 1):
     ## counts by cohort individually
     if indv_or_all == 0:
         df33 = pd.DataFrame(pd.melt(df22,id_vars=['CohortType'])\
-                        .groupby(['Analyte','value'])['value'].count())
+                        .groupby(['CohortType','Analyte','value'])['value'].count())
         
 
         df33.index.names = ['CohortType','variable', 'cat']
@@ -315,13 +337,9 @@ def linearreg(df, x_vars, targets, cohort):
                     
                     res = stats.linregress(X, Y)
 
-                    print(res)
                     rez.append([cohort, x, y, len(X),res.slope, res.intercept, 
                                             res.rvalue, res.pvalue, res.stderr,res.intercept_stderr])
-                    #except Exception as e:
-                    #    print(e)
-                        
-                    #    rez.append([cohort, x, y, len(X), np.nan, np.nan, np.nan, np.nan, np.nan, np.nan])
+
                 except Exception as e:
                     print(e)
 
@@ -389,6 +407,7 @@ def runcustomanalysis():
         if as_feature not in df3.columns:
             df3[as_feature] = np.nan
 
+
     df_merged2 = merge2CohortFrames(df2,df3)
     ## merge the frames
 
@@ -450,6 +469,9 @@ def runcustomanalysis():
     cohortdescriptive(df_merged[['CohortType','PIN_Patient','TimePeriod'] + continuous]).reset_index().round(4)\
         .to_csv(output_path + 'continous_merged_descriptive_all.csv')
 
+
+    cohortdescriptive_all(df_merged[['CohortType','PIN_Patient','TimePeriod'] + continuous]).reset_index().round(4)\
+        .to_csv(output_path + 'continous_merged_descriptive.csv', index = False)
     ####################################################################################################################################
 
     ## Describe by outcome
@@ -461,6 +483,15 @@ def runcustomanalysis():
 
     ## Decribe categorical variables and percentages
 
+    ## For individual
+
+    df0_cat = categoricalCounts(df_merged,categorical + ['PIN_Patient'], 0).reset_index()
+
+    df0_cat.to_csv(output_path + 'individual_categorical_counts_and_percentage.csv', index = False)
+
+
+    ## For amerged
+
     df1_cat = categoricalCounts(df_merged,categorical + ['PIN_Patient'], 1).reset_index()
 
     df1_tos = categoricalCounts(df_merged,categorical + ['PIN_Patient'], 1).groupby(['variable']).sum().reset_index()
@@ -469,7 +500,7 @@ def runcustomanalysis():
 
     df22['percent'] = df22['value_x'] / df22['value_y']
     df22.round(4)\
-        .to_csv(output_path + 'categorical_counts_and_percentage.csv', index = False)
+        .to_csv(output_path + 'merged_categorical_counts_and_percentage.csv', index = False)
 
     to_corr_cols = continuous
 

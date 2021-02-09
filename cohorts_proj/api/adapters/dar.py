@@ -73,6 +73,8 @@ def get_dataframe():
 
     df['Outcome_weeks'] = df['sample_gestage_days'] 
 
+    df['ga_collection'] = df['collect_age_days'] /7 
+
     # Read numeric columns as numeric
     numeric_columns =     ['UIAS', 
                   'UASB', 

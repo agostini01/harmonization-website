@@ -24,7 +24,9 @@ def get_dataframe():
     covars = ['Outcome_weeks', 'age', 'ethnicity',
        'race', 'education', 'BMI', 'income', 'smoking', 'parity',
        'preg_complications', 'folic_acid_supp', 'fish', 'babySex', 'birthWt',
-       'birthLen','WeightCentile','LGA','SGA']
+       'birthLen','WeightCentile','LGA','SGA','ga_collection']
+
+    df['ga_collection'] = df['gestAge_collection']
        
     # RAW SAMPLE
     # id PIN_Patient Member_c TimePeriod Analyte    Result  Creat_Corr_Result
