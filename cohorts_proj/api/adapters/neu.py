@@ -26,7 +26,22 @@ def get_dataframe():
     df['birthWt'] = df['birthWt'] * 1000
     df['birthLen'] = df['birthLen'] * 2.54
 
-    ## fish conversion
+    ## education connversionn
+
+    df['ed'] = df['ed'].astype(float)
+
+    conditions = [
+    (df['ed'] <= 8 ),
+    (df['ed'].isin([9,10,11,12])),
+    (df['ed'].isin([13,14])) ,
+    (df['ed'] == 15 ),
+    (df['ed'] > 15 ) &  (df['ed'] < 20) ,
+    ]
+    choices = [1,2,3,4,5]
+
+
+    df['education'] = np.select(conditions, choices, default=-9)
+
 
     ## new covariates
 
@@ -36,7 +51,7 @@ def get_dataframe():
     covars = ['Outcome_weeks', 'age', 'ethnicity', 'race', 
     'BMI', 'smoking', 'parity', 'preg_complications',
     'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen',
-    'WeightCentile','LGA','SGA','ga_collection']
+    'WeightCentile','LGA','SGA','ga_collection','education']
 
     #calculate extra variables
     #parity

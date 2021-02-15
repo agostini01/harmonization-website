@@ -7,6 +7,7 @@ import os
 import matplotlib.pyplot as plt
 import traceback
 import statsmodels.api as sm
+import statsmodels.formula.api as smf
 
 
 from datasets.models import RawFlower, RawUNM, RawDAR
@@ -35,9 +36,9 @@ def getCorrelationPerVisit(data, x_cols, y_cols, corr_method):
                 if x!=y:
 
                     for visit in df1['TimePeriod'].unique():
-                        #print(visit)
+                        
                         df_visit = df1[df1['TimePeriod']== visit]
-                        #print(df1.shape)
+                        
                         try:
                             temp = df_visit[(~df_visit[x].isna()) & (~df_visit[y].isna()) ]
                             N = temp.shape[0]
@@ -92,12 +93,9 @@ def corr_sig(df=None):
     p_matrix = np.zeros(shape=(df.shape[1],df.shape[1]))
     for col in df.columns:
         for col2 in df.drop(col,axis=1).columns:
-
             df_temp = df[(~df[col].isna()) & (~df[col2].isna())]
             if df_temp.shape[0] > 2:
-               
                 spearman = stats.spearmanr(df_temp[col], df_temp[col2])
-
                 p_matrix[df.columns.to_list().index(col),df.columns.to_list().index(col2)] = spearman.pvalue
             else:
                 p_matrix[df.columns.to_list().index(col),df.columns.to_list().index(col2)] = 1
@@ -121,10 +119,8 @@ def getCorrelationHeatmap(data, to_corr_cols):
     corr = data[to_corr_cols].corr(method = 'spearman').round(4)
 
     # Generate a mask for the upper triangle
-
     p_values = corr_sig(data[to_corr_cols])
     mask = np.invert(np.tril(p_values<0.05))
-    #mask = np.triu(np.ones_like(corr, dtype=bool))
 
     # Set up the matplotlib figure
     f, ax = plt.subplots(figsize=(40, 30))
@@ -166,11 +162,10 @@ def q2(x):
 def q3(x):
     return x.quantile(0.75)
 
-#5-number summary; minimum, quartile 1, median, quartile 3, and maximum.
-def cohortdescriptive_all(df_all):
-    
-    'fuction that returns count, mean, and std per cohort'
 
+def cohortdescriptive_all(df_all):
+    ' summary; minimum, quartile 1, median, quartile 3, and maximum.'
+    
     df_all = df_all.drop_duplicates(['CohortType','PIN_Patient','TimePeriod'])
 
     df_all = df_all.select_dtypes(include=['float64'])
@@ -186,7 +181,6 @@ def cohortdescriptive_all(df_all):
 def cohortdescriptiveOverall(data):
 
     for col in data.columns:
-
         try:
             data[col] = data[col].astype(float)
             
@@ -305,20 +299,6 @@ def categoricalCounts(df,categorical, indv_or_all):
 
     return df33.reset_index()
 
-def linearreg(df, covars, analyte, target):
-
-    Y = df[target]
-
-    X = df[covars + analyte]
-
-    X = sm.add_constant(X)
-
-    model = sm.OLS(Y,X)
-
-    results = model.fit()
-    
-    return results
-
 def linearreg(df, x_vars, targets, cohort):
     # run simple linear regression y = ax + b and report slope, intercept, rvalue, plvalue, 'stderr
 
@@ -372,7 +352,6 @@ def logisticregress(df, x_vars, targets, cohort):
                     Y = df_temp[y]
 
                     print(Y)
-                    
                     #res = stats.linregress(X, Y)
                     if df_temp.shape[0] > 2:
                         log_reg = sm.Logit(Y, X).fit() 
@@ -393,6 +372,99 @@ def logisticregress(df, x_vars, targets, cohort):
     rez_df = pd.DataFrame(rez, columns = ['cohort','x','y', 'N','slope', 'slope_p', 'intercept','intercept_p'])
 
     return rez_df
+
+def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
+    ## linear mixed model analysis for all 3 cohorts
+
+    for col in categorical:
+        print(col)
+        try:
+            df_merged[col] = df_merged[col].astype(int)
+            df_merged.loc[df_merged[col] < 0, col] = np.nan
+        except:
+            print('err on ' + col)
+    
+    ## drop any rows with nan - discuss in meetig whether we want to imput missing data
+
+    incomplete_N = df_merged.shape[0]
+
+    cols_to_mix =  [target_analyte, target_var, 'fish', 'smoking', 'parity', 
+       'babySex', 'ga_collection',
+       'preg_complications',
+       'race', 'BMI', 'PIN_Patient',
+       'age', 'CohortType', 'folic_acid_supp']
+
+    # drop any missing values as mixed model requires complete data
+    df_nonan = df_merged[cols_to_mix].dropna(axis='rows')
+
+    complete_N = df_nonan.shape[0]
+
+    df_nonan['race'] = df_nonan['race'].astype(int)
+    df_nonan['smoking'] = df_nonan['smoking'].astype(int)
+
+    ## dummy race annd smoking varible
+
+    df_fin_UTAS = pd.concat([df_nonan, pd.get_dummies(df_nonan['race'], prefix = 'race')], axis = 1)
+
+    df_fin_UTAS = pd.concat([df_fin_UTAS, pd.get_dummies(df_fin_UTAS['smoking'], prefix = 'smoking')], axis = 1)
+
+    dup_visit_N = df_fin_UTAS.shape[0]
+
+    ## check this with Justin
+
+    df_fin_UTAS = df_fin_UTAS.drop_duplicates(['PIN_Patient'], keep = 'first')
+
+    single_visit_N = df_fin_UTAS.shape[0]
+
+    N_DAR = df_fin_UTAS[df_fin_UTAS['CohortType'] == 'DAR'].shape[0]
+    N_UNM = df_fin_UTAS[df_fin_UTAS['CohortType'] == 'UNM'].shape[0]
+    N_NEU = df_fin_UTAS[df_fin_UTAS['CohortType'] == 'NEU'].shape[0]
+
+    ## create the model string for 
+
+    fit_string = target_var + '~'
+
+    cnt = 0
+
+    ## filter out target, at birth, and reference dummy variables in model
+    for x in df_fin_UTAS:
+        
+        if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
+            and x!='birthLen' and x != 'CohortType' and x != 'race' and x!='race_999' and x!= 'smoking' and x != 'smoking_3':
+            
+            if cnt == 0:
+                fit_string += ' ' + x + ' '
+            else:
+                fit_string += ' + ' + x + ' '
+            cnt+=1         
+        
+    print('mixedML string:')
+    print(fit_string)
+
+    ## miced linear model with group variable = CohortType
+    md = smf.mixedlm(fit_string, df_fin_UTAS, groups=df_fin_UTAS["CohortType"])
+
+    ##fit the model 
+    mdf = md.fit(maxiter=50000)
+
+    print(mdf.summary())
+
+    text_file = open(output_path + 'Output {}.txt'.format(target_var + '_' + target_analyte), "w")
+    
+    text_file.write('DF Size with incompletes: '  + str(incomplete_N) + '\n')
+    text_file.write('DF Size with omplete: ' + str(complete_N)+ '\n')
+    text_file.write('DF Size with mult visits: '  + str(dup_visit_N)+ '\n')
+    text_file.write('DF Size with single visits: ' + str(single_visit_N)+ '\n')
+    text_file.write('DF Size for Dar: ' + str(N_DAR)+ '\n')
+    text_file.write('DF Size for UNM: ' + str(N_UNM)+ '\n')
+    text_file.write('DF Size for NEU: ' + str(N_NEU)+ '\n')
+
+    text_file.write('=====================================================================\n')
+
+    text_file.write(str(mdf.summary()))
+    text_file.close()
+
+    return 1
 
 
 def runcustomanalysis():
@@ -421,13 +493,13 @@ def runcustomanalysis():
 
     covariates = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome', 'Outcome_weeks',
                 'age', 'ethnicity', 'race', 'BMI', 'smoking', 'parity',
-                    'preg_complications', 'folic_acid_supp', 
-                    'fish',
-                    'babySex',
-                    'birthWt',
-                    'birthLen']
+                'preg_complications', 'folic_acid_supp', 'education',
+                'fish',
+                'babySex',
+                'birthWt',
+                'birthLen']
 
-    analytes =    ['UBA', 'UBE', 'UCD', 'UCO', 'UCR', 'UCS', 'UCU', 'UHG',
+    analytes = ['UBA', 'UBE', 'UCD', 'UCO', 'UCR', 'UCS', 'UCU', 'UHG',
                 'UMN', 'UMO', 'UNI', 'UPB', 'UPT', 'USB', 'USE', 'USN', 'UTAS', 'UTL',
                 'UTU', 'UUR', 'UVA', 'UZN']
 
@@ -435,14 +507,10 @@ def runcustomanalysis():
 
     analytes_arsenic_neu = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
 
-    analytes_arsenic_dar = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
-
-    analytes_arsenic_unm = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
-
-    continuous = ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] + analytes_arsenic_neu + analytes2
+    continuous = ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] + analytes_arsenic_neu
 
     categorical = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp',
-                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA']
+                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education']
 
 
     ## Number of Participants
@@ -450,8 +518,7 @@ def runcustomanalysis():
     output_path = 'mediafiles/analysisresults/'
     #output_path = '../mediafiles/analysisresults/'
 
-    print('Files written to:')
-    print(output_path)
+    print('Files written to: ' + output_path)
 
     df_merged.groupby(['CohortType'])['PIN_Patient'].nunique()\
             .to_csv(output_path + 'number_unique_participats.csv', index = True)
@@ -496,7 +563,7 @@ def runcustomanalysis():
     df0_cat.to_csv(output_path + 'individual_categorical_counts_and_percentage.csv', index = False)
 
 
-    ## For amerged
+    ## For merged
 
     df1_cat = categoricalCounts(df_merged,categorical + ['PIN_Patient'], 1).reset_index()
 
@@ -591,16 +658,40 @@ def runcustomanalysis():
     ###
     ###
 
-    neu = logisticregress(df1, confound, ['Outcome','SGA','LGA'], 'NEU')
+    #neu = logisticregress(df1, confound, ['Outcome','SGA','LGA'], 'NEU')
 
-    unm = logisticregress(df2, confound, ['Outcome','SGA','LGA'], 'UNM')
+    #unm = logisticregress(df2, confound, ['Outcome','SGA','LGA'], 'UNM')
 
-    dar = logisticregress(df3, confound, ['Outcome','SGA','LGA'], 'DAR')
+    #dar = logisticregress(df3, confound, ['Outcome','SGA','LGA'], 'DAR')
 
     ## can't do this yet -- not sure which visit to merge on .. .. .. .. .. ..
     #all_cohorts = logisticregress(a, confound, ['Outcome_weeks','SGA','LGA'], 'DAR')
 
-    log_result = pd.concat([neu,unm,dar]).round(4)
+    #log_result = pd.concat([neu,unm,dar]).round(4)
     
-    log_result[log_result['slope_p'] <=5].sort_values(by = 'slope_p')\
-                    .to_csv(output_path +  'llogisticr_results.csv', index = False)
+    #log_result[log_result['slope_p'] <=5].sort_values(by = 'slope_p')\
+     #               .to_csv(output_path +  'llogisticr_results.csv', index = False)
+
+
+    ## linear mixed model analysis for all 3 cohorts
+
+    _ = mixedML(df_merged, 'birthWt', 'UTAS', categorical, output_path)
+
+    _ = mixedML(df_merged, 'LGA', 'UTAS', categorical, output_path)
+
+    _ = mixedML(df_merged, 'SGA', 'UTAS', categorical, output_path)
+
+    _ = mixedML(df_merged, 'Outcome_weeks', 'UTAS', categorical, output_path)
+
+    _ = mixedML(df_merged, 'Outcome', 'UTAS', categorical, output_path)
+
+    
+
+
+   
+
+
+
+    
+
+
