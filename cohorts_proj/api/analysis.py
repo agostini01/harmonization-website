@@ -376,6 +376,8 @@ def logisticregress(df, x_vars, targets, cohort):
 def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
     ## linear mixed model analysis for all 3 cohorts
 
+
+
     for col in categorical:
         print(col)
         try:
@@ -388,8 +390,15 @@ def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
 
     incomplete_N = df_merged.shape[0]
 
+    ## keep only a sepcific window of gestationn
+
+
+    df_merged = df_merged[(df_merged['ga_collection'] > 13) & (df_merged['ga_collection'] < 28)]
+
+    incomplete_N2 = df_merged.shape[0]
+
     cols_to_mix =  [target_analyte, target_var, 'fish', 'smoking', 'parity', 
-       'babySex', 'ga_collection',
+       'babySex', 'ga_collection', 'education',
        'preg_complications',
        'race', 'BMI', 'PIN_Patient',
        'age', 'CohortType', 'folic_acid_supp']
@@ -452,7 +461,8 @@ def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
     text_file = open(output_path + 'Output {}.txt'.format(target_var + '_' + target_analyte), "w")
     
     text_file.write('DF Size with incompletes: '  + str(incomplete_N) + '\n')
-    text_file.write('DF Size with omplete: ' + str(complete_N)+ '\n')
+    text_file.write('DF Size with incompletes 13 - 28: '  + str(incomplete_N2) + '\n')
+    text_file.write('DF Size with complete: ' + str(complete_N)+ '\n')
     text_file.write('DF Size with mult visits: '  + str(dup_visit_N)+ '\n')
     text_file.write('DF Size with single visits: ' + str(single_visit_N)+ '\n')
     text_file.write('DF Size for Dar: ' + str(N_DAR)+ '\n')
