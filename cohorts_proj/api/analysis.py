@@ -393,6 +393,7 @@ def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
     ## keep only a sepcific window of gestationn
 
 
+
     df_merged = df_merged[(df_merged['ga_collection'] > 13) & (df_merged['ga_collection'] < 28)]
 
     incomplete_N2 = df_merged.shape[0]
@@ -410,12 +411,15 @@ def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
 
     df_nonan['race'] = df_nonan['race'].astype(int)
     df_nonan['smoking'] = df_nonan['smoking'].astype(int)
+    df_nonan['education'] = df_nonan['education'].astype(int)
 
     ## dummy race annd smoking varible
 
     df_fin_UTAS = pd.concat([df_nonan, pd.get_dummies(df_nonan['race'], prefix = 'race')], axis = 1)
 
     df_fin_UTAS = pd.concat([df_fin_UTAS, pd.get_dummies(df_fin_UTAS['smoking'], prefix = 'smoking')], axis = 1)
+
+    df_fin_UTAS = pd.concat([df_fin_UTAS, pd.get_dummies(df_fin_UTAS['education'], prefix = 'education')], axis = 1)
 
     dup_visit_N = df_fin_UTAS.shape[0]
 
@@ -439,7 +443,7 @@ def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
     for x in df_fin_UTAS:
         
         if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
-            and x!='birthLen' and x != 'CohortType' and x != 'race' and x!='race_999' and x!= 'smoking' and x != 'smoking_3':
+            and x!='birthLen' and x != 'CohortType' and x != 'race' and x!='race_999' and x!= 'smoking' and x != 'smoking_3' and x!= 'education_5':
             
             if cnt == 0:
                 fit_string += ' ' + x + ' '
