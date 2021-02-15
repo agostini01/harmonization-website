@@ -423,7 +423,7 @@ def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
 
     dup_visit_N = df_fin_UTAS.shape[0]
 
-    ## check this with Justin
+    ## keep only first visit result if duplicate samples reported
 
     df_fin_UTAS = df_fin_UTAS.drop_duplicates(['PIN_Patient'], keep = 'first')
 
@@ -443,7 +443,7 @@ def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
     for x in df_fin_UTAS:
         
         if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
-            and x!='birthLen' and x != 'CohortType' and x != 'race' and x!='race_999' and x!= 'smoking' and x != 'smoking_3' and x!= 'education_5':
+            and x!='birthLen' and x != 'CohortType' and x != 'race' and x!='race_999' and x!= 'smoking' and x != 'smoking_3' and x!= 'education_5' and x!= 'education':
             
             if cnt == 0:
                 fit_string += ' ' + x + ' '
@@ -458,7 +458,7 @@ def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
     md = smf.mixedlm(fit_string, df_fin_UTAS, groups=df_fin_UTAS["CohortType"])
 
     ##fit the model 
-    mdf = md.fit(maxiter=50000)
+    mdf = md.fit(maxiter=80000)
 
     print(mdf.summary())
 
@@ -466,12 +466,13 @@ def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
     
     text_file.write('DF Size with incompletes: '  + str(incomplete_N) + '\n')
     text_file.write('DF Size with incompletes 13 - 28: '  + str(incomplete_N2) + '\n')
-    text_file.write('DF Size with complete: ' + str(complete_N)+ '\n')
-    text_file.write('DF Size with mult visits: '  + str(dup_visit_N)+ '\n')
-    text_file.write('DF Size with single visits: ' + str(single_visit_N)+ '\n')
-    text_file.write('DF Size for Dar: ' + str(N_DAR)+ '\n')
-    text_file.write('DF Size for UNM: ' + str(N_UNM)+ '\n')
-    text_file.write('DF Size for NEU: ' + str(N_NEU)+ '\n')
+    text_file.write('DF Size with completes only: ' + str(complete_N)+ '\n')
+    text_file.write('DF Size with multi visits: '  + str(dup_visit_N)+ '\n')
+    text_file.write('Final DF Size for Dar: ' + str(N_DAR)+ '\n')
+    text_file.write('Final DF Size for UNM: ' + str(N_UNM)+ '\n')
+    text_file.write('Final DF Size for NEU: ' + str(N_NEU)+ '\n')
+    text_file.write('Fial  DF Size with single visits: ' + str(single_visit_N)+ '\n')
+  
 
     text_file.write('=====================================================================\n')
 
