@@ -804,7 +804,7 @@ def getClusterMap(data, color_by):
     # Set up the matplotlib figure
     f, ax = plt.subplots(figsize=(40, 30))
 
-    g = sns.clustermap(X_norm, cmap="mako", vmin=0, vmax=1, row_colors = row_colors)
+    g = sns.clustermap(X_norm, cmap="mako", vmin=0, vmax=1)
 
     #g.set_xticklabels(g.get_xmajorticklabels(), fontsize = 30, rotation = 90)
     #g.set_yticklabels(g.get_ymajorticklabels(), fontsize = 30, rotation = 0)
