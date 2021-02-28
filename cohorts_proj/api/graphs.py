@@ -753,13 +753,6 @@ def getClusterMap(data, color_by):
 
     data = data[~data[color_by].isna()]
 
-    for col in arsenic_cont:
-
-        if col not in data.columns:
-
-            data[col] = np.nan
-
-    
     for col in to_corr_cols:
 
         try:
