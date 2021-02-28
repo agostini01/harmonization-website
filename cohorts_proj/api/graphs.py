@@ -753,7 +753,7 @@ def getClusterMap(data, color_by):
 
     data = data[~data[color_by].isna()]
 
-    for col in to_corr_cols:
+    for col in data.columns:
 
         try:
             data[col] = data[col].astype(float)
@@ -790,6 +790,7 @@ def getClusterMap(data, color_by):
         return (x - np.min(x)) /  (np.max(x) - np.min(x))
 
     norm = []
+
     for col in X:
 
         norm.append(minmax_scaler(X[col].values))
