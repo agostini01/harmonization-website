@@ -430,17 +430,20 @@ class GraphRequestView(views.APIView):
         if dataset_type == 'unmneu_dataset':
             df1 = adapters.unm.get_dataframe()
             df2 = adapters.neu.get_dataframe()
-            df = pd.concat([df1, df2])
+            #df = pd.concat([df1, df2])
+            df = analysis.merge2CohortFrames(df1, df2)
 
         if dataset_type == 'neudar_dataset':
             df1 = adapters.neu.get_dataframe()
             df2 = adapters.dar.get_dataframe()
-            df = pd.concat([df1, df2])
+            #df = pd.concat([df1, df2])
+            df = analysis.merge2CohortFrames(df1, df2)
 
         if dataset_type == 'darunm_dataset':
             df1 = adapters.unm.get_dataframe()
             df2 = adapters.dar.get_dataframe()
-            df = pd.concat([df1, df2])
+            #df = pd.concat([df1, df2])
+            df = analysis.merge2CohortFrames(df1, df2)
 
         # This is the harmonized dataset
         if dataset_type == 'har_dataset':
@@ -450,8 +453,8 @@ class GraphRequestView(views.APIView):
             df2 = adapters.neu.get_dataframe()  # [selected_columns]
             df3 = adapters.dar.get_dataframe()  # [selected_columns]
             #df = pd.concat([df1, df2, df3])
-
             df = analysis.merge3CohortFrames(df1, df2, df3)
+            
 
         print('((((((')   
         print(time_period)
@@ -482,18 +485,33 @@ class GraphRequestView(views.APIView):
                     
             if (t == 'corr_plot'):
 
+                gr = cls.getCorrelationHeatmap(
+                    df)
+            
+            if (t == 'clustermap'):
+
+                gr = cls.getClusterMap(
+                    df, color_by)
+
+            if (t == 'analysis'):
+
                 print(os.listdir())
                 analysis.runcustomanalysis()
 
                 gr = cls.getIndividualScatterPlot(
                     df, x_feature, y_feature, color_by)
 
-            if (t == 'custom_facet_continous'):
+            if (t == 'covars_facet_continous'):
 
                 gr = cls.getCustomFacetContinuousPlot1(
-                df, x_feature, y_feature, color_by)
+                df, x_feature, y_feature, color_by, 0)
+            
+            if (t == 'arsenic_facet_continous'):
 
-            if (t == 'custom_facet_categorical'):
+                gr = cls.getCustomFacetContinuousPlot1(
+                df, x_feature, y_feature, color_by, 1)
+
+            if (t == 'covars_facet_categorical'):
                 
                 gr = cls.getCustomFacetCategoricalPlot1(
                 df, x_feature, y_feature, color_by)
@@ -513,6 +531,7 @@ class GraphRequestView(views.APIView):
 
             if (t == 'histogram_plot'):
                 gr = cls.getHistogramPlot(df, x_feature, y_feature, color_by)
+            
             if (t == 'kde_plot'):
                 gr = cls.getKdePlot(df, x_feature, y_feature, color_by)
 
@@ -541,14 +560,14 @@ class GraphRequestView(views.APIView):
                 data, x_feature, y_feature, color_by)
 
     @classmethod
-    def getCustomFacetContinuousPlot1(cls, data, x_feature, y_feature, time_period,
+    def getCustomFacetContinuousPlot1(cls, data, x_feature, y_feature, time_period, type,
                                  info=True):
         if info:
             return graphs.getCustomFacetContinuousPlot1(
-                data, x_feature, y_feature, time_period)
+                data, x_feature, y_feature, time_period, type)
         else:
             return graphs.getCustomFacetContinuousPlot1(
-                data, x_feature, y_feature, time_period)
+                data, x_feature, y_feature, time_period, type)
 
     @classmethod
     def getCustomFacetCategoricalPlot1(cls, data, x_feature, y_feature, time_period,
@@ -649,3 +668,15 @@ class GraphRequestView(views.APIView):
         else:
             return graphs.getRegDetailedPlot(
                 data, x_feature, y_feature, color_by)
+    
+    @classmethod
+    def getCorrelationHeatmap(cls, data):
+        
+        return graphs.getCorrelationHeatmap(data)
+
+    @classmethod
+    def getClusterMap(cls, data, color_by):
+        
+        return graphs.getClusterMap(data, color_by)
+
+

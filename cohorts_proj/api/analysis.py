@@ -256,8 +256,15 @@ def merge3CohortFrames(df1,df2,df3):
 def merge2CohortFrames(df1,df2):
     'merge on feature intersections'
 
+    for as_feature in ['UASB', 'UDMA', 'UAS5', 'UIAS', 'UAS3', 'UMMA']:
+        if as_feature not in df1.columns:
+            df1[as_feature] = np.nan
+        if as_feature not in df2.columns:
+            df2[as_feature] = np.nan
+    
     s1 = set(df1.columns)
     s2 = set(df2.columns)
+
     cc = set.intersection(s1, s2)
 
     df_all = pd.concat([df1[cc],df2[cc]])
@@ -391,8 +398,6 @@ def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
     incomplete_N = df_merged.shape[0]
 
     ## keep only a sepcific window of gestationn
-
-
 
     df_merged = df_merged[(df_merged['ga_collection'] > 13) & (df_merged['ga_collection'] < 28)]
 
@@ -670,38 +675,22 @@ def runcustomanalysis():
 
     pd.concat([neu,unm,dar]).round(4).to_csv(output_path +  'uni_var_linregress_results.csv', index = False)
 
-    ### univariate logistic regression:
-    ###
-    ###
-
-    #neu = logisticregress(df1, confound, ['Outcome','SGA','LGA'], 'NEU')
-
-    #unm = logisticregress(df2, confound, ['Outcome','SGA','LGA'], 'UNM')
-
-    #dar = logisticregress(df3, confound, ['Outcome','SGA','LGA'], 'DAR')
-
-    ## can't do this yet -- not sure which visit to merge on .. .. .. .. .. ..
-    #all_cohorts = logisticregress(a, confound, ['Outcome_weeks','SGA','LGA'], 'DAR')
-
-    #log_result = pd.concat([neu,unm,dar]).round(4)
-    
-    #log_result[log_result['slope_p'] <=5].sort_values(by = 'slope_p')\
-     #               .to_csv(output_path +  'llogisticr_results.csv', index = False)
+    ### fit models:: TODO Remove variables that seem problematic...
 
 
-    ## linear mixed model analysis for all 3 cohorts
 
     _ = mixedML(df_merged, 'birthWt', 'UTAS', categorical, output_path)
+
+    _ = mixedML(df_merged, 'Outcome_weeks', 'UTAS', categorical, output_path)
+
+    ## Requires mixed regressio
+
+    _ = mixedML(df_merged, 'Outcome', 'UTAS', categorical, output_path)
 
     _ = mixedML(df_merged, 'LGA', 'UTAS', categorical, output_path)
 
     _ = mixedML(df_merged, 'SGA', 'UTAS', categorical, output_path)
 
-    _ = mixedML(df_merged, 'Outcome_weeks', 'UTAS', categorical, output_path)
-
-    _ = mixedML(df_merged, 'Outcome', 'UTAS', categorical, output_path)
-
-    
 
 
    

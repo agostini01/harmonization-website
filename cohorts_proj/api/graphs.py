@@ -6,7 +6,6 @@ import scipy.stats as stats
 from api import analysis
 import matplotlib
 import traceback
-
 # Functions to generate different types of plots
 
 # ==============================================================================
@@ -152,13 +151,22 @@ def getHistogramPlot(data, x_feature, y_feature, color_by):
     return fig
 
 def getRegPlot(data, x_feature, y_feature, color_by):
-    fig, _ = plt.subplots(1, 1, figsize=(5, 5))
+
+    sns.set()
+    #TODO linregress plot by cohort
+
+    #fig, _ = plt.subplots(1, 1, figsize=(5, 5))
+
+    data['log_' + x_feature] = np.log(data[x_feature] )
+
     gr = sns.regplot(data=data, x=x_feature,
                      y=y_feature)
+
     slope, intercept, r_value, p_value, std_err = stats.linregress(
         x=gr.get_lines()[0].get_xdata(),
         y=gr.get_lines()[0].get_ydata())
-    reg_info = "f(x)={:.3f}x + {:.3f}".format(
+    
+    reg_info = "y={:.3f}x + {:.3f}".format(
         slope, intercept)
 
     gr.set_title(reg_info)
@@ -167,6 +175,8 @@ def getRegPlot(data, x_feature, y_feature, color_by):
 
 
 def getRegColorPlot(data, x_feature, y_feature, color_by):
+
+    sns.set()
 
     filtered_df = data[data[[x_feature, y_feature]].notnull().all(1)]
 
@@ -180,37 +190,59 @@ def getRegColorPlot(data, x_feature, y_feature, color_by):
     reg_info1 = ''
 
     gr = sns.lmplot(data=data, x=x_feature,
-                    y=y_feature, hue=color_by, legend_out=True)
+                    y=y_feature, hue=color_by, legend_out=False)
+    
+    #TODO fix legends - not the best way to display equations
+
+    labs = list(gr._legend_data.keys())
+    
 
     slope, intercept, r_value, p_value, std_err = stats.linregress(
         x=gr.axes.flat[0].get_lines()[0].get_xdata(),
         y=gr.axes.flat[0].get_lines()[0].get_ydata())
-    reg_info0 = "f(x)={:.3f}x + {:.3f}".format(
-        slope, intercept)
+   
+    reg_info0 = str(labs[0]) + ": y={:.2f}x + {:.2f} \n r^2={:.2f}, p={:.2f}, std_err={:.2f} \n".format(
+            slope, intercept, r_value**2, p_value, std_err)
 
     # for x in xrange(len(color_by_options)):
+    # adding support if we want to color by multiple options 
 
-    if (len(color_by_options) > 1):
-        try:
-            slope, intercept, r_value, p_value, std_err = stats.linregress(
-                x=gr.axes.flat[0].get_lines()[1].get_xdata(),
-                y=gr.axes.flat[0].get_lines()[1].get_ydata())
-            reg_info1 = "g(x)={:.3f}x + {:.3f}".format(
-                slope, intercept)
+    num_lines = len(gr.axes.flat[0].get_lines())
 
-        except Exception as exc:
-            print('Error: We need 2 points to create a line...')
-            print(traceback.format_exc())
-            print(exc)
+    reg_infos = [reg_info0]
 
-    reg_info = "{}  |  {}".format(reg_info0, reg_info1)
+    if (num_lines > 1):
 
-    gr.fig.suptitle(reg_info)
+        for i in range(1, num_lines):
+            try:
+                slope, intercept, r_value, p_value, std_err = stats.linregress(
+                    x=gr.axes.flat[0].get_lines()[i].get_xdata(),
+                    y=gr.axes.flat[0].get_lines()[i].get_ydata())
+              
+                reg_info1 = str(labs[i]) + ": y={:.2f}x + {:.2f} \n r^2={:.2f}, p={:.2f}, std_err={:.2f}\n".format(
+                slope, intercept, r_value**2, p_value, std_err)
+
+                reg_infos.append(reg_info1)
+
+            except Exception as exc:
+                print('Error: We need 2 points to create a line...')
+                print(traceback.format_exc())
+                print(exc)
+
+    #reg_info = "{}  |  {}".format(reg_info0, reg_info1)
+
+    #gr.fig.suptitle(' | '.join(reg_infos), 1, .98)
+
+    plt.suptitle(''.join(reg_infos), **{'x': 1.4, 'y':.98})
+
+    plt.legend(bbox_to_anchor=(.85, 0., 0.5, 0.5), title = color_by)
 
     return gr
 
 
 def getRegDetailedPlot(data, x_feature, y_feature, color_by):
+
+
     def get_stats(x, y):
         """Prints more statistics"""
 
@@ -280,6 +312,9 @@ def getScatterPlotWithInfo(data, x_feature, y_feature, color_by):
 
 
 def getHistogramPlotWithInfo(data, x_feature, y_feature, color_by):
+
+    sns.set()
+
     info = getKdeInfoString(data, x_feature, color_by)
 
     fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
@@ -300,6 +335,9 @@ def getHistogramPlotWithInfo(data, x_feature, y_feature, color_by):
     return fig
 
 def getKdePlotWithInfo(data, x_feature, y_feature, color_by):
+
+    sns.set()
+
     info = getKdeInfoString(data, x_feature, color_by)
 
     fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5*2, 5))
@@ -363,14 +401,24 @@ def vertical_mean_line(x, **kwargs):
     tx = "mean: {:.2f}, std: {:.2f}".format(x.mean(),x.std())
     plt.text(x.mean()+1, 0.052, tx, **txkw)
 
-def getCustomFacetContinuousPlot1(df_merged, x_feature, y_feature, time_period):
+def getCustomFacetContinuousPlot1(df_merged, x_feature, y_feature, time_period, type):
 
     print(time_period)
     #if time_period != 9:
 
     #    df_merged = df_merged[df_merged['TimePeriod']==time_period]
 
-    continuous = ['age','BMI','fish','birthWt','birthLen','WeightCentile','Outcome_weeks','ga_collection'] + ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
+    #['age','BMI','fish','birthWt','birthLen','WeightCentile',
+    #'Outcome_weeks','ga_collection'] 
+
+    if type == 0:
+
+        continuous = ['age','BMI','fish','birthWt','birthLen','WeightCentile',
+                    'Outcome_weeks','ga_collection'] 
+    if type == 1:
+
+        continuous = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
+
     df_merged_copy = df_merged.copy()
 
     for x in ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA']:
@@ -384,12 +432,59 @@ def getCustomFacetContinuousPlot1(df_merged, x_feature, y_feature, time_period):
     sns.set(font_scale = 1.5)
 
     g = sns.FacetGrid(data, col="x", 
-                col_wrap=5, sharex = False, sharey = False, legend_out = True,hue = 'CohortType')
+                col_wrap=5, sharex = False, sharey = False, legend_out = False)
 
-    g = g.map_dataframe(sns.histplot, x="value",             
-                        common_norm = False, 
-                        common_bins = True,
-                        multiple = 'dodge')
+    bp = g.map_dataframe(sns.histplot, x="value",             
+                        common_norm = True, 
+                        hue = 'CohortType',
+                        legend = True,
+                        common_bins = True)
+
+        # The color cycles are going to all the same, doesn't matter which axes we use
+    Ax = bp.axes[0]
+
+  
+
+    for ax in bp.axes.ravel():
+        ax.legend()
+
+    #print(Ax.get_children())
+
+    # Some how for a plot of 5 bars, there are 6 patches, what is the 6th one?
+    Boxes = [item for item in Ax.get_children()
+         if isinstance(item, matplotlib.patches.Rectangle)][:-1]
+
+    
+    Boxes = list(set(Boxes))
+
+    colors = []
+
+    for box in Boxes:
+        colors.append(box.get_facecolor())
+    
+    colors = list(set(colors))
+
+
+    legend_labels  = ['UNM','NEU','DAR'] 
+
+
+    # Create the legend patches
+    legend_patches = [matplotlib.patches.Patch(color=C, label=L) for
+                  C, L in zip(colors,
+                              legend_labels)]
+
+
+    plt.legend(handles=legend_patches, loc = 1, bbox_to_anchor=(2, 1))
+
+    #g.add_legend()
+    
+    g.set_xticklabels(rotation=90, size = 12)
+
+    axes = g.axes.flatten()
+
+    for ax in axes:
+
+        ax.set_ylabel("Count")
 
     # The color cycles are going to all the same, doesn't matter which axes we use
     
@@ -400,7 +495,8 @@ def getCustomFacetContinuousPlot1(df_merged, x_feature, y_feature, time_period):
 def getCustomFacetCategoricalPlot1(df_merged, x_feature, y_feature, time_period):
 
     categorical = ['CohortType','TimePeriod','folic_acid_supp',
-                'ethnicity','race','smoking','preg_complications','babySex','Outcome','LGA','SGA']
+                'ethnicity','race','smoking','preg_complications',
+                'babySex','Outcome','LGA','SGA']
 
     df_merged = df_merged[categorical +['PIN_Patient']].drop_duplicates(['PIN_Patient'])
 
@@ -472,7 +568,6 @@ def getCustomFacetCategoricalPlot1(df_merged, x_feature, y_feature, time_period)
        
     ]
 
-      
     choices =  ['Never', 'past', 'curr', 'Pregsmk']
 
     df_merged['smoking'] = np.select(conditions, choices, default='Miss')
@@ -525,35 +620,56 @@ def getCustomFacetCategoricalPlot1(df_merged, x_feature, y_feature, time_period)
 
     df_merged['SGA'] = np.select(conditions, choices, default='Miss')
 
-
     data = pd.melt(df_merged[categorical],id_vars=['CohortType'], var_name = 'x')
 
     data.loc[data['value'].isin(['97','888','999','-9']),'value'] = 'Miss'
 
-    #sns.displot(data, x="value", hue="CohortType", col = 'variable', col_wrap = 6, sharex = False, sharey = False,
-    # stat="density", common_norm=False)
+    sns.set(font_scale = 1)
 
-    sns.set(font_scale = 1.5)
+    print(data.columns)
 
     g = sns.FacetGrid(data, col="x", 
-                    col_wrap=5, sharex = False, sharey = False, legend_out = True,hue = 'CohortType')
+                    col_wrap=4, sharex = False, sharey = False)
 
-    g = g.map_dataframe(sns.histplot, x="value", 
+    bp = g.map_dataframe(sns.histplot, x="value", 
                         common_norm = False, 
-                        common_bins = True)
-    g.add_legend()
+                        common_bins = True, multiple = "dodge", hue = 'CohortType').add_legend()
 
-    g.set_xticklabels(rotation=90) 
-    #g.fig.tight_layout()
-    g.set_xticklabels(rotation=75, size = 15)
+    
+    # The color cycles are going to all the same, doesn't matter which axes we use
+    Ax = bp.axes[0]
+
+    # Some how for a plot of 5 bars, there are 6 patches, what is the 6th one?
+    Boxes = [item for item in Ax.get_children()
+         if isinstance(item, matplotlib.patches.Rectangle)][:-1]
+
+    legend_labels  = ['UNM','UNM','UNM','NEU', 'NEU','NEU','DAR','DAR','DAR']
+
+
+    # Create the legend patches
+    legend_patches = [matplotlib.patches.Patch(color=C, label=L) for
+                  C, L in zip([item.get_facecolor() for item in Boxes],
+                              legend_labels)]
+
+    legend_patches = legend_patches[0::3]
+    
+    plt.legend(handles=legend_patches, loc = 1, bbox_to_anchor=(2, 1))
+
+    #g.add_legend()
+    
+    g.set_xticklabels(rotation=90, size = 12)
+
+    axes = g.axes.flatten()
+
+    for ax in axes:
+
+        ax.set_ylabel("Count")
 
     plt.subplots_adjust(hspace=0.7, wspace=0.4)
     
     return g
 
 def getCustomFacetLMPlot1(df_merged, x_feature, y_feature, time_period):
-
-    
 
     categorical = ['CohortType','TimePeriod','folic_acid_supp',
                 'ethnicity','race','smoking','preg_complications','babySex','Outcome','LGA','SGA']
@@ -583,4 +699,120 @@ def getCustomFacetLMPlot1(df_merged, x_feature, y_feature, time_period):
                    scatter_kws={"s": 25},
                 data=data, x_jitter=.1, sharex = False, sharey = True)
 
+    return g
+
+def getCorrelationHeatmap(data):
+
+    arsenic_cont = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
+    to_corr_cols = ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] + arsenic_cont
+
+
+    for col in arsenic_cont:
+
+        if col not in data.columns:
+
+            data[col] = np.nan
+
+    
+    for col in to_corr_cols:
+
+        try:
+            data[col] = data[col].astype(float)
+            data.loc[data[x] < 0, x] = np.nan
+        except:
+            data[col] = data[col]
+
+    #sns.set_theme(style="white",font_scale=1.75)
+
+    # Compute the correlation matrix
+    corr = data[to_corr_cols].corr(method = 'spearman').round(4)
+
+    # Generate a mask for the upper triangle
+    p_values = analysis.corr_sig(data[to_corr_cols])
+    mask = np.invert(np.tril(p_values<0.05))
+
+    # Set up the matplotlib figure
+    f, ax = plt.subplots(figsize=(40, 30))
+
+    # Generate a custom diverging colormap
+    cmap = sns.diverging_palette(0, 230, as_cmap=True)
+
+    g = sns.heatmap(corr, 
+                cmap = cmap, vmax=.3, center=0, annot = True, 
+                square=True, linewidths=.5, annot_kws={"size": 35}, mask=mask)
+
+    #g.ax_heatmap.set_xticklabels(g.ax_heatmap.get_xmajorticklabels(), fontsize = 40)
+
+    g.set_xticklabels(g.get_xmajorticklabels(), fontsize = 30, rotation = 90)
+    g.set_yticklabels(g.get_ymajorticklabels(), fontsize = 30, rotation = 0)
+
+    # Draw the heatmap with the mask and correct aspect ratio
+    return g.figure
+
+def getClusterMap(data, color_by):
+
+    data = data[~data[color_by].isna()]
+
+    for col in arsenic_cont:
+
+        if col not in data.columns:
+
+            data[col] = np.nan
+
+    
+    for col in to_corr_cols:
+
+        try:
+            data[col] = data[col].astype(float)
+            data.loc[data[x] < 0, x] = np.nan
+        except:
+            data[col] = data[col]
+
+    #this clustermap is still in testing so will only fit it for specific analytes
+
+    analytes = ['UTAS', 'UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMO',  'UMN', 'UCO']
+    print('before')
+    print(X.shape)
+    print(X[color_by].unique())
+    X = data[[color_by] + analytes].dropna( how = 'any', axis = 'rows')
+
+    print('after')
+    print(X.shape)
+    print(X[color_by].unique())
+
+    labels = X[color_by]
+
+    lut = dict(zip(labels, "rbg"))
+
+    print(lut)
+
+    row_colors = labels.map(lut)
+
+    print(row_colors)
+
+    X.drop([color_by], axis = 'columns', inplace = True)
+
+    def minmax_scaler(x):
+
+        return (x - np.min(x)) /  (np.max(x) - np.min(x))
+
+    norm = []
+    for col in X:
+
+        norm.append(minmax_scaler(X[col].values))
+    
+    #print(norm)
+    X_norm = pd.DataFrame(norm).transpose()
+
+    print(X_norm.shape)
+
+    # Set up the matplotlib figure
+    f, ax = plt.subplots(figsize=(40, 30))
+
+    g = sns.clustermap(X_norm, cmap="mako", vmin=0, vmax=1, row_colors = row_colors)
+
+    #g.set_xticklabels(g.get_xmajorticklabels(), fontsize = 30, rotation = 90)
+    #g.set_yticklabels(g.get_ymajorticklabels(), fontsize = 30, rotation = 0)
+
+    # Draw the heatmap with the mask and correct aspect ratio
     return g
