@@ -765,8 +765,9 @@ def getClusterMap(data, color_by):
 
     analytes = ['UTAS', 'UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMO',  'UMN', 'UCO']
     print('before')
-    print(X.shape)
-    print(X[color_by].unique())
+    print(data.shape)
+    print(data[color_by].unique())
+
     X = data[[color_by] + analytes].dropna( how = 'any', axis = 'rows')
 
     print('after')
