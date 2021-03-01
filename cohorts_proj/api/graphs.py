@@ -189,35 +189,43 @@ def getRegColorPlot(data, x_feature, y_feature, color_by):
     reg_info0 = ''
     reg_info1 = ''
 
-    gr = sns.lmplot(data=data, x=x_feature,
+    gr = sns.lmplot(data=filtered_df, x=x_feature,
                     y=y_feature, hue=color_by, legend_out=False)
     
     #TODO fix legends - not the best way to display equations
 
     labs = list(gr._legend_data.keys())
-    
+    labs2 = []
 
-    slope, intercept, r_value, p_value, std_err = stats.linregress(
-        x=gr.axes.flat[0].get_lines()[0].get_xdata(),
-        y=gr.axes.flat[0].get_lines()[0].get_ydata())
-   
-    reg_info0 = str(labs[0]) + ": y={:.2f}x + {:.2f} \n r^2={:.2f}, p={:.2f}, std_err={:.2f} \n".format(
-            slope, intercept, r_value**2, p_value, std_err)
+    for x in labs:
 
+        try:
+            x2 = float(x)
+        except:
+            x2 = x
+        labs2.append(x2)
+
+    print(labs)
     # for x in xrange(len(color_by_options)):
     # adding support if we want to color by multiple options 
 
     num_lines = len(gr.axes.flat[0].get_lines())
 
-    reg_infos = [reg_info0]
+    reg_infos = ['Regression Equations:\n']
 
     if (num_lines > 1):
 
-        for i in range(1, num_lines):
+        for i in range(0, num_lines):
             try:
-                slope, intercept, r_value, p_value, std_err = stats.linregress(
-                    x=gr.axes.flat[0].get_lines()[i].get_xdata(),
-                    y=gr.axes.flat[0].get_lines()[i].get_ydata())
+                
+                x = filtered_df.loc[filtered_df[color_by] == labs2[i], x_feature].values
+                y = filtered_df.loc[filtered_df[color_by] == labs2[i], y_feature].values
+               
+                # this is problematic for calcuatign the true stats
+                # = [gr.axes.flat[0].get_lines()[i].get_xdata()]
+                #y = [gr.axes.flat[0].get_lines()[i].get_ydata()]
+
+                slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
               
                 reg_info1 = str(labs[i]) + ": y={:.2f}x + {:.2f} \n r^2={:.2f}, p={:.2f}, std_err={:.2f}\n".format(
                 slope, intercept, r_value**2, p_value, std_err)
@@ -234,7 +242,6 @@ def getRegColorPlot(data, x_feature, y_feature, color_by):
     #gr.fig.suptitle(' | '.join(reg_infos), 1, .98)
 
     plt.suptitle(''.join(reg_infos), **{'x': 1.4, 'y':.98})
-
     plt.legend(bbox_to_anchor=(.85, 0., 0.5, 0.5), title = color_by)
 
     return gr
@@ -432,12 +439,12 @@ def getCustomFacetContinuousPlot1(df_merged, x_feature, y_feature, time_period, 
     sns.set(font_scale = 1.5)
 
     g = sns.FacetGrid(data, col="x", 
-                col_wrap=5, sharex = False, sharey = False, legend_out = False)
+                col_wrap=4, sharex = False, sharey = False, legend_out = False)
 
     bp = g.map_dataframe(sns.histplot, x="value",             
                         common_norm = True, 
                         hue = 'CohortType',
-                        legend = True,
+                        legend = False,
                         common_bins = True)
 
         # The color cycles are going to all the same, doesn't matter which axes we use
@@ -488,8 +495,7 @@ def getCustomFacetContinuousPlot1(df_merged, x_feature, y_feature, time_period, 
 
     # The color cycles are going to all the same, doesn't matter which axes we use
     
-    g.add_legend()
-
+ 
     return g
 
 def getCustomFacetCategoricalPlot1(df_merged, x_feature, y_feature, time_period):
@@ -763,7 +769,10 @@ def getClusterMap(data, color_by):
 
     #this clustermap is still in testing so will only fit it for specific analytes
 
-    analytes = ['UTAS', 'UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMO',  'UMN', 'UCO']
+
+
+    #analytes = ['UTAS', 'UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMO',  'UMN', 'UCO']
+    analytes = ['UTAS'] + ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] 
     print('before')
     print(data.shape)
     print(data[color_by].unique())
@@ -774,14 +783,15 @@ def getClusterMap(data, color_by):
     print(X.shape)
     print(X[color_by].unique())
 
-    labels = X[color_by]
+    labels = X[color_by].unique()
 
     lut = dict(zip(labels, "rbg"))
 
     print(lut)
 
-    row_colors = labels.map(lut)
+    row_colors = [lut[x] for x in X[color_by]]
 
+    print('row colors')
     print(row_colors)
 
     X.drop([color_by], axis = 'columns', inplace = True)
@@ -799,12 +809,14 @@ def getClusterMap(data, color_by):
     #print(norm)
     X_norm = pd.DataFrame(norm).transpose()
 
+    X_norm.columns = X.columns
+
     print(X_norm.shape)
 
     # Set up the matplotlib figure
     f, ax = plt.subplots(figsize=(40, 30))
 
-    g = sns.clustermap(X_norm, cmap="mako", vmin=0, vmax=1)
+    g = sns.clustermap(X_norm, cmap="mako", vmin=0, vmax=.4, row_colors = row_colors)
 
     #g.set_xticklabels(g.get_xmajorticklabels(), fontsize = 30, rotation = 90)
     #g.set_yticklabels(g.get_ymajorticklabels(), fontsize = 30, rotation = 0)
