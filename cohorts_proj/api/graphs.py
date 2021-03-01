@@ -725,8 +725,6 @@ def getCorrelationHeatmap(data):
 
     data = fixvisits(data)
 
-    
-
     arsenic_cont = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
     to_corr_cols = ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] + arsenic_cont
 
@@ -790,8 +788,8 @@ def getClusterMap(data, color_by):
 
 
 
-    #analytes = ['UTAS', 'UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMO',  'UMN', 'UCO']
-    analytes = ['UTAS'] + ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] 
+    analytes = ['UTAS', 'UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMO',  'UMN', 'UCO']
+    #analytes = ['UTAS'] + ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] 
     print('before')
     print(data.shape)
     print(data[color_by].unique())
