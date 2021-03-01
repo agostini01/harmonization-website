@@ -771,8 +771,8 @@ def getClusterMap(data, color_by):
 
 
 
-    #analytes = ['UTAS', 'UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMO',  'UMN', 'UCO']
-    analytes = ['UTAS'] + ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] 
+    analytes = ['UTAS', 'UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMO',  'UMN', 'UCO']
+    #analytes = ['UTAS'] + ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] 
     print('before')
     print(data.shape)
     print(data[color_by].unique())
