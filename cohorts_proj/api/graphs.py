@@ -176,6 +176,8 @@ def getRegPlot(data, x_feature, y_feature, color_by):
 
 def getRegColorPlot(data, x_feature, y_feature, color_by):
 
+    data = fixvisits(data)
+
     sns.set()
 
     filtered_df = data[data[[x_feature, y_feature]].notnull().all(1)]
@@ -343,6 +345,8 @@ def getHistogramPlotWithInfo(data, x_feature, y_feature, color_by):
 
 def getKdePlotWithInfo(data, x_feature, y_feature, color_by):
 
+    data = fixvisits(data)
+    
     sns.set()
 
     info = getKdeInfoString(data, x_feature, color_by)
@@ -675,7 +679,17 @@ def getCustomFacetCategoricalPlot1(df_merged, x_feature, y_feature, time_period)
     
     return g
 
+def fixvisits(data):
+
+    data = data[(data['ga_collection'] > 13) & (data['ga_collection'] < 28)]
+    data = data.drop_duplicates(['PIN_Patient'], keep = 'first')
+
+    return data
+
 def getCustomFacetLMPlot1(df_merged, x_feature, y_feature, time_period):
+
+    df_merged = fixvisits(df_merged)
+
 
     categorical = ['CohortType','TimePeriod','folic_acid_supp',
                 'ethnicity','race','smoking','preg_complications','babySex','Outcome','LGA','SGA']
@@ -708,6 +722,10 @@ def getCustomFacetLMPlot1(df_merged, x_feature, y_feature, time_period):
     return g
 
 def getCorrelationHeatmap(data):
+
+    data = fixvisits(data)
+
+    
 
     arsenic_cont = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
     to_corr_cols = ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] + arsenic_cont
@@ -757,6 +775,7 @@ def getCorrelationHeatmap(data):
 
 def getClusterMap(data, color_by):
 
+    data = fixvisits(data)
     data = data[~data[color_by].isna()]
 
     for col in data.columns:
@@ -771,8 +790,8 @@ def getClusterMap(data, color_by):
 
 
 
-    analytes = ['UTAS', 'UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMO',  'UMN', 'UCO']
-    #analytes = ['UTAS'] + ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] 
+    #analytes = ['UTAS', 'UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMO',  'UMN', 'UCO']
+    analytes = ['UTAS'] + ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] 
     print('before')
     print(data.shape)
     print(data[color_by].unique())
