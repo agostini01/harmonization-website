@@ -24,6 +24,8 @@ def getInfoString(data, x_feature, y_feature, color_by):
 
     return info
 
+
+
 def getHistInfoString(data, feature):
     """Return high level statistics of unique samples for histogram plot."""
 
@@ -127,7 +129,6 @@ def getCatPlot(data, x_feature, y_feature, color_by):
 
 def getViolinCatPlot(data, x_feature, y_feature, color_by):
     
-
     #data[y_feature] = np.log(data[y_feature])+
     ##get standard deviation
     ##filter 
@@ -150,28 +151,103 @@ def getHistogramPlot(data, x_feature, y_feature, color_by):
     sns.distplot(data[x_feature])
     return fig
 
+def getMLPlot(data, x_feature, y_feature, color_by):
+
+    mixed_ml_info = analysis.crude_mixedML(data, x_feature, y_feature)
+    sns.set(style = 'white')
+
+    plt.figure(figsize = (5,5))
+
+    fig, ax = plt.subplots(1, 1, figsize=(5*2, 5))
+
+    ax.text(0, 0, mixed_ml_info, style='italic',
+                bbox={'facecolor': 'azure', 'alpha': 1.0, 'pad': 10},
+                horizontalalignment='left',
+                verticalalignment='bottom')
+    
+    sns.despine(left = False, bottom = False)
+
+    return fig
+
+
+def getbinomialMLPlot(data, x_feature, y_feature, color_by):
+
+    mixed_ml_info = analysis.crude_binomial_mixedML(data, x_feature, y_feature)
+
+    sns.set(style = 'white')
+
+    plt.figure(figsize = (5,5))
+
+    fig, ax = plt.subplots(1, 1, figsize=(5*2, 5))
+
+    ax.text(0, 0, mixed_ml_info, style='italic',
+                bbox={'facecolor': 'azure', 'alpha': 1.0, 'pad': 10},
+                horizontalalignment='left',
+                verticalalignment='bottom')
+    
+    sns.despine(left = False, bottom = False)
+
+    return fig
+
+def getlogistcRegPlot(data, x_feature, y_feature, color_by):
+
+    mixed_ml_info = analysis.crude_logreg(data, x_feature, y_feature)
+
+    print(mixed_ml_info)
+
+    fig, ax = plt.subplots(1, 2, figsize=(5*2, 5))
+
+    sns.set()
+
+    #plt.figure(figsize = (5,5))
+
+    #fig, ax = plt.subplots(1, 2, figsize=(5*2, 5))
+
+    data['log_' + x_feature] = np.log(data[x_feature] )
+    
+    gr = sns.regplot(data=data, x='log_' + x_feature,
+                     y=y_feature, logistic = True,  ax=ax[0])
+                     
+
+    addInfoToAxis(mixed_ml_info, ax)
+
+    #ax.text(0, 0, mixed_ml_info, style='italic',
+    #            bbox={'facecolor': 'azure', 'alpha': 1.0, 'pad': 10},
+    #            horizontalalignment='left',
+     #           verticalalignment='bottom')
+    
+    sns.despine(left = False, bottom = False)
+
+    return fig
+
 def getRegPlot(data, x_feature, y_feature, color_by):
 
     sns.set()
-    #TODO linregress plot by cohort
 
-    #fig, _ = plt.subplots(1, 1, figsize=(5, 5))
+    #plt.figure(figsize = (5,5))
+
+    #fig, ax = plt.subplots(1, 2, figsize=(5*2, 5))
 
     data['log_' + x_feature] = np.log(data[x_feature] )
-
-    gr = sns.regplot(data=data, x=x_feature,
+    
+    gr = sns.regplot(data=data, x='log_' + x_feature,
                      y=y_feature)
 
-    slope, intercept, r_value, p_value, std_err = stats.linregress(
-        x=gr.get_lines()[0].get_xdata(),
-        y=gr.get_lines()[0].get_ydata())
-    
-    reg_info = "y={:.3f}x + {:.3f}".format(
-        slope, intercept)
+    x = data['log_' + x_feature].values
+    y = data[y_feature].values
 
-    gr.set_title(reg_info)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(
+        x=x,
+        y=y)
+    
+    reg_info = "y={:.2f}x + {:.2f} \n r^2={:.2f}, p={:.2f}, std_err={:.2f}\n".format(
+    slope, intercept, r_value**2, p_value, std_err)
+    #plt.suptitle(''.join(reg_info), **{'x': 1.4, 'y':.98})
+    gr.set_title(reg_info,**{'x': .5, 'y':.98})
 
     return gr.figure
+
+
 
 
 def getRegColorPlot(data, x_feature, y_feature, color_by):
@@ -785,7 +861,6 @@ def getClusterMap(data, color_by):
             data[col] = data[col]
 
     #this clustermap is still in testing so will only fit it for specific analytes
-
 
 
     analytes = ['UTAS', 'UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMO',  'UMN', 'UCO']
