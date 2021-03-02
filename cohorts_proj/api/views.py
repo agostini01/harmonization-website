@@ -391,7 +391,7 @@ class GraphRequestView(views.APIView):
     """
     Concrete view for listing a queryset or creating a model instance.
     """
-
+ 
     def get(self, request, *args, **kwargs):
         return self.getPlot(request)
 
@@ -484,20 +484,16 @@ class GraphRequestView(views.APIView):
                     df, x_feature, y_feature, color_by)
                     
             if (t == 'corr_plot'):
-
                 gr = cls.getCorrelationHeatmap(
                     df)
             
             if (t == 'clustermap'):
-
                 gr = cls.getClusterMap(
                     df, color_by)
 
             if (t == 'analysis'):
-
                 print(os.listdir())
                 analysis.runcustomanalysis()
-
                 gr = cls.getIndividualScatterPlot(
                     df, x_feature, y_feature, color_by)
 
@@ -544,6 +540,15 @@ class GraphRequestView(views.APIView):
             if (t == 'linear_reg_detailed_plot'):
                 gr = cls.getRegDetailedPlot(df, x_feature, y_feature, color_by)
 
+            if (t == 'linear_mixed_ml_summary'):
+                gr = cls.getMLPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'binomial_mixed_ml_summary'):
+                gr = cls.getbinomialMLPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'logistic_regression'):
+                gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
+                
         # response = HttpResponse(content_type="image/jpg")
         gr.savefig(response, format="jpg", dpi=fig_dpi)
 
@@ -678,5 +683,15 @@ class GraphRequestView(views.APIView):
     def getClusterMap(cls, data, color_by):
         
         return graphs.getClusterMap(data, color_by)
+    @classmethod
+    def getMLPlot(cls, data, x_feature, y_feature, color_by):
+        return graphs.getMLPlot(data, x_feature, y_feature, color_by)
 
+    @classmethod
+    def getbinomialMLPlot(cls, data, x_feature, y_feature, color_by):
+        return graphs.getbinomialMLPlot(data, x_feature, y_feature, color_by)
+
+    @classmethod
+    def getlogistcRegPlot(cls, data, x_feature, y_feature, color_by):
+        return graphs.getlogistcRegPlot(data, x_feature, y_feature, color_by)
 
