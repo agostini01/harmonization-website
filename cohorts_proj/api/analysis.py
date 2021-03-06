@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import traceback
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+import statsmodels
 
 
 from datasets.models import RawFlower, RawUNM, RawDAR
@@ -353,7 +354,7 @@ def logisticregress(df, x_vars, targets, cohort):
                 try:
                     df_temp = df_period[(~df_period[x].isna()) & (~df_period[y].isna()) & (~df_period[y].isin([0.0,1.0,0,1]))]
             
-                    df_temp['intercept'] =1
+                    df_temp['intercept'] = 1
                     X = df_temp[['intercept',x]]
                     df_temp[y] = df_temp[y].astype(int)
                     Y = df_temp[y]
@@ -380,10 +381,94 @@ def logisticregress(df, x_vars, targets, cohort):
 
     return rez_df
 
+
+def crude_logreg(df_merged, x_feature, y_feature):
+    # inro for crude simple logistic regression log(p(x)/1-p(x)) = ax + b and report slope, intercept, rvalue, plvalue, 'stderr
+    # y_feature has to be binary (i.e. 0,1)
+
+    df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+
+    df_temp = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna()) & (df_merged[y_feature].isin([0.0,1.0,0,1]))]
+
+
+    df_temp['intercept'] = 1
+    X = df_temp[['intercept',x_feature]]
+    df_temp[y_feature] = df_temp[y_feature].astype(int)
+    Y = df_temp[y_feature]
+
+    if df_temp.shape[0] > 2:
+
+        log_reg = sm.Logit(Y, X).fit() 
+
+        #intercept = log_reg.params[0]
+        #coef = log_reg.params[1]
+
+        #intercept_p = log_reg.pvalues[0]
+        #coef_p = log_reg.pvalues[1]
+
+        ret = log_reg.summary()
+        
+        #    rez.append([cohort, x, y, len(X), np.nan, np.nan, np.nan, np.nan, np.nan, np.nan])
+    else:
+        ret = 'error'
+
+    return ret
+
+def crude_binomial_mixedML(df_merged, x_feature, y_feature):
+
+    df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+
+    data = df_merged[[x_feature,y_feature,'CohortType']].dropna(how = 'any', axis='rows')
+
+    data[x_feature] = data[x_feature] + 1
+    random = {"a": '0 + C(CohortType)'}
+
+    print(data.shape)
+
+    data[y_feature] = data[y_feature].astype(int)
+    
+    fit_string = y_feature + '~' + x_feature
+
+    print('mixedML string:')
+    print(fit_string)
+
+    ## miced linear model with group variable = CohortType
+    md = statsmodels.genmod.bayes_mixed_glm.BinomialBayesMixedGLM.from_formula(
+               fit_string, random, data)
+
+    ##fit the model 
+    mdf = md.fit_vb()
+
+    print(mdf.summary())
+
+    return mdf.summary()
+
+
+def crude_mixedML(df_merged, x_feature, y_feature):
+
+    df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+
+    data = df_merged[[x_feature,y_feature,'CohortType']].dropna(how = 'any', axis='rows')
+
+    fit_string = y_feature + '~' + x_feature
+
+    print('mixedML string:')
+    print(fit_string)
+
+    ## miced linear model with group variable = CohortType
+    md = smf.mixedlm(fit_string, data, groups=data["CohortType"])
+
+    ##fit the model 
+    mdf = md.fit(maxiter=200000)
+
+    print(mdf.summary())
+
+    return mdf.summary()
+
+
+
 def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
     ## linear mixed model analysis for all 3 cohorts
-
-
 
     for col in categorical:
         print(col)
@@ -683,13 +768,6 @@ def runcustomanalysis():
 
     _ = mixedML(df_merged, 'Outcome_weeks', 'UTAS', categorical, output_path)
 
-    ## Requires mixed regressio
-
-    _ = mixedML(df_merged, 'Outcome', 'UTAS', categorical, output_path)
-
-    _ = mixedML(df_merged, 'LGA', 'UTAS', categorical, output_path)
-
-    _ = mixedML(df_merged, 'SGA', 'UTAS', categorical, output_path)
 
 
 
