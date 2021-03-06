@@ -224,7 +224,7 @@ def getRegPlot(data, x_feature, y_feature, color_by):
 
     sns.set()
 
-    #plt.figure(figsize = (5,5))
+    plt.figure(figsize = (5,5))
 
     #fig, ax = plt.subplots(1, 2, figsize=(5*2, 5))
 
