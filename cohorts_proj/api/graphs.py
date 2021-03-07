@@ -74,7 +74,7 @@ def getViolinCatInfoString(data, x_feature,y_feature, color_by):
 
 def addInfoToAxis(info, ax, id=1):
     """Add info to axis ax, at position id."""
-    sns.despine(ax=ax[id], left=True, bottom=True, trim=True)
+    sns.despine(ax=ax[id], left=False, bottom=False, trim=True)
     ax[id].set(xlabel=None)
     ax[id].set(xticklabels=[])
 
@@ -83,6 +83,12 @@ def addInfoToAxis(info, ax, id=1):
                 horizontalalignment='left',
                 verticalalignment='bottom',
                 transform=ax[1].transAxes)
+    
+
+
+
+    
+
 
 def noDataMessage():
     info = 'Error: There are no samples matching the criteria for\n' + \
@@ -195,7 +201,7 @@ def getlogistcRegPlot(data, x_feature, y_feature, color_by):
 
     print(mixed_ml_info)
 
-    fig, ax = plt.subplots(1, 2, figsize=(5*2, 5))
+    fig, ax = plt.subplots(2, 1, figsize=(5*2, 5*2))
 
     sns.set()
 
@@ -228,8 +234,10 @@ def getRegPlot(data, x_feature, y_feature, color_by):
 
     #fig, ax = plt.subplots(1, 2, figsize=(5*2, 5))
 
+    data = data[(~data[x_feature].isna()) & (~data[y_feature].isna()) ]
+
     data['log_' + x_feature] = np.log(data[x_feature] )
-    
+
     gr = sns.regplot(data=data, x='log_' + x_feature,
                      y=y_feature)
 

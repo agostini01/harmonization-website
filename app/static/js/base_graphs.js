@@ -11,7 +11,30 @@ function deleteCard(e) {
 /**
  * Insert a new card with the correct plot based on the django form.
  */
+
+ 
 function getPlot() {
+
+    var xmlHttp = new XMLHttpRequest();
+
+    var URL = '/graphs/api/getinfo' 
+
+    URL  +='?plot_type='+ document.getElementById("id_plot_type").value;
+    URL  +='&x_feature='+ document.getElementById("id_x_feature").value;
+    URL  +='&y_feature='+ document.getElementById("id_y_feature").value;
+    URL  +='&color_by=' + document.getElementById("id_color_by").value;
+    URL  +='&time_period=' + document.getElementById("id_time_period").value;
+    URL  +='&fig_dpi='  + document.getElementById("id_fig_dpi").value;
+    URL  +='&dataset_type='  + document.getElementById("id_dataset_type").value;
+
+    console.log(URL)
+    xmlHttp.open( "GET", URL, false ); 
+    xmlHttp.send( null );
+
+    var summary_text = xmlHttp.responseText
+ 
+    console.log("create get is working!")
+
     plot_name = document.getElementById("id_plot_name").value;
     console.log(plot_name)
     var d = new Date();
@@ -19,14 +42,15 @@ function getPlot() {
     console.log(d)
 
     var new_graph = ''
-   
+
+
     // https://coderthemes.com/hyper/modern/index.html
     new_graph+=`
     <div class="card">
         <div class="card-body">
-            <div class="float-right">
+            <div class="float-right"> 
                 <i class="text-muted">`
-     new_graph+=d+`</i>
+     new_graph+=d+` </i>
             </div>
             <h5 class="text-muted font-weight-bold mt-0" title="Plot Title">`
      new_graph+=plot_name+`       
@@ -58,7 +82,8 @@ function getPlot() {
     new_graph +='&dataset_type='  + document.getElementById("id_dataset_type").value;
     new_graph += ' style="max-width:100%; height:auto"></div>'
     new_graph += `</div>
-        </div >
+        </div > `
+        + summary_text + `
         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="deleteCard(this)">Remove Graph</button>
     </div >
     `
@@ -74,6 +99,9 @@ function getPlot() {
 // });
 
 // AJAX for posting
+
+
+
 function request_graph() {
     console.log("create post is working!") // sanity check
     console.log($('#post-text').val())
