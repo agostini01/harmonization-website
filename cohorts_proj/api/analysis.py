@@ -381,6 +381,28 @@ def logisticregress(df, x_vars, targets, cohort):
 
     return rez_df
 
+def crude_reg(df_merged, x_feature, y_feature):
+    # inro for crude simple regression y = ax + b and report full results
+    # y_feature has to be binary (i.e. 0,1)
+
+    df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+
+    df_temp = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna())]
+
+    df_temp['intercept'] = 1
+    X = df_temp[['intercept',x_feature]]
+
+    df_temp[y_feature] = df_temp[y_feature].astype(float)
+    Y = df_temp[y_feature]
+
+    if df_temp.shape[0] > 2:
+
+        reg = sm.OLS(Y, X).fit() 
+        ret = reg.summary()
+    else:
+        ret = 'error'
+
+    return ret
 
 def crude_logreg(df_merged, x_feature, y_feature):
     # inro for crude simple logistic regression log(p(x)/1-p(x)) = ax + b and report slope, intercept, rvalue, plvalue, 'stderr
@@ -389,7 +411,6 @@ def crude_logreg(df_merged, x_feature, y_feature):
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
 
     df_temp = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna()) & (df_merged[y_feature].isin([0.0,1.0,0,1]))]
-
 
     df_temp['intercept'] = 1
     X = df_temp[['intercept',x_feature]]
@@ -544,31 +565,6 @@ def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
         
     print('mixedML string:')
     print(fit_string)
-
-    ## miced linear model with group variable = CohortType
-    md = smf.mixedlm(fit_string, df_fin_UTAS, groups=df_fin_UTAS["CohortType"])
-
-    ##fit the model 
-    mdf = md.fit(maxiter=200000)
-
-    print(mdf.summary())
-
-    text_file = open(output_path + 'Output {}.txt'.format(target_var + '_' + target_analyte), "w")
-    
-    text_file.write('DF Size with incompletes: '  + str(incomplete_N) + '\n')
-    text_file.write('DF Size with incompletes 13 - 28: '  + str(incomplete_N2) + '\n')
-    text_file.write('DF Size with completes only: ' + str(complete_N)+ '\n')
-    text_file.write('DF Size with multi visits: '  + str(dup_visit_N)+ '\n')
-    text_file.write('Final DF Size for Dar: ' + str(N_DAR)+ '\n')
-    text_file.write('Final DF Size for UNM: ' + str(N_UNM)+ '\n')
-    text_file.write('Final DF Size for NEU: ' + str(N_NEU)+ '\n')
-    text_file.write('Final DF Size: ' + str(single_visit_N)+ '\n')
-  
-
-    text_file.write('=====================================================================\n')
-
-    text_file.write(str(mdf.summary()))
-    text_file.close()
 
     return 1
 

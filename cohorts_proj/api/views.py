@@ -544,10 +544,8 @@ class GraphRequestView(views.APIView):
                 gr = cls.getRegDetailedPlot(df, x_feature, y_feature, color_by)
 
             if (t == 'linear_mixed_ml_summary'):
-                gr = cls.getMLPlot(df, x_feature, y_feature, color_by)
-
-            if (t == 'binomial_mixed_ml_summary'):
-                gr = cls.getbinomialMLPlot(df, x_feature, y_feature, color_by)
+                #gr = cls.getMLPlot(df, x_feature, y_feature, color_by)
+                gr = ''
 
             if (t == 'logistic_regression'):
                 gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
@@ -820,8 +818,6 @@ class InfoRequestView(views.APIView):
                 #gr = cls.getCustomFacetContinuousPlot1(
                 #df, x_feature, y_feature, color_by, 0)
 
-               
-
                 gr = str(df[[x_feature,y_feature]].describe().to_html())
             
             if (t == 'arsenic_facet_continous'):
@@ -860,17 +856,27 @@ class InfoRequestView(views.APIView):
                 gr = cls.getRegColorPlot(df, x_feature, y_feature, color_by)
 
             if (t == 'linear_reg_detailed_plot'):
-                gr = cls.getRegDetailedPlot(df, x_feature, y_feature, color_by)
+
+                gr = analysis.crude_reg(df, x_feature, y_feature)
+                gr = gr.as_html()
 
             if (t == 'linear_mixed_ml_summary'):
-                gr = cls.getMLPlot(df, x_feature, y_feature, color_by)
 
+                gr = analysis.crude_mixedML(df, x_feature, y_feature)
+                gr = gr.as_html()
+                
             if (t == 'binomial_mixed_ml_summary'):
-                gr = cls.getbinomialMLPlot(df, x_feature, y_feature, color_by)
+                #gr = cls.getbinomialMLPlot(df, x_feature, y_feature, color_by)
+
+                gr = analysis.crude_binomial_mixedML(df, x_feature, y_feature)
+                gr = gr.as_html()
 
             if (t == 'logistic_regression'):
-                gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
-                
+                #gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
+
+                gr = analysis.crude_logreg(df, x_feature, y_feature)
+                gr = gr.as_html()
+        
         response = HttpResponse(gr)
 
     
