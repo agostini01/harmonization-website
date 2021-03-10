@@ -393,7 +393,10 @@ class GraphRequestView(views.APIView):
     """
  
     def get(self, request, *args, **kwargs):
-        return self.getPlot(request)
+
+        req = self.getPlot(request)
+        
+        return req
 
     @classmethod
     def getPlot(cls, request):
@@ -541,10 +544,8 @@ class GraphRequestView(views.APIView):
                 gr = cls.getRegDetailedPlot(df, x_feature, y_feature, color_by)
 
             if (t == 'linear_mixed_ml_summary'):
-                gr = cls.getMLPlot(df, x_feature, y_feature, color_by)
-
-            if (t == 'binomial_mixed_ml_summary'):
-                gr = cls.getbinomialMLPlot(df, x_feature, y_feature, color_by)
+                #gr = cls.getMLPlot(df, x_feature, y_feature, color_by)
+                gr = ''
 
             if (t == 'logistic_regression'):
                 gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
@@ -694,4 +695,332 @@ class GraphRequestView(views.APIView):
     @classmethod
     def getlogistcRegPlot(cls, data, x_feature, y_feature, color_by):
         return graphs.getlogistcRegPlot(data, x_feature, y_feature, color_by)
+
+class InfoRequestView(views.APIView):
+    """Handles only POST methods."""
+    serializer_class = GraphRequestSerializer
+    # queryset = ()
+
+    """
+    Concrete view for listing a queryset or creating a model instance.
+    """
+ 
+    def get(self, request, *args, **kwargs):
+
+        req = self.getPlot(request)
+        
+        return req
+
+    @classmethod
+    def getPlot(cls, request):
+        """Called during get request to generate plots."""
+
+        plot_type = request.data['plot_type']
+        x_feature = request.data['x_feature']
+        y_feature = request.data['y_feature']
+        color_by = request.data['color_by']
+        time_period = int(request.data['time_period'])
+        fig_dpi = int(request.data['fig_dpi'])
+        dataset_type = request.data['dataset_type']
+
+        t = plot_type
+        gr = None
+
+        # Selects the datasets
+        # It only query the database for the correct columns
+        df = pd.DataFrame()
+        if dataset_type == 'flowers_dataset':
+            df = pd.DataFrame.from_records(
+                RawFlower.objects.all().values(x_feature, y_feature, color_by))
+            df['CohortType'] = 'Flowers'
+
+        if dataset_type == 'unm_dataset':
+            df = adapters.unm.get_dataframe()
+
+        if dataset_type == 'neu_dataset':
+            df = adapters.neu.get_dataframe()
+
+        if dataset_type == 'dar_dataset':
+            df = adapters.dar.get_dataframe()
+
+        if dataset_type == 'unmneu_dataset':
+            df1 = adapters.unm.get_dataframe()
+            df2 = adapters.neu.get_dataframe()
+            #df = pd.concat([df1, df2])
+            df = analysis.merge2CohortFrames(df1, df2)
+
+        if dataset_type == 'neudar_dataset':
+            df1 = adapters.neu.get_dataframe()
+            df2 = adapters.dar.get_dataframe()
+            #df = pd.concat([df1, df2])
+            df = analysis.merge2CohortFrames(df1, df2)
+
+        if dataset_type == 'darunm_dataset':
+            df1 = adapters.unm.get_dataframe()
+            df2 = adapters.dar.get_dataframe()
+            #df = pd.concat([df1, df2])
+            df = analysis.merge2CohortFrames(df1, df2)
+
+        # This is the harmonized dataset
+        if dataset_type == 'har_dataset':
+            # TODO Handle early exit when selected columns are not present
+            # selected_columns = [x_feature, y_feature, color_by, 'CohortType']
+            df1 = adapters.unm.get_dataframe()  # [selected_columns]
+            df2 = adapters.neu.get_dataframe()  # [selected_columns]
+            df3 = adapters.dar.get_dataframe()  # [selected_columns]
+            #df = pd.concat([df1, df2, df3])
+            df = analysis.merge3CohortFrames(df1, df2, df3)
+            
+
+        print('((((((')   
+        print(time_period)
+        # Apply Filters
+        if time_period != 9:
+            df = df[df['TimePeriod'] == time_period]
+        else:
+            pass
+
+        # Build response figure
+        response = HttpResponse(content_type="image/jpg")
+        plt.clf()
+
+        # Is there data after the filters?
+        if(df.shape[0] == 0):
+            print('No data to plot after the filters')
+            gr = graphs.noDataMessage()
+            gr.savefig(response, format="jpg", dpi=fig_dpi)
+
+        else:
+            # Plot Graphs
+            if (t == 'scatter_plot'):
+                gr = cls.getScatterPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'individual_scatter_plot'):
+                gr = cls.getIndividualScatterPlot(
+                    df, x_feature, y_feature, color_by)
+                    
+            if (t == 'corr_plot'):
+                gr = cls.getCorrelationHeatmap(
+                    df)
+            
+            if (t == 'clustermap'):
+                gr = cls.getClusterMap(
+                    df, color_by)
+
+            if (t == 'analysis'):
+                print(os.listdir())
+                analysis.runcustomanalysis()
+                gr = cls.getIndividualScatterPlot(
+                    df, x_feature, y_feature, color_by)
+
+            if (t == 'covars_facet_continous'):
+
+                #gr = cls.getCustomFacetContinuousPlot1(
+                #df, x_feature, y_feature, color_by, 0)
+
+                gr = str(df[[x_feature,y_feature]].describe().to_html())
+            
+            if (t == 'arsenic_facet_continous'):
+
+                gr = cls.getCustomFacetContinuousPlot1(
+                df, x_feature, y_feature, color_by, 1)
+
+            if (t == 'covars_facet_categorical'):
+                
+                gr = cls.getCustomFacetCategoricalPlot1(
+                df, x_feature, y_feature, color_by)
+            
+            if (t == 'custom_facet_LM_plot'):
+                gr = cls.getCustomFacetLMPlot1(
+                df, x_feature, y_feature, color_by)
+
+            if (t == 'pair_plot'):
+                gr = cls.getPairPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'cat_plot'):
+                gr = cls.getCatPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'violin_cat_plot'):
+                gr = cls.getViolinCatPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'histogram_plot'):
+                gr = cls.getHistogramPlot(df, x_feature, y_feature, color_by)
+            
+            if (t == 'kde_plot'):
+                gr = cls.getKdePlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'linear_reg_plot'):
+                gr = cls.getRegPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'linear_reg_with_color_plot'):
+                gr = cls.getRegColorPlot(df, x_feature, y_feature, color_by)
+
+            if (t == 'linear_reg_detailed_plot'):
+
+                gr = analysis.crude_reg(df, x_feature, y_feature)
+                gr = gr.as_html()
+
+            if (t == 'linear_mixed_ml_summary'):
+
+                gr = analysis.crude_mixedML(df, x_feature, y_feature)
+                gr = gr.as_html()
+                
+            if (t == 'binomial_mixed_ml_summary'):
+                #gr = cls.getbinomialMLPlot(df, x_feature, y_feature, color_by)
+
+                gr = analysis.crude_binomial_mixedML(df, x_feature, y_feature)
+                gr = gr.as_html()
+
+            if (t == 'logistic_regression'):
+                #gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
+
+                gr = analysis.crude_logreg(df, x_feature, y_feature)
+                gr = gr.as_html()
+        
+        response = HttpResponse(gr)
+
+    
+        return response
+
+    @classmethod
+    def getIndividualScatterPlot(cls, data, x_feature, y_feature, color_by,
+                                 info=True):
+        if info:
+            return graphs.getIndividualScatterPlotWithInfo(
+                data, x_feature, y_feature, color_by)
+        else:
+            return graphs.getIndividualScatterPlotWithInfo(
+                data, x_feature, y_feature, color_by)
+
+    @classmethod
+    def getCustomFacetContinuousPlot1(cls, data, x_feature, y_feature, time_period, type,
+                                 info=True):
+        if info:
+            return graphs.getCustomFacetContinuousPlot1(
+                data, x_feature, y_feature, time_period, type)
+        else:
+            return graphs.getCustomFacetContinuousPlot1(
+                data, x_feature, y_feature, time_period, type)
+
+    @classmethod
+    def getCustomFacetCategoricalPlot1(cls, data, x_feature, y_feature, time_period,
+                                 info=True):
+        if info:
+            return graphs.getCustomFacetCategoricalPlot1(
+                data, x_feature, y_feature, time_period)
+        else:
+            return graphs.getCustomFacetCategoricalPlot1(
+                data, x_feature, y_feature, time_period)
+    
+    @classmethod
+    def getCustomFacetLMPlot1(cls, data, x_feature, y_feature, time_period,
+                                 info=True):
+        if info:
+            return graphs.getCustomFacetLMPlot1(
+                data, x_feature, y_feature, time_period)
+        else:
+            return graphs.getCustomFacetLMPlot1(
+                data, x_feature, y_feature, time_period)
+
+    @classmethod
+    def getScatterPlot(cls, data, x_feature, y_feature, color_by, info=True):
+        if info:
+            return graphs.getScatterPlotWithInfo(
+                data, x_feature, y_feature, color_by)
+        else:
+            return graphs.getScatterPlot(
+                data, x_feature, y_feature, color_by)
+
+    @classmethod
+    def getPairPlot(cls, data, x_feature, y_feature, color_by, info=True):
+        if info:
+            return graphs.getPairPlot(
+                data, x_feature, y_feature, color_by)
+        else:
+            return graphs.getPairPlot(
+                data, x_feature, y_feature, color_by)
+
+    @classmethod
+    def getCatPlot(cls, data, x_feature, y_feature, color_by, info=True):
+        if info:
+            return graphs.getCatPlot(
+                data, x_feature, y_feature, color_by)
+        else:
+            return graphs.getCatPlot(
+                data, x_feature, y_feature, color_by)
+
+    @classmethod
+    def getViolinCatPlot(cls, data, x_feature, y_feature, color_by, info=True):
+        if info:
+            return graphs.getViolinCatPlotWithInfo(
+                data, x_feature, y_feature, color_by)
+        else:
+            return graphs.getViolinCatPlotWithInfo(
+                data, x_feature, y_feature, color_by)
+
+    @classmethod
+    def getHistogramPlot(cls, data, x_feature, y_feature, color_by, info=True):
+        if info:
+            return graphs.getHistogramPlotWithInfo(
+                data, x_feature, y_feature, color_by)
+        else:
+            return graphs.getHistogramPlot(
+                data, x_feature, y_feature, color_by)
+    @classmethod
+    def getKdePlot(cls, data, x_feature, y_feature, color_by, info=True):
+        if info:
+            return graphs.getKdePlotWithInfo(
+                data, x_feature, y_feature, color_by)
+        else:
+            return graphs.getKdePlot(
+                data, x_feature, y_feature, color_by)
+
+    @classmethod
+    def getRegPlot(cls, data, x_feature, y_feature, color_by, info=True):
+        if info:
+            return graphs.getRegPlot(
+                data, x_feature, y_feature, color_by)
+        else:
+            return graphs.getRegPlot(
+                data, x_feature, y_feature, color_by)
+
+    @classmethod
+    def getRegColorPlot(cls, data, x_feature, y_feature, color_by, info=True):
+        if info:
+            return graphs.getRegColorPlot(
+                data, x_feature, y_feature, color_by)
+        else:
+            return graphs.getRegColorPlot(
+                data, x_feature, y_feature, color_by)
+
+    @classmethod
+    def getRegDetailedPlot(cls, data, x_feature, y_feature, color_by, info=True):
+        if info:
+            return graphs.getRegDetailedPlot(
+                data, x_feature, y_feature, color_by)
+        else:
+            return graphs.getRegDetailedPlot(
+                data, x_feature, y_feature, color_by)
+    
+    @classmethod
+    def getCorrelationHeatmap(cls, data):
+        
+        return graphs.getCorrelationHeatmap(data)
+
+    @classmethod
+    def getClusterMap(cls, data, color_by):
+        
+        return graphs.getClusterMap(data, color_by)
+    @classmethod
+    def getMLPlot(cls, data, x_feature, y_feature, color_by):
+        return graphs.getMLPlot(data, x_feature, y_feature, color_by)
+
+    @classmethod
+    def getbinomialMLPlot(cls, data, x_feature, y_feature, color_by):
+        return graphs.getbinomialMLPlot(data, x_feature, y_feature, color_by)
+
+    @classmethod
+    def getlogistcRegPlot(cls, data, x_feature, y_feature, color_by):
+        return graphs.getlogistcRegPlot(data, x_feature, y_feature, color_by)
+
 

@@ -27,9 +27,54 @@ class GraphsPageView(LoginRequiredMixin, FormView):
     form_class = FlowersForm
 
     @classmethod
+    def getApiInfo(cls, request):
+
+        """This function requets graphs through the API container."""
+        print(request)
+        err = checkFormRequest(request)
+
+        if (err[0] != 0):
+            return getErrorImage(err)
+
+        plot_type = request.GET.get('plot_type')
+        x_feature = request.GET.get('x_feature')
+        y_feature = request.GET.get('y_feature')
+        color_by = request.GET.get('color_by')
+        time_period = int(request.GET.get('time_period'))
+        fig_dpi = int(request.GET.get('fig_dpi'))
+        dataset_type = request.GET.get('dataset_type')
+
+        url = "http://api:8888/query/get-info/"
+
+        payload = {'plot_type': plot_type,
+                   'x_feature': x_feature,
+                   'y_feature': y_feature,
+                   'color_by': color_by,
+                   'time_period': time_period,
+                   'fig_dpi': fig_dpi,
+                   'plot_name': 'test',
+                   'dataset_type': dataset_type}
+        files = []
+        headers = {}
+
+        requests_response = requests.request(
+            "GET", url, headers=headers, data=payload, files=files)
+
+        django_response = HttpResponse(
+            content=requests_response.content,
+            status=requests_response.status_code,
+            content_type=requests_response.headers['Content-Type']
+        )
+
+        print(django_response)
+        return django_response
+
+
+
+    @classmethod
     def getApiPlot(cls, request):
         """This function requets graphs through the API container."""
-
+        print(request)
         err = checkFormRequest(request)
 
         if (err[0] != 0):
@@ -65,6 +110,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
             content_type=requests_response.headers['Content-Type']
         )
 
+        print(django_response)
         return django_response
 
     def get_context_data(self, **kwargs):

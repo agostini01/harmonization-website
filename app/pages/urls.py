@@ -27,4 +27,5 @@ urlpatterns = [
     # TODO - Remove once all graph logic gets ported
     #path('graphs/getplot/', GraphsPageView.getPlot),
     path('graphs/api/getplot/', GraphsPageView.getApiPlot),
+    path('graphs/api/getinfo/', GraphsPageView.getApiInfo),
 ]
