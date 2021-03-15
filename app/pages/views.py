@@ -43,6 +43,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
         time_period = int(request.GET.get('time_period'))
         fig_dpi = int(request.GET.get('fig_dpi'))
         dataset_type = request.GET.get('dataset_type')
+        include_covars = request.GET.get('include_covars')
 
         url = "http://api:8888/query/get-info/"
 
@@ -53,7 +54,8 @@ class GraphsPageView(LoginRequiredMixin, FormView):
                    'time_period': time_period,
                    'fig_dpi': fig_dpi,
                    'plot_name': 'test',
-                   'dataset_type': dataset_type}
+                   'dataset_type': dataset_type,
+                   'include_covars': include_covars}
         files = []
         headers = {}
 
