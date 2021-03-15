@@ -171,11 +171,17 @@ def cohortdescriptive_all(df_all):
 
     df_all = df_all.select_dtypes(include=['float64'])
 
+    categorical = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
+                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education']
+
+    df_all = df_all.loc[:, ~df_all.columns.isin(categorical)]
+
     #b = df_all.agg(['count','mean','std',lambda x: x.quantile(0.25), lambda x: x.quantile(0.50)])
 
     df_all[df_all < 0 ] = np.nan
 
-    b = df_all.agg(['count','mean','std','min',  q1, 'median', q3, 'max']).transpose()
+    b = df_all.agg(['count','mean','std','min',  q1, 'median', q3, 'max']).transpose().round(4)
+
 
     return b
 
@@ -282,29 +288,24 @@ def numberParticipants(df_all):
 
     df_all
 
-def categoricalCounts(df,categorical, indv_or_all):
+def categoricalCounts(df):
 
     #each participant should only have 1 measurment per continous variable
+
+    categorical = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
+                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education']
+        
     df22 = df[categorical].drop_duplicates(['PIN_Patient'])
 
     categorical.remove('PIN_Patient')
 
     df22 = df22[categorical]
-    ## for all cohorts
-    if indv_or_all == 1:
-        df33 = pd.DataFrame(pd.melt(df22,id_vars=['CohortType'])\
+    
+    df33 = pd.DataFrame(pd.melt(df22,id_vars=['CohortType'])\
                         .groupby(['Analyte','value'])['value'].count())
         
-
-        df33.index.names = ['variable', 'cat']
-    ## counts by cohort individually
-    if indv_or_all == 0:
-        df33 = pd.DataFrame(pd.melt(df22,id_vars=['CohortType'])\
-                        .groupby(['CohortType','Analyte','value'])['value'].count())
-        
-
-        df33.index.names = ['CohortType','variable', 'cat']
-
+    df33.index.names = ['variable', 'cat']
+   
     return df33.reset_index()
 
 def linearreg(df, x_vars, targets, cohort):
@@ -381,7 +382,7 @@ def logisticregress(df, x_vars, targets, cohort):
 
     return rez_df
 
-def crude_reg(df_merged, x_feature, y_feature):
+def crude_reg(df_merged, x_feature, y_feature, covars):
     # inro for crude simple regression y = ax + b and report full results
     # y_feature has to be binary (i.e. 0,1)
 
@@ -390,10 +391,25 @@ def crude_reg(df_merged, x_feature, y_feature):
     df_temp = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna())]
 
     df_temp['intercept'] = 1
-    X = df_temp[['intercept',x_feature]]
-
     df_temp[y_feature] = df_temp[y_feature].astype(float)
-    Y = df_temp[y_feature]
+
+
+    if covars == 'False':
+
+        X = df_temp[['intercept',x_feature]]
+
+        Y = df_temp[y_feature]
+
+    if covars == 'True':
+
+        data = add_confound(df_merged, x_feature, y_feature)
+
+        data['intercept'] = 1
+        data = data.select_dtypes(include = ['float','integer'])
+
+        X = data[[x for x in data.columns if x !=y_feature]]
+
+        Y = data[y_feature]
 
     if df_temp.shape[0] > 2:
 
@@ -414,18 +430,13 @@ def crude_logreg(df_merged, x_feature, y_feature):
 
     df_temp['intercept'] = 1
     X = df_temp[['intercept',x_feature]]
+     
     df_temp[y_feature] = df_temp[y_feature].astype(int)
     Y = df_temp[y_feature]
 
     if df_temp.shape[0] > 2:
 
         log_reg = sm.Logit(Y, X).fit() 
-
-        #intercept = log_reg.params[0]
-        #coef = log_reg.params[1]
-
-        #intercept_p = log_reg.pvalues[0]
-        #coef_p = log_reg.pvalues[1]
 
         ret = log_reg.summary()
         
@@ -435,23 +446,47 @@ def crude_logreg(df_merged, x_feature, y_feature):
 
     return ret
 
-def crude_binomial_mixedML(df_merged, x_feature, y_feature):
+def crude_binomial_mixedML(df_merged, x_feature, y_feature,covars):
 
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
 
-    data = df_merged[[x_feature,y_feature,'CohortType']].dropna(how = 'any', axis='rows')
+    if covars == 'False':
+        
+        data = df_merged[[x_feature,y_feature,'CohortType']].dropna(how = 'any', axis='rows')
 
-    data[x_feature] = data[x_feature] + 1
-    random = {"a": '0 + C(CohortType)'}
+        data[x_feature] = data[x_feature] + 1
+        data[y_feature] = data[y_feature].astype(int)
+        random = {"a": '0 + C(CohortType)'}
 
-    print(data.shape)
+        fit_string = y_feature + '~' + x_feature
 
-    data[y_feature] = data[y_feature].astype(int)
-    
-    fit_string = y_feature + '~' + x_feature
+    if covars == 'True':
 
-    print('mixedML string:')
-    print(fit_string)
+        random = {"a": '0 + C(CohortType)'}
+
+        data = add_confound(df_merged, x_feature, y_feature)
+
+            ## create the model string for 
+        fit_string = y_feature + '~'
+
+        cnt = 0
+        ## filter out target, at birth, and reference dummy variables in model
+        for x in data.columns:
+
+            #data.drop(['education'], inplace = True, axis = 0)
+            
+            if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
+                and x !='birthLen' and x != 'CohortType' and x != 'race' and x!='race_999' and x!= 'smoking' and x != 'smoking_3' \
+                and x != 'education_5' and x != 'education' and smoking not in x:
+                
+                
+                if cnt == 0:
+                    fit_string += ' ' + x + ' '
+                else:
+                    fit_string += ' + ' + x + ' '
+                cnt+=1    
+        
+        data[y_feature] = data[y_feature].astype(int) 
 
     ## miced linear model with group variable = CohortType
     md = statsmodels.genmod.bayes_mixed_glm.BinomialBayesMixedGLM.from_formula(
@@ -460,19 +495,41 @@ def crude_binomial_mixedML(df_merged, x_feature, y_feature):
     ##fit the model 
     mdf = md.fit_vb()
 
-    print(mdf.summary())
-
     return mdf.summary()
 
-
-def crude_mixedML(df_merged, x_feature, y_feature):
+def crude_mixedML(df_merged, x_feature, y_feature, covars = False):
 
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
 
-    data = df_merged[[x_feature,y_feature,'CohortType']].dropna(how = 'any', axis='rows')
+    if covars == 'False':
+        
+        data = df_merged[[x_feature,y_feature,'CohortType']].dropna(how = 'any', axis='rows')
 
-    fit_string = y_feature + '~' + x_feature
+        fit_string = y_feature + '~' + x_feature
 
+    if covars == 'True':
+
+        data = add_confound(df_merged, x_feature, y_feature)
+
+            ## create the model string for 
+        fit_string = y_feature + '~'
+
+        cnt = 0
+        ## filter out target, at birth, and reference dummy variables in model
+        for x in data.columns:
+
+            #data.drop(['education'], inplace = True, axis = 0)
+            
+            if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
+                and x !='birthLen' and x != 'CohortType' and x != 'race' and x!='race_999' and x!= 'smoking' and x != 'smoking_3' \
+                and x != 'education_5' and x != 'education':
+                
+                if cnt == 0:
+                    fit_string += ' ' + x + ' '
+                else:
+                    fit_string += ' + ' + x + ' '
+                cnt+=1        
+            
     print('mixedML string:')
     print(fit_string)
 
@@ -486,7 +543,52 @@ def crude_mixedML(df_merged, x_feature, y_feature):
 
     return mdf.summary()
 
+def add_confound(df_merged, x_feature, y_feature):
+    
+    for col in df_merged:
+        print(col)
+        try:
+            df_merged[col] = df_merged[col].astype(int)
+            df_merged.loc[df_merged[col] < 0, col] = np.nan
+        except:
+            print('err on ' + col)
 
+    #filter ga range
+    df_merged = df_merged[(df_merged['ga_collection'] >= 13) & (df_merged['ga_collection'] <= 28)]
+
+    incomplete_N2 = df_merged.shape[0]
+
+    cols_to_mix =  [x_feature, y_feature, 'parity', 
+       'babySex', 'ga_collection', 'education',
+       'race', 'BMI', 'PIN_Patient',
+       'age', 'CohortType']
+
+    # drop any missing values as mixed model requires complete data
+    df_nonan = df_merged[cols_to_mix].dropna(axis='rows')
+
+    complete_N = df_nonan.shape[0]
+
+    df_nonan['race'] = df_nonan['race'].astype(int)
+    #df_nonan['smoking'] = df_nonan['smoking'].astype(int)
+    df_nonan['education'] = df_nonan['education'].astype(int)
+
+    ## dummy race annd smoking varible
+
+    df_fin_UTAS = pd.concat([df_nonan, pd.get_dummies(df_nonan['race'], prefix = 'race')], axis = 1)
+
+    #df_fin_UTAS = pd.concat([df_fin_UTAS, pd.get_dummies(df_fin_UTAS['smoking'], prefix = 'smoking')], axis = 1)
+
+    df_fin_UTAS = pd.concat([df_fin_UTAS, pd.get_dummies(df_fin_UTAS['education'], prefix = 'education')], axis = 1)
+
+    dup_visit_N = df_fin_UTAS.shape[0]
+
+    ## keep only first visit result if duplicate samples reported
+
+    df_fin_UTAS = df_fin_UTAS.drop_duplicates(['PIN_Patient'], keep = 'first')
+ 
+    df_fin_UTAS.drop(['PIN_Patient','race','race_1','education','education_1'], inplace = True, axis = 1)
+
+    return df_fin_UTAS
 
 def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
     ## linear mixed model analysis for all 3 cohorts
@@ -645,8 +747,6 @@ def runcustomanalysis():
         .to_csv(output_path + 'continous_merged_descriptive_all.csv')
 
 
-    cohortdescriptive_all(df_merged[['CohortType','PIN_Patient','TimePeriod'] + continuous]).reset_index().round(4)\
-        .to_csv(output_path + 'continous_merged_descriptive.csv', index = False)
     ####################################################################################################################################
 
     ## Describe by outcome
@@ -674,6 +774,7 @@ def runcustomanalysis():
     df22 = df1_cat.merge(df1_tos, on = 'variable')
 
     df22['percent'] = df22['value_x'] / df22['value_y']
+
     df22.round(4)\
         .to_csv(output_path + 'merged_categorical_counts_and_percentage.csv', index = False)
 

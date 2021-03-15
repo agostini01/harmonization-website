@@ -549,6 +549,10 @@ class GraphRequestView(views.APIView):
 
             if (t == 'logistic_regression'):
                 gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
+            
+            else:
+                gr = graphs.noGraphMessage()
+                gr.savefig(response, format="jpg", dpi=fig_dpi)
                 
         # response = HttpResponse(content_type="image/jpg")
         gr.savefig(response, format="jpg", dpi=fig_dpi)
@@ -714,6 +718,8 @@ class InfoRequestView(views.APIView):
     @classmethod
     def getPlot(cls, request):
         """Called during get request to generate plots."""
+        print('Request data')
+        print(request.data)
 
         plot_type = request.data['plot_type']
         x_feature = request.data['x_feature']
@@ -722,7 +728,8 @@ class InfoRequestView(views.APIView):
         time_period = int(request.data['time_period'])
         fig_dpi = int(request.data['fig_dpi'])
         dataset_type = request.data['dataset_type']
-
+        include_covars = request.data['include_covars']
+        
         t = plot_type
         gr = None
 
@@ -857,18 +864,18 @@ class InfoRequestView(views.APIView):
 
             if (t == 'linear_reg_detailed_plot'):
 
-                gr = analysis.crude_reg(df, x_feature, y_feature)
+                gr = analysis.crude_reg(df, x_feature, y_feature, include_covars)
                 gr = gr.as_html()
 
             if (t == 'linear_mixed_ml_summary'):
 
-                gr = analysis.crude_mixedML(df, x_feature, y_feature)
+                gr = analysis.crude_mixedML(df, x_feature, y_feature, include_covars)
                 gr = gr.as_html()
                 
             if (t == 'binomial_mixed_ml_summary'):
                 #gr = cls.getbinomialMLPlot(df, x_feature, y_feature, color_by)
 
-                gr = analysis.crude_binomial_mixedML(df, x_feature, y_feature)
+                gr = analysis.crude_binomial_mixedML(df, x_feature, y_feature, include_covars)
                 gr = gr.as_html()
 
             if (t == 'logistic_regression'):
@@ -876,6 +883,15 @@ class InfoRequestView(views.APIView):
 
                 gr = analysis.crude_logreg(df, x_feature, y_feature)
                 gr = gr.as_html()
+            if (t == 'categorical_summary'):
+
+                gr = analysis.categoricalCounts(df).to_html()
+            
+
+            if (t == 'continous_summary'):
+
+                gr = analysis.cohortdescriptive_all(df).to_html()
+                
         
         response = HttpResponse(gr)
 

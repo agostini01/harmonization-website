@@ -26,6 +26,7 @@ function getPlot() {
     URL  +='&time_period=' + document.getElementById("id_time_period").value;
     URL  +='&fig_dpi='  + document.getElementById("id_fig_dpi").value;
     URL  +='&dataset_type='  + document.getElementById("id_dataset_type").value;
+    URL  +='&include_covars='  + document.getElementById("id_include_covars").value;
 
     console.log(URL)
     xmlHttp.open( "GET", URL, false ); 
@@ -80,6 +81,7 @@ function getPlot() {
     new_graph +='&time_period=' + document.getElementById("id_time_period").value;
     new_graph +='&fig_dpi='  + document.getElementById("id_fig_dpi").value;
     new_graph +='&dataset_type='  + document.getElementById("id_dataset_type").value;
+    new_graph +='&include_covars='  + document.getElementById("id_include_covars").value;
     new_graph += ' style="max-width:100%; height:auto"></div>'
     new_graph += `</div>
         </div > `
