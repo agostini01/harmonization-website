@@ -881,7 +881,7 @@ class InfoRequestView(views.APIView):
             if (t == 'logistic_regression'):
                 #gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
 
-                gr = analysis.crude_logreg(df, x_feature, y_feature)
+                gr = analysis.crude_logreg(df, x_feature, y_feature, include_covars)
                 gr = gr.as_html()
             if (t == 'categorical_summary'):
 
@@ -891,7 +891,15 @@ class InfoRequestView(views.APIView):
             if (t == 'continous_summary'):
 
                 gr = analysis.cohortdescriptive_all(df).to_html()
-                
+            
+            if (t == 'bayesian_mixed_ml'):
+
+                gr = analysis.crude_mixedMLbayse(df, x_feature, y_feature, include_covars, False).to_html()
+
+            if (t == 'binomial_bayesian_mixed_ml'):
+
+                gr = analysis.crude_mixedMLbayse(df, x_feature, y_feature, include_covars, True).to_html()
+
         
         response = HttpResponse(gr)
 
