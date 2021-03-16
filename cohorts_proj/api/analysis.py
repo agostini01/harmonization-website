@@ -9,6 +9,8 @@ import traceback
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import statsmodels
+import bambi as bmb
+import arviz as az
 
 
 from datasets.models import RawFlower, RawUNM, RawDAR
@@ -420,7 +422,7 @@ def crude_reg(df_merged, x_feature, y_feature, covars):
 
     return ret
 
-def crude_logreg(df_merged, x_feature, y_feature):
+def crude_logreg(df_merged, x_feature, y_feature, covars):
     # inro for crude simple logistic regression log(p(x)/1-p(x)) = ax + b and report slope, intercept, rvalue, plvalue, 'stderr
     # y_feature has to be binary (i.e. 0,1)
 
@@ -428,11 +430,22 @@ def crude_logreg(df_merged, x_feature, y_feature):
 
     df_temp = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna()) & (df_merged[y_feature].isin([0.0,1.0,0,1]))]
 
-    df_temp['intercept'] = 1
-    X = df_temp[['intercept',x_feature]]
-     
-    df_temp[y_feature] = df_temp[y_feature].astype(int)
-    Y = df_temp[y_feature]
+    if covars == 'False':
+
+        df_temp['intercept'] = 1
+        X = df_temp[['intercept',x_feature]]
+        
+        df_temp[y_feature] = df_temp[y_feature].astype(int)
+        Y = df_temp[y_feature]
+    if covars == 'True':
+
+        data = add_confound(df_merged, x_feature, y_feature)
+        data['intercept'] = 1
+        data = data.select_dtypes(include = ['float','integer'])
+
+        X = data[[x for x in data.columns if x !=y_feature]]
+
+        Y = data[y_feature]
 
     if df_temp.shape[0] > 2:
 
@@ -456,6 +469,7 @@ def crude_binomial_mixedML(df_merged, x_feature, y_feature,covars):
 
         data[x_feature] = data[x_feature] + 1
         data[y_feature] = data[y_feature].astype(int)
+        
         random = {"a": '0 + C(CohortType)'}
 
         fit_string = y_feature + '~' + x_feature
@@ -476,8 +490,8 @@ def crude_binomial_mixedML(df_merged, x_feature, y_feature,covars):
             #data.drop(['education'], inplace = True, axis = 0)
             
             if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
-                and x !='birthLen' and x != 'CohortType' and x != 'race' and x!='race_999' and x!= 'smoking' and x != 'smoking_3' \
-                and x != 'education_5' and x != 'education' and smoking not in x:
+                and x !='birthLen' and x != 'CohortType' and x != 'race' and x!='race_1' and x!= 'smoking' and x != 'smoking_3' \
+                and x != 'education_5' and x != 'education':
                 
                 
                 if cnt == 0:
@@ -496,6 +510,53 @@ def crude_binomial_mixedML(df_merged, x_feature, y_feature,covars):
     mdf = md.fit_vb()
 
     return mdf.summary()
+
+def crude_mixedMLbayse(df_merged, x_feature, y_feature, covars='False', logit = False):
+
+    df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+
+    if covars == 'False':
+        
+        data = df_merged[[x_feature,y_feature,'CohortType']].dropna(how = 'any', axis='rows')
+
+        fit_string = y_feature + '~' + x_feature
+
+    if covars == 'True':
+
+        data = add_confound(df_merged, x_feature, y_feature)
+
+            ## create the model string for 
+        fit_string = y_feature + '~'
+
+        cnt = 0
+        ## filter out target, at birth, and reference dummy variables in model
+        for x in data.columns:
+
+            #data.drop(['education'], inplace = True, axis = 0)
+            
+            if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
+                and x !='birthLen' and x != 'CohortType' and x != 'race' and x!='race_1' and x!= 'smoking' and x != 'smoking_3' \
+                and x != 'education_5' and x != 'education':
+                
+                if cnt == 0:
+                    fit_string += ' ' + x + ' '
+                else:
+                    fit_string += ' + ' + x + ' '
+                cnt+=1        
+    
+    print('mixedML string:')
+    print(fit_string)
+    fit_string += '+ (1|CohortType)'
+    if logit == False:
+        model = bmb.Model(data)
+        results = model.fit(fit_string)
+    else:
+        model = bmb.Model(data)
+        results = model.fit(fit_string, family='bernoulli',link = 'logit')
+
+    ## miced linear model with group variable = CohortType
+    mdf = az.summary(results)
+    return mdf
 
 def crude_mixedML(df_merged, x_feature, y_feature, covars = False):
 
@@ -521,7 +582,7 @@ def crude_mixedML(df_merged, x_feature, y_feature, covars = False):
             #data.drop(['education'], inplace = True, axis = 0)
             
             if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
-                and x !='birthLen' and x != 'CohortType' and x != 'race' and x!='race_999' and x!= 'smoking' and x != 'smoking_3' \
+                and x !='birthLen' and x != 'CohortType' and x != 'race' and x!='race_1' and x!= 'smoking' and x != 'smoking_3' \
                 and x != 'education_5' and x != 'education':
                 
                 if cnt == 0:
@@ -586,7 +647,7 @@ def add_confound(df_merged, x_feature, y_feature):
 
     df_fin_UTAS = df_fin_UTAS.drop_duplicates(['PIN_Patient'], keep = 'first')
  
-    df_fin_UTAS.drop(['PIN_Patient','race','race_1','education','education_1'], inplace = True, axis = 1)
+    df_fin_UTAS.drop(['PIN_Patient','race','race_1','education','education_5'], inplace = True, axis = 1)
 
     return df_fin_UTAS
 
@@ -656,7 +717,7 @@ def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
     for x in df_fin_UTAS:
         
         if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
-            and x!='birthLen' and x != 'CohortType' and x != 'race' and x!='race_999' and x!= 'smoking' and x != 'smoking_3' \
+            and x!='birthLen' and x != 'CohortType' and x != 'race' and x!='race_1' and x!= 'smoking' and x != 'smoking_3' \
             and x!= 'education_5' and x!= 'education':
             
             if cnt == 0:
@@ -669,203 +730,6 @@ def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
     print(fit_string)
 
     return 1
-
-
-def runcustomanalysis():
-
-    ## Get data
-    df1 = adapters.neu.get_dataframe()
-    df2 = adapters.unm.get_dataframe()
-    df3 = adapters.dar.get_dataframe()
-
-    ## should be presennt in both DAR and UNM
-    for as_feature in ['UASB', 'UDMA', 'UAS5', 'UIAS', 'UAS3', 'UMMA']:
-        if as_feature not in df1.columns:
-            df1[as_feature] = np.nan
-        if as_feature not in df2.columns:
-            df2[as_feature] = np.nan
-        if as_feature not in df3.columns:
-            df3[as_feature] = np.nan
-
-
-    df_merged2 = merge2CohortFrames(df2,df3)
-    ## merge the frames
-
-    df_merged = merge3CohortFrames(df1,df2,df3)
-
-    ## distiinguish features between covariates and analytes
-
-    covariates = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome', 'Outcome_weeks',
-                'age', 'ethnicity', 'race', 'BMI', 'smoking', 'parity',
-                'preg_complications', 'folic_acid_supp', 'education',
-                'fish',
-                'babySex',
-                'birthWt',
-                'birthLen']
-
-    analytes = ['UBA', 'UBE', 'UCD', 'UCO', 'UCR', 'UCS', 'UCU', 'UHG',
-                'UMN', 'UMO', 'UNI', 'UPB', 'UPT', 'USB', 'USE', 'USN', 'UTAS', 'UTL',
-                'UTU', 'UUR', 'UVA', 'UZN']
-
-    analytes2 = ['UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMO',  'UMN', 'UCO']
-
-    analytes_arsenic_neu = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
-
-    continuous = ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] + analytes_arsenic_neu
-
-    categorical = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp',
-                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education']
-
-
-    ## Number of Participants
-
-    output_path = 'mediafiles/analysisresults/'
-    #output_path = '../mediafiles/analysisresults/'
-
-    print('Files written to: ' + output_path)
-
-    df_merged.groupby(['CohortType'])['PIN_Patient'].nunique()\
-            .to_csv(output_path + 'number_unique_participats.csv', index = True)
-
-    ## Number of Records
-
-    df_merged.groupby(['CohortType'])['PIN_Patient'].count()\
-            .to_csv(output_path + 'number_unique_records.csv', index = True)
-    
-    ## Number of participants per visit
-
-    par_per_vis = df_merged.groupby(['CohortType','TimePeriod'])['PIN_Patient'].nunique().reset_index()
-    par_per_vis.to_csv(output_path +'number_unique_participats_per_visit.csv', index = True)
-
-    #################################################################################################################################### 
-    #cohortdescriptiveOverall(df_merged[['CohortType'] + continuous]).reset_index()\
-    #    .to_csv(output_path + 'continous_descriptive_by_outcome.csv')
-
-    ## Continous descriptions
-
-    cohortdescriptive(df_merged[['CohortType','PIN_Patient','TimePeriod'] + continuous]).reset_index().round(4)\
-        .to_csv(output_path + 'continous_merged_descriptive_all.csv')
-
-
-    ####################################################################################################################################
-
-    ## Describe by outcome
-
-    cohortDescriptiveByOutcome(df_merged[continuous + ['Outcome']]).reset_index().round(4)\
-        .to_csv(output_path + 'continous_merged_descriptive_by_outcome.csv')
-
-    ####################################################################################################################################
-
-    ## Decribe categorical variables and percentages
-
-    ## For individual
-
-    df0_cat = categoricalCounts(df_merged,categorical + ['PIN_Patient'], 0).reset_index()
-
-    df0_cat.to_csv(output_path + 'individual_categorical_counts_and_percentage.csv', index = False)
-
-
-    ## For merged
-
-    df1_cat = categoricalCounts(df_merged,categorical + ['PIN_Patient'], 1).reset_index()
-
-    df1_tos = categoricalCounts(df_merged,categorical + ['PIN_Patient'], 1).groupby(['variable']).sum().reset_index()
-
-    df22 = df1_cat.merge(df1_tos, on = 'variable')
-
-    df22['percent'] = df22['value_x'] / df22['value_y']
-
-    df22.round(4)\
-        .to_csv(output_path + 'merged_categorical_counts_and_percentage.csv', index = False)
-
-    to_corr_cols = continuous
-
-    ##correlatiom heatmap overall
-
-    corr1 = getCorrelationHeatmap(df_merged, continuous)
-
-    df_merged[df_merged['TimePeriod'] == 1]
-
-    plt.savefig(output_path + '_combiend_correlations.png')
-
-    ##correlatiom heatmap per visit
-
-    for cohort in df_merged['CohortType'].unique():
-        df_cohort = df_merged[df_merged['CohortType'] == cohort]
-
-        for period in df_cohort['TimePeriod'].unique():
-
-            df_indv = df_cohort[df_cohort['CohortType']== cohort]
-            
-            corr_i = getCorrelationHeatmap(df_indv, continuous)
-
-            plt.savefig(output_path + cohort + str(period) + '_indiv_correlations.png')
-    
-    ## spearman correlations written to file
-
-    x_cols1 =  ['age',
-                'BMI', 'parity',
-                'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen'] + analytes_arsenic_neu
-    
-    y_cols = ['Outcome_weeks','birthWt','birthLen','fish']
-
-    for cohort in df_merged['CohortType'].unique():
-        df_cohort = df_merged[df_merged['CohortType'] == cohort]
-
-        for period in df_cohort['TimePeriod'].unique():
-            
-            df_period = df_cohort[df_cohort['TimePeriod'] == period]
-            
-            corr_period = getCorrelation(df_period, x_cols1, y_cols,'spearman').round(4)
-            
-            corr_period['TimePeriod'] = period
-
-            corr_period['Cohort'] = cohort
-            
-            corr_period.round(6).to_csv(output_path + str(cohort) + str(period)  + '_period_spearman_correlations.csv', index = False)
-    
-   
-    x_cols =  ['folic_acid_supp', 'fish']
-
-    y_cols = analytes_arsenic_neu
-
-    #getCorrelation(df3, x_cols, y_cols,'spearman').round(4).to_csv(output_path + 'dar_1_correlations.csv')
-
-    x_cols = ['PNFFQFR_FISH_KIDS','PNFFQSHRIMP_CKD','PNFFQDK_FISH','PNFFQOTH_FISH','mfsp_6','fish','TOTALFISH_SERV']
-    y_cols = ['UIAS', 'UASB', 'UAS3', 'UAS5','UHG','UAS']
-
-    #getCorrelation(df3, x_cols, y_cols,'spearman').round(4).to_csv(output_path + 'dar_fish_correlations.csv')
-
-    ###
-
-    x_cols = ['UIAS', 'UASB', 'UAS3', 'UAS5','UHG','UAS','UTAS']
-    y_cols = ['Outcome_weeks']
-
-    #getCorrelation(df3, x_cols, y_cols,'spearman').round(4).to_csv(output_path + 'dar_3_correlations.csv')
-
-    ### univariate linear regression:
-    ###
-    ###
-
-    confound = continuous + x_cols
-
-    neu = linearreg(df1, confound, ['Outcome_weeks','birthWt','fish'], 'NEU')
-
-    unm = linearreg(df2, confound, ['Outcome_weeks','birthWt','fish'], 'UNM')
-
-    dar = linearreg(df3, confound, ['Outcome_weeks','birthWt','fish'], 'DAR')
-
-    pd.concat([neu,unm,dar]).round(4).to_csv(output_path +  'uni_var_linregress_results.csv', index = False)
-
-    ### fit models:: TODO Remove variables that seem problematic...
-
-
-
-    _ = mixedML(df_merged, 'birthWt', 'UTAS', categorical, output_path)
-
-    _ = mixedML(df_merged, 'Outcome_weeks', 'UTAS', categorical, output_path)
-
-
 
 
    

@@ -70,8 +70,12 @@ ADDITIONAL_FEATURES = [('Categorical', (
     ('CohortType', 'Cohort Type'),
 )), 
 ('Outcomes', (
+    ('SGA',  'SGA'),
+    ('LGA',  'LGA'),
     ('birthWt',  'Birth Weight'),
-    ('Outcome_weeks',  'Outcome Weeks')
+    ('Outcome_weeks',  'Outcome Weeks'),
+    ('Outcome',  'Outcome'),
+
 )
 )]
 
