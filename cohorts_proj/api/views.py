@@ -540,15 +540,15 @@ class GraphRequestView(views.APIView):
             if (t == 'linear_reg_with_color_plot'):
                 gr = cls.getRegColorPlot(df, x_feature, y_feature, color_by)
 
-            if (t == 'linear_reg_detailed_plot'):
-                gr = cls.getRegDetailedPlot(df, x_feature, y_feature, color_by)
+           # if (t == 'linear_reg_detailed_plot'):
+            #    gr = cls.getRegDetailedPlot(df, x_feature, y_feature, color_by)
 
-            if (t == 'linear_mixed_ml_summary'):
-                #gr = cls.getMLPlot(df, x_feature, y_feature, color_by)
-                gr = ''
+            #if (t == 'linear_mixed_ml_summary'):
+            #    #gr = cls.getMLPlot(df, x_feature, y_feature, color_by)
+            #    gr = ''
 
-            if (t == 'logistic_regression'):
-                gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
+            #if (t == 'logistic_regression'):
+            #    gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
             
             else:
                 gr = graphs.noGraphMessage()
@@ -728,7 +728,7 @@ class InfoRequestView(views.APIView):
         time_period = int(request.data['time_period'])
         fig_dpi = int(request.data['fig_dpi'])
         dataset_type = request.data['dataset_type']
-        include_covars = request.data['include_covars']
+        covar_choices = request.data['covar_choices']
         
         t = plot_type
         gr = None
@@ -863,41 +863,28 @@ class InfoRequestView(views.APIView):
                 gr = cls.getRegColorPlot(df, x_feature, y_feature, color_by)
 
             if (t == 'linear_reg_detailed_plot'):
-
-                gr = analysis.crude_reg(df, x_feature, y_feature, include_covars)
-                gr = gr.as_html()
+                gr = analysis.crude_reg(df, x_feature, y_feature, covar_choices)
 
             if (t == 'linear_mixed_ml_summary'):
-
-                gr = analysis.crude_mixedML(df, x_feature, y_feature, include_covars)
-                gr = gr.as_html()
+                gr = analysis.crude_mixedML2(df, x_feature, y_feature, covar_choices)
                 
             if (t == 'binomial_mixed_ml_summary'):
-                #gr = cls.getbinomialMLPlot(df, x_feature, y_feature, color_by)
-
                 gr = analysis.crude_binomial_mixedML(df, x_feature, y_feature, include_covars)
                 gr = gr.as_html()
 
             if (t == 'logistic_regression'):
-                #gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
-
-                gr = analysis.crude_logreg(df, x_feature, y_feature, include_covars)
-                gr = gr.as_html()
+                gr = analysis.crude_logreg(df, x_feature, y_feature, covar_choices)
+            
             if (t == 'categorical_summary'):
-
                 gr = analysis.categoricalCounts(df).to_html()
             
-
             if (t == 'continous_summary'):
-
                 gr = analysis.cohortdescriptive_all(df).to_html()
             
             if (t == 'bayesian_mixed_ml'):
-
                 gr = analysis.crude_mixedMLbayse(df, x_feature, y_feature, include_covars, False).to_html()
 
             if (t == 'binomial_bayesian_mixed_ml'):
-
                 gr = analysis.crude_mixedMLbayse(df, x_feature, y_feature, include_covars, True).to_html()
 
         

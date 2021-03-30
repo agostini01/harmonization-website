@@ -72,6 +72,23 @@ COVAR_CHOICES = (
     (False, False),
     (True, True)
 )
+
+COVAR_INDV_CHOICES = [
+    ('age', 'age'),
+    ('smoking', 'smoking'),
+    ('babySex', 'babySex'),
+    ('ga_collection', 'ga_collection'),
+    ('education', 'education'),
+    ('race', 'race'),
+    ('BMI', 'BMI'),
+    ('preg_complications', 'preg_complications'),
+    ('folic_acid_supp', 'folic_acid_supp'),
+    ('fish', 'fish'),
+]
+
+
+
+
 class FlowersForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
@@ -85,12 +102,18 @@ class FlowersForm(forms.Form):
         self.initial['plot_name'] = 'New Flowers Plot'
         self.initial['dataset_type'] = 'flowers_dataset'
         self.initial['include_covars'] = False
+
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
     plot_type = forms.ChoiceField(choices=PLOT_TYPES)
     x_feature = forms.ChoiceField(choices=FLOWER_FEATURE_CHOICES)
     y_feature = forms.ChoiceField(choices=FLOWER_FEATURE_CHOICES)
     color_by = forms.ChoiceField(choices=FLOWER_FEATURE_CHOICES)
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     time_period = forms.ChoiceField(choices=(('NA', 'NA')),
@@ -133,6 +156,11 @@ class UNMForm(forms.Form):
     time_period = forms.ChoiceField(choices=CAT_UNM_TIME_PERIOD,
                                     label='Time Period Filter')
     include_covars = forms.ChoiceField(choices=COVAR_CHOICES)
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -171,6 +199,12 @@ class NEUForm(forms.Form):
     color_by = forms.ChoiceField(choices=NEU_CATEGORICAL_CHOICES)
     time_period = forms.ChoiceField(choices=CAT_NEU_TIME_PERIOD,
                                     label='Time Period Filter')
+
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -210,6 +244,11 @@ class DARForm(forms.Form):
     time_period = forms.ChoiceField(choices=CAT_DAR_TIME_PERIOD,
                                     label='Time Period Filter')
     include_covars = forms.ChoiceField(choices=COVAR_CHOICES)
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -240,6 +279,11 @@ class UNMNEUForm(forms.Form):
     time_period = forms.ChoiceField(choices=CAT_UNMNEU_TIME_PERIOD,
                                     label='Time Period Filter')
     include_covars = forms.ChoiceField(choices=COVAR_CHOICES)
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -270,6 +314,11 @@ class NEUDARForm(forms.Form):
     time_period = forms.ChoiceField(choices=CAT_NEUDAR_TIME_PERIOD,
                                     label='Time Period Filter')
     include_covars = forms.ChoiceField(choices=COVAR_CHOICES)
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -300,6 +349,12 @@ class DARUNMForm(forms.Form):
     time_period = forms.ChoiceField(choices=CAT_DARUNM_TIME_PERIOD,
                                     label='Time Period Filter')
     include_covars = forms.ChoiceField(choices=COVAR_CHOICES)
+
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -319,7 +374,7 @@ class HARForm(forms.Form):
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New Harmonized Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[6][0]
-        self.initial['include_covars'] = False
+
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
@@ -330,11 +385,22 @@ class HARForm(forms.Form):
     time_period = forms.ChoiceField(choices=CAT_HAR_TIME_PERIOD,
                                     label='Time Period Filter')
 
-    include_covars = forms.ChoiceField(choices=COVAR_CHOICES)
+
+
+    covar_choices = forms.MultipleChoiceField(
+        label='Covariate Selection',
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
+
 
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
+
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
                                      widget=forms.HiddenInput())
+
+    
 
     

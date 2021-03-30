@@ -392,26 +392,22 @@ def crude_reg(df_merged, x_feature, y_feature, covars):
 
     df_temp = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna())]
 
-    df_temp['intercept'] = 1
-    df_temp[y_feature] = df_temp[y_feature].astype(float)
+    split_covars = covars.split('|')
 
+    print(split_covars)
 
-    if covars == 'False':
+    data = add_confound(df_merged, x_feature, y_feature, split_covars)
 
-        X = df_temp[['intercept',x_feature]]
+    data.drop(['CohortType'], inplace = True, axis = 1)
 
-        Y = df_temp[y_feature]
+    data['intercept'] = 1
 
-    if covars == 'True':
+    print(data.columns)
+    data = data.select_dtypes(include = ['float','integer'])
 
-        data = add_confound(df_merged, x_feature, y_feature)
+    X = data[[x for x in data.columns if x !=y_feature]]
 
-        data['intercept'] = 1
-        data = data.select_dtypes(include = ['float','integer'])
-
-        X = data[[x for x in data.columns if x !=y_feature]]
-
-        Y = data[y_feature]
+    Y = data[y_feature]
 
     if df_temp.shape[0] > 2:
 
@@ -420,7 +416,23 @@ def crude_reg(df_merged, x_feature, y_feature, covars):
     else:
         ret = 'error'
 
-    return ret
+    fit_string = y_feature + '~'
+    
+    for x in X.columns:
+        fit_string += ' + ' + str(x)
+    
+    fit_string = fit_string.replace('~ +','~')
+    
+    header = '<div> <b> Number samples: </b> ' + str(X.shape[0]) + '</div>'
+    header += '<div> <b>  Model: </b>' + fit_string + '</div>'
+    header += '<div> ===============================================</div>'
+
+    htmls = header + ret.tables[0].as_html() + ret.tables[1].as_html() 
+
+
+
+
+    return htmls
 
 def crude_logreg(df_merged, x_feature, y_feature, covars):
     # inro for crude simple logistic regression log(p(x)/1-p(x)) = ax + b and report slope, intercept, rvalue, plvalue, 'stderr
@@ -430,22 +442,21 @@ def crude_logreg(df_merged, x_feature, y_feature, covars):
 
     df_temp = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna()) & (df_merged[y_feature].isin([0.0,1.0,0,1]))]
 
-    if covars == 'False':
+    split_covars = covars.split('|')
 
-        df_temp['intercept'] = 1
-        X = df_temp[['intercept',x_feature]]
-        
-        df_temp[y_feature] = df_temp[y_feature].astype(int)
-        Y = df_temp[y_feature]
-    if covars == 'True':
+    print(split_covars)
 
-        data = add_confound(df_merged, x_feature, y_feature)
-        data['intercept'] = 1
-        data = data.select_dtypes(include = ['float','integer'])
+    data = add_confound(df_merged, x_feature, y_feature, split_covars)
 
-        X = data[[x for x in data.columns if x !=y_feature]]
+    data.drop(['CohortType'], inplace = True, axis = 1)
 
-        Y = data[y_feature]
+    data['intercept'] = 1
+    print(data.columns)
+    data = data.select_dtypes(include = ['float','integer'])
+
+    X = data[[x for x in data.columns if x !=y_feature]]
+
+    Y = data[y_feature]
 
     if df_temp.shape[0] > 2:
 
@@ -457,7 +468,70 @@ def crude_logreg(df_merged, x_feature, y_feature, covars):
     else:
         ret = 'error'
 
-    return ret
+    fit_string = y_feature + '~'
+    
+    for x in X.columns:
+        fit_string += ' + ' + str(x)
+    
+
+    fit_string = fit_string.replace('~ +',' ~')
+    header = '<div> <b> Logistic Regression </b> </div>'
+    header += '<div> <b> Number samples: </b> ' + str(X.shape[0]) + '</div>'
+    header += '<div> <b>  Model: </b>' + fit_string + '</div>'
+    header += '<div> <b> Group: </b> CohortType '
+    
+
+    htmls = header + ret.tables[0].as_html() + ret.tables[1].as_html()      
+ 
+
+    return htmls
+
+def crude_mixedML2(df_merged, x_feature, y_feature, covars):
+
+    #TODO: Replace covars variable with actual selection of indivdual features
+
+    df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+
+    split_covars = covars.split('|')
+
+    print(split_covars)
+
+    data = add_confound(df_merged, x_feature, y_feature, split_covars)
+
+    data['intercept'] = 1
+
+    print(data.columns)
+    #data = data.select_dtypes(include = ['float','integer'])
+
+    X = data[[x for x in data.columns if x !=y_feature and x!= 'CohortType']]
+
+    Y = data[y_feature]
+
+    if X.shape[0] > 2:
+
+        reg = sm.MixedLM(Y, X, groups=data["CohortType"], exog_re=X["intercept"]).fit()
+        ret = reg.summary()
+    else:
+        ret = 'error'
+
+    fit_string = y_feature + '~'
+    
+    for x in X.columns:
+        fit_string += ' + ' + str(x)
+    
+
+    fit_string = fit_string.replace('~ +','~') + ' + (1|CohortType)'
+    header = '<div> <b> Liear Mixed Model with Random Intercept </b> </div>'
+    header += '<div> <b> Number samples: </b> ' + str(X.shape[0]) + '</div>'
+    header += '<div> <b>  Model: </b>' + fit_string + '</div>'
+    header += '<div> <b> Group: </b> CohortType '
+    
+
+    htmls = header + ret.tables[0].to_html() + ret.tables[1].to_html()      
+ 
+
+    return htmls
+
 
 def crude_binomial_mixedML(df_merged, x_feature, y_feature,covars):
 
@@ -509,9 +583,13 @@ def crude_binomial_mixedML(df_merged, x_feature, y_feature,covars):
     ##fit the model 
     mdf = md.fit_vb()
 
+
     return mdf.summary()
 
 def crude_mixedMLbayse(df_merged, x_feature, y_feature, covars='False', logit = False):
+
+    #TODO: Replace covars variable with actual selection of indivdual features
+
 
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
 
@@ -558,53 +636,7 @@ def crude_mixedMLbayse(df_merged, x_feature, y_feature, covars='False', logit = 
     mdf = az.summary(results)
     return mdf
 
-def crude_mixedML(df_merged, x_feature, y_feature, covars = False):
-
-    df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
-
-    if covars == 'False':
-        
-        data = df_merged[[x_feature,y_feature,'CohortType']].dropna(how = 'any', axis='rows')
-
-        fit_string = y_feature + '~' + x_feature
-
-    if covars == 'True':
-
-        data = add_confound(df_merged, x_feature, y_feature)
-
-            ## create the model string for 
-        fit_string = y_feature + '~'
-
-        cnt = 0
-        ## filter out target, at birth, and reference dummy variables in model
-        for x in data.columns:
-
-            #data.drop(['education'], inplace = True, axis = 0)
-            
-            if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
-                and x !='birthLen' and x != 'CohortType' and x != 'race' and x!='race_1' and x!= 'smoking' and x != 'smoking_3' \
-                and x != 'education_5' and x != 'education':
-                
-                if cnt == 0:
-                    fit_string += ' ' + x + ' '
-                else:
-                    fit_string += ' + ' + x + ' '
-                cnt+=1        
-            
-    print('mixedML string:')
-    print(fit_string)
-
-    ## miced linear model with group variable = CohortType
-    md = smf.mixedlm(fit_string, data, groups=data["CohortType"])
-
-    ##fit the model 
-    mdf = md.fit(maxiter=200000)
-
-    print(mdf.summary())
-
-    return mdf.summary()
-
-def add_confound(df_merged, x_feature, y_feature):
+def add_confound(df_merged, x_feature, y_feature, conf):
     
     for col in df_merged:
         print(col)
@@ -615,127 +647,60 @@ def add_confound(df_merged, x_feature, y_feature):
             print('err on ' + col)
 
     #filter ga range
+
     df_merged = df_merged[(df_merged['ga_collection'] >= 13) & (df_merged['ga_collection'] <= 28)]
 
     incomplete_N2 = df_merged.shape[0]
 
-    cols_to_mix =  [x_feature, y_feature, 'parity', 
-       'babySex', 'ga_collection', 'education',
-       'race', 'BMI', 'PIN_Patient',
-       'age', 'CohortType']
+    cols_to_mix =  [x_feature, y_feature, 'PIN_Patient', 'CohortType'] + conf
 
     # drop any missing values as mixed model requires complete data
     df_nonan = df_merged[cols_to_mix].dropna(axis='rows')
 
     complete_N = df_nonan.shape[0]
 
-    df_nonan['race'] = df_nonan['race'].astype(int)
     #df_nonan['smoking'] = df_nonan['smoking'].astype(int)
-    df_nonan['education'] = df_nonan['education'].astype(int)
-
+    
     ## dummy race annd smoking varible
 
-    df_fin_UTAS = pd.concat([df_nonan, pd.get_dummies(df_nonan['race'], prefix = 'race')], axis = 1)
 
-    #df_fin_UTAS = pd.concat([df_fin_UTAS, pd.get_dummies(df_fin_UTAS['smoking'], prefix = 'smoking')], axis = 1)
+    def add_cats(name, df_nonan, ref_val):
 
-    df_fin_UTAS = pd.concat([df_fin_UTAS, pd.get_dummies(df_fin_UTAS['education'], prefix = 'education')], axis = 1)
+        print('adding cats')
+        print(df_nonan.shape)
 
-    dup_visit_N = df_fin_UTAS.shape[0]
+        df_nonan[name] = df_nonan[name].astype(int)
+
+        df = pd.concat([df_nonan, pd.get_dummies(df_nonan[name], prefix = name)], axis = 1)
+
+        print(df.columns)
+
+        df.drop([name,name + '_' + ref_val], inplace = True, axis = 1)
+
+        return df
+
+
+    if 'race' in conf: 
+        
+        df_nonan = add_cats('race', df_nonan, '1')
+    
+    if 'smoking' in conf: 
+        
+        df_nonan = add_cats('smoking', df_nonan, '0')
+    
+    if 'education' in conf: 
+        
+        df_nonan = add_cats('education', df_nonan, '5')
+
+    #dup_visit_N = df_fin_UTAS.shape[0]
 
     ## keep only first visit result if duplicate samples reported
 
-    df_fin_UTAS = df_fin_UTAS.drop_duplicates(['PIN_Patient'], keep = 'first')
+    df_nonan = df_nonan.drop_duplicates(['PIN_Patient'], keep = 'first')
  
-    df_fin_UTAS.drop(['PIN_Patient','race','race_1','education','education_5'], inplace = True, axis = 1)
+    #df_fin_UTAS.drop(['PIN_Patient','race','race_1','education','education_5'], inplace = True, axis = 1)
 
-    return df_fin_UTAS
+    df_nonan.drop(['PIN_Patient'], inplace = True, axis = 1)
 
-def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
-    ## linear mixed model analysis for all 3 cohorts
-
-    for col in categorical:
-        print(col)
-        try:
-            df_merged[col] = df_merged[col].astype(int)
-            df_merged.loc[df_merged[col] < 0, col] = np.nan
-        except:
-            print('err on ' + col)
-    
-    ## drop any rows with nan - discuss in meetig whether we want to imput missing data
-
-    incomplete_N = df_merged.shape[0]
-
-    ## keep only a sepcific window of gestationn
-
-    df_merged = df_merged[(df_merged['ga_collection'] > 13) & (df_merged['ga_collection'] < 28)]
-
-    incomplete_N2 = df_merged.shape[0]
-
-    cols_to_mix =  [target_analyte, target_var, 'fish', 'smoking', 'parity', 
-       'babySex', 'ga_collection', 'education',
-       'preg_complications',
-       'race', 'BMI', 'PIN_Patient',
-       'age', 'CohortType', 'folic_acid_supp']
-
-    # drop any missing values as mixed model requires complete data
-    df_nonan = df_merged[cols_to_mix].dropna(axis='rows')
-
-    complete_N = df_nonan.shape[0]
-
-    df_nonan['race'] = df_nonan['race'].astype(int)
-    df_nonan['smoking'] = df_nonan['smoking'].astype(int)
-    df_nonan['education'] = df_nonan['education'].astype(int)
-
-    ## dummy race annd smoking varible
-
-    df_fin_UTAS = pd.concat([df_nonan, pd.get_dummies(df_nonan['race'], prefix = 'race')], axis = 1)
-
-    df_fin_UTAS = pd.concat([df_fin_UTAS, pd.get_dummies(df_fin_UTAS['smoking'], prefix = 'smoking')], axis = 1)
-
-    df_fin_UTAS = pd.concat([df_fin_UTAS, pd.get_dummies(df_fin_UTAS['education'], prefix = 'education')], axis = 1)
-
-    dup_visit_N = df_fin_UTAS.shape[0]
-
-    ## keep only first visit result if duplicate samples reported
-
-    df_fin_UTAS = df_fin_UTAS.drop_duplicates(['PIN_Patient'], keep = 'first')
-
-    single_visit_N = df_fin_UTAS.shape[0]
-
-    N_DAR = df_fin_UTAS[df_fin_UTAS['CohortType'] == 'DAR'].shape[0]
-    N_UNM = df_fin_UTAS[df_fin_UTAS['CohortType'] == 'UNM'].shape[0]
-    N_NEU = df_fin_UTAS[df_fin_UTAS['CohortType'] == 'NEU'].shape[0]
-
-    ## create the model string for 
-
-    fit_string = target_var + '~'
-
-    cnt = 0
-
-    ## filter out target, at birth, and reference dummy variables in model
-    for x in df_fin_UTAS:
-        
-        if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
-            and x!='birthLen' and x != 'CohortType' and x != 'race' and x!='race_1' and x!= 'smoking' and x != 'smoking_3' \
-            and x!= 'education_5' and x!= 'education':
-            
-            if cnt == 0:
-                fit_string += ' ' + x + ' '
-            else:
-                fit_string += ' + ' + x + ' '
-            cnt+=1         
-        
-    print('mixedML string:')
-    print(fit_string)
-
-    return 1
-
-
-   
-
-
-
-    
-
+    return df_nonan
 
