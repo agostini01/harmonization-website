@@ -85,6 +85,8 @@ def saveUNMToDB(csv_file):
             birthLen = entry.birthLen,
             WeightZScore = entry.WeightZScore,
             WeightCentile = entry.WeightCentile,
+            birth_year = entry.birth_year,
+            birth_month = entry.birth_month,
             LGA	= entry.LGA,
             SGA= entry.SGA,
             gestAge_collection = entry.gestAge_collection
@@ -174,6 +176,8 @@ def saveDARToDB(csv_file):
             birthWt =  entry.birthWt,
             ponderal =  entry.ponderal,
             preg_complications = entry.preg_complications,
+            birth_year = entry.birth_year,
+            birth_month = entry.birth_month,
             PNFFQTUNA = entry.PNFFQTUNA,
             PNFFQFR_FISH_KIDS = entry.PNFFQFR_FISH_KIDS,
             PNFFQSHRIMP_CKD = entry.PNFFQSHRIMP_CKD,

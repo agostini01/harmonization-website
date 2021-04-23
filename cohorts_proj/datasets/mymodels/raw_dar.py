@@ -186,7 +186,11 @@ class RawDAR(models.Model):
     folic_acid_supp	= models.CharField(max_length=100, choices=CAT_DAR_FOLIC, blank=True, default = '-9')
     
     babySex	= models.CharField(max_length=100, choices=CAT_DAR_SEX, blank=True, default = '-9')
+
+    birth_year = models.IntegerField(blank=True, default = -9)
     
+    birth_month = models.IntegerField(blank=True, default = -9)
+
     birthWt = models.FloatField(blank = True, default = -9.0)
     
     birthLen = models.FloatField(blank = True, default = -9.0)
