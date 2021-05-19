@@ -775,7 +775,6 @@ def predict_dilution(df_merged, cohort):
     header += '<div> <b>  Model: </b>' + fit_string + '</div>'
     header += '<div> ===============================================</div>'
 
-    
     Y_pred = reg.predict(X)
     
     #Y = original
@@ -786,6 +785,8 @@ def predict_dilution(df_merged, cohort):
     
     #pack predicted values with original and ids
     df_out = pd.DataFrame(list(zip(ids, Y, Y_pred)), columns = ['PIN_Patient','original', 'prediction'])
+
+    data['PIN_Patient'] = ids
 
     print(df_out.columns)
     print(data.columns)
