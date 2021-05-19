@@ -252,6 +252,10 @@ class RawNEU(models.Model):
     PPDATEDEL = models.CharField(blank = True, max_length = 50, default = '-9.0')
 
     ga_collection = models.FloatField(blank = True, default = -9.0)	
+
+    fish_pu_v1 = models.FloatField(blank = True, default = -9.0)
+    fish_pu_v2 = models.FloatField(blank = True, default = -9.0)	
+    fish_pu_v3 = models.FloatField(blank = True, default = -9.0)	
  
     
 

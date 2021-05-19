@@ -1,6 +1,11 @@
 import pandas as pd
 import numpy as np
 from datasets.models import RawUNM
+from api.analysis import predict_dilution
+from api.analysis import add_confound
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+import statsmodels
 
 
 def get_dataframe():
@@ -24,7 +29,7 @@ def get_dataframe():
     covars = ['Outcome_weeks', 'age', 'ethnicity',
        'race', 'education', 'BMI', 'income', 'smoking', 'parity',
        'preg_complications', 'folic_acid_supp', 'fish', 'babySex', 'birthWt',
-       'birthLen','WeightCentile','LGA','SGA','ga_collection']
+       'birthLen','WeightCentile','LGA','SGA','ga_collection','Creat_Corr_Result','birth_year']
 
     df['ga_collection'] = df['gestAge_collection']
        
@@ -48,6 +53,7 @@ def get_dataframe():
                         index=columns_to_indexes,
                         columns=categorical_to_columns,
                         aggfunc=np.average)
+
     df = df.reset_index(level=indexes_to_columns)
     # TODO - Should we drop NaN here?
 
@@ -63,4 +69,9 @@ def get_dataframe():
     df['CohortType'] = 'UNM'
     df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
 
-    return df
+
+    dilution = predict_dilution(df, 'UNM')
+    dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(str)
+    df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
+
+    return df_new
