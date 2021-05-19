@@ -1,6 +1,11 @@
 import pandas as pd
 import numpy as np
 from datasets.models import RawDAR
+from api.analysis import predict_dilution
+from api.analysis import add_confound
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+import statsmodels
 
 
 def get_dataframe():
@@ -24,16 +29,16 @@ def get_dataframe():
                   'sample_gestage_days', 'Outcome', 
                   'age','ethnicity','race','education','BMI',
                   'smoking','parity', 'preg_complications',
-                  'folic_acid_supp','babySex',
+                  'folic_acid_supp','babySex', 'birth_year', 'birth_month',
                   'birthWt','birthLen','headCirc','ponderal','PNFFQTUNA',
                   'PNFFQFR_FISH_KIDS','PNFFQSHRIMP_CKD','PNFFQDK_FISH','PNFFQOTH_FISH',
                   'mfsp_6','TOTALFISH_SERV','fish','folic_acid','income5y','urine_batchno_bulk','urine_batchno_spec',
                   'collect_age_days','collect_age_src','collection_season',
                   'pH','UTAS','PropMMAtoiAs','PropDMAtoMMA','urine_specific_gravity',
                   'WeightZScore',
-                    'WeightCentile',
-                    'LGA',
-                    'SGA',
+                  'WeightCentile',
+                  'LGA',
+                  'SGA',
                   'UIAS', 'iAs_IDL', 'iAs_BDL','iAs_N',
                   'UASB', 'AsB_IDL', 'AsB_BDL','AsB__N',
                   'UAS3', 'AsIII_IDL', 'AsIII_BDL','AsIII_N',
@@ -137,4 +142,8 @@ def get_dataframe():
     }
     df['TimePeriod'] = df['TimePeriod'].map(time_period_mapper)
 
-    return df
+    dilution = predict_dilution(df, 'DAR')
+    dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(str)
+    df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
+
+    return df_new

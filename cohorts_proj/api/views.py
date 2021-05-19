@@ -142,11 +142,12 @@ def saveNEUToDB(csv_file):
             LGA	= entry.lga,
             SGA= entry.sga,
             PPDATEDEL = entry.PPDATEDEL,
-            ga_collection = entry.ga_collection
+            ga_collection = entry.ga_collection,
+            fish_pu_v1 = entry.fish_pu_v1,
+            fish_pu_v2 = entry.fish_pu_v2,
+            fish_pu_v3 = entry.fish_pu_v3
 
-            
         )
-
 
 def saveDARToDB(csv_file):
     df = pd.read_csv(csv_file,
@@ -462,9 +463,6 @@ class GraphRequestView(views.APIView):
             #df = pd.concat([df1, df2, df3])
             df = analysis.merge3CohortFrames(df1, df2, df3)
             
-
-        print('((((((')   
-        print(time_period)
         # Apply Filters
         if time_period != 9:
             df = df[df['TimePeriod'] == time_period]
@@ -475,11 +473,17 @@ class GraphRequestView(views.APIView):
         response = HttpResponse(content_type="image/jpg")
         plt.clf()
 
+        graph_options = ['scatter_plot','individual_scatter_plot','corr_plot', 'clustermap','analysis', 'covars_facet_continous', \
+            'arsenic_facet_continous','covars_facet_categorical', 'custom_facet_LM_plot','pair_plot','cat_plot', 'violin_cat_plot', \
+                'histogram_plot','kde_plot','linear_reg_plot','linear_reg_with_color_plot']
+                
         # Is there data after the filters?
         if(df.shape[0] == 0):
             print('No data to plot after the filters')
             gr = graphs.noDataMessage()
             gr.savefig(response, format="jpg", dpi=fig_dpi)
+
+        
 
         else:
             # Plot Graphs
@@ -554,7 +558,8 @@ class GraphRequestView(views.APIView):
             #if (t == 'logistic_regression'):
             #    gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
             
-            else:
+            if (t not in graph_options):
+                
                 gr = graphs.noGraphMessage()
                 gr.savefig(response, format="jpg", dpi=fig_dpi)
                 

@@ -12,7 +12,6 @@ import statsmodels
 import bambi as bmb
 import arviz as az
 
-
 from datasets.models import RawFlower, RawUNM, RawDAR
 from django.contrib.auth.models import User
 
@@ -165,7 +164,6 @@ def q2(x):
 def q3(x):
     return x.quantile(0.75)
 
-
 def cohortdescriptive_all(df_all):
     ' summary; minimum, quartile 1, median, quartile 3, and maximum.'
     
@@ -237,6 +235,8 @@ def oneHotEncoding(df, toencode):
 
 def merge3CohortFrames(df1,df2,df3):
     'merge on feature intersections'
+    #only consider visit 2 for NEU
+    df2 = df2[df2['TimePeriod'] == 2]
 
     for as_feature in ['UASB', 'UDMA', 'UAS5', 'UIAS', 'UAS3', 'UMMA']:
         if as_feature not in df1.columns:
@@ -286,13 +286,9 @@ def merge2CohortFrames(df1,df2):
 
     return df_all
 
-def numberParticipants(df_all):
-
-    df_all
-
 def categoricalCounts(df):
 
-    #each participant should only have 1 measurment per continous variable
+    #each participant should only have 1 measurment per fvariable
 
     categorical = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
                 'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education']
@@ -324,8 +320,6 @@ def linearreg(df, x_vars, targets, cohort):
             for y in targets:
                 try:
                     df_temp = df_period[(~df_period[x].isna()) & (~df_period[y].isna())  & (df_period[y] >= 0) & (df_period[x] >= 0) ]
-                    print('*************')
-                    print(df_temp.shape)
 
                     X = df_temp[x]
                     Y = df_temp[y]
@@ -362,7 +356,6 @@ def logisticregress(df, x_vars, targets, cohort):
                     df_temp[y] = df_temp[y].astype(int)
                     Y = df_temp[y]
 
-                    print(Y)
                     #res = stats.linregress(X, Y)
                     if df_temp.shape[0] > 2:
                         log_reg = sm.Logit(Y, X).fit() 
@@ -374,7 +367,6 @@ def logisticregress(df, x_vars, targets, cohort):
                         coef_p = log_reg.pvalues[1]
 
                         rez.append([cohort, x, y, len(X),coef, coef_p, intercept, intercept_p])
-                    
                         
                     #    rez.append([cohort, x, y, len(X), np.nan, np.nan, np.nan, np.nan, np.nan, np.nan])
                 except Exception as e:
@@ -394,15 +386,19 @@ def crude_reg(df_merged, x_feature, y_feature, covars):
 
     split_covars = covars.split('|')
 
-    print(split_covars)
+    ## adjust dilution
+    df_merged[x_feature] = df_merged[x_feature] / df_merged['UDR']
 
-    data = add_confound(df_merged, x_feature, y_feature, split_covars)
+    if len(split_covars) > 0:
+        data = add_confound(df_merged, x_feature, y_feature, split_covars)
+    else:
+        data = df_temp
 
+    data_copy = data.copy()
     data.drop(['CohortType'], inplace = True, axis = 1)
 
     data['intercept'] = 1
 
-    print(data.columns)
     data = data.select_dtypes(include = ['float','integer'])
 
     X = data[[x for x in data.columns if x !=y_feature]]
@@ -422,15 +418,15 @@ def crude_reg(df_merged, x_feature, y_feature, covars):
         fit_string += ' + ' + str(x)
     
     fit_string = fit_string.replace('~ +','~')
-    
-    header = '<div> <b> Number samples: </b> ' + str(X.shape[0]) + '</div>'
+    header = ''
+    for cohort in data_copy['CohortType'].unique():
+        cohort_data = data_copy[data_copy['CohortType'] == cohort]
+        header += '<div> <b> ' + cohort +'  Number samples :</b> ' + str(cohort_data.shape[0]) + '</div>'
+    header += '<div> <b> Total Number samples :</b> ' + str(X.shape[0]) + '</div>'
     header += '<div> <b>  Model: </b>' + fit_string + '</div>'
-    header += '<div> ===============================================</div>'
+    header += '<div> ===================================================</div>'
 
     htmls = header + ret.tables[0].as_html() + ret.tables[1].as_html() 
-
-
-
 
     return htmls
 
@@ -441,30 +437,38 @@ def crude_logreg(df_merged, x_feature, y_feature, covars):
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
 
     df_temp = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna()) & (df_merged[y_feature].isin([0.0,1.0,0,1]))]
-
+    
+    #split the variables in the checkboxes
     split_covars = covars.split('|')
 
-    print(split_covars)
+    ## adjust dilution
+    df_merged[x_feature] = df_merged[x_feature] / df_merged['UDR']
 
+    if len(split_covars) > 0:
+        data = add_confound(df_merged, x_feature, y_feature, split_covars)
+    else:
+        data = df_temp
+
+    #add confounding variables and adjust if they are categorical
     data = add_confound(df_merged, x_feature, y_feature, split_covars)
 
     data.drop(['CohortType'], inplace = True, axis = 1)
-
+    # set intercept to 1
     data['intercept'] = 1
+
     print(data.columns)
+
     data = data.select_dtypes(include = ['float','integer'])
 
+    #independent
     X = data[[x for x in data.columns if x !=y_feature]]
-
+    #target
     Y = data[y_feature]
 
     if df_temp.shape[0] > 2:
-
-        log_reg = sm.Logit(Y, X).fit() 
-
+        log_reg = sm.Logit(Y, X).fit()
         ret = log_reg.summary()
         
-        #    rez.append([cohort, x, y, len(X), np.nan, np.nan, np.nan, np.nan, np.nan, np.nan])
     else:
         ret = 'error'
 
@@ -473,14 +477,12 @@ def crude_logreg(df_merged, x_feature, y_feature, covars):
     for x in X.columns:
         fit_string += ' + ' + str(x)
     
-
     fit_string = fit_string.replace('~ +',' ~')
     header = '<div> <b> Logistic Regression </b> </div>'
     header += '<div> <b> Number samples: </b> ' + str(X.shape[0]) + '</div>'
     header += '<div> <b>  Model: </b>' + fit_string + '</div>'
     header += '<div> <b> Group: </b> CohortType '
     
-
     htmls = header + ret.tables[0].as_html() + ret.tables[1].as_html()      
  
 
@@ -528,8 +530,6 @@ def crude_mixedML2(df_merged, x_feature, y_feature, covars):
     
 
     htmls = header + ret.tables[0].to_html() + ret.tables[1].to_html()      
- 
-
     return htmls
 
 
@@ -662,34 +662,30 @@ def add_confound(df_merged, x_feature, y_feature, conf):
     #df_nonan['smoking'] = df_nonan['smoking'].astype(int)
     
     ## dummy race annd smoking varible
-
-
     def add_cats(name, df_nonan, ref_val):
 
         print('adding cats')
         print(df_nonan.shape)
 
-        df_nonan[name] = df_nonan[name].astype(int)
+        df_nonan[name] = df_nonan[name].astype('float').astype(int)
 
         df = pd.concat([df_nonan, pd.get_dummies(df_nonan[name], prefix = name)], axis = 1)
+        #print(df.columns)
 
-        print(df.columns)
-
-        df.drop([name,name + '_' + ref_val], inplace = True, axis = 1)
+        try:
+            df.drop([name,name + '_' + ref_val], inplace = True, axis = 1)
+        except:
+            pass
 
         return df
 
-
     if 'race' in conf: 
-        
         df_nonan = add_cats('race', df_nonan, '1')
     
     if 'smoking' in conf: 
-        
         df_nonan = add_cats('smoking', df_nonan, '0')
     
     if 'education' in conf: 
-        
         df_nonan = add_cats('education', df_nonan, '5')
 
     #dup_visit_N = df_fin_UTAS.shape[0]
@@ -700,7 +696,121 @@ def add_confound(df_merged, x_feature, y_feature, conf):
  
     #df_fin_UTAS.drop(['PIN_Patient','race','race_1','education','education_5'], inplace = True, axis = 1)
 
-    df_nonan.drop(['PIN_Patient'], inplace = True, axis = 1)
+    #df_nonan.drop(['PIN_Patient'], inplace = True, axis = 1)
 
     return df_nonan
+
+def predict_dilution(df_merged, cohort):
+    'calculate predicted dilutions per cohort (UNM - Predcreatinine, DAR/NEU - PredSG)'
+
+    df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+
+    df_merged = df_merged[df_merged['CohortType'] == cohort]
+
+    #Where covariates = race + education + age + pre-pregnancy BMI + gestational age at sample collection + year of delivery + study site
+    #these have to be in the dataset
+    dilution_covars = ['race', 'education','babySex','BMI', 'ga_collection','birth_year']
+    
+    x_feature = 'age'
+    #1) calculated specific gravity (or creatinine) Z-scores, <br>
+    
+    if cohort == 'NEU':
+        orig_dilution = 'SPECIFICGRAVITY_V2'
+        mean = df_merged['SPECIFICGRAVITY_V2'].mean()
+        std =  df_merged['SPECIFICGRAVITY_V2'].std()
+        
+        df_merged['SPECIFICGRAVITY_V2_zscore'] = (df_merged['SPECIFICGRAVITY_V2'] -  mean) / std                                                     
+        y_feature = 'SPECIFICGRAVITY_V2_zscore'
+    
+    if cohort == 'DAR':
+        orig_dilution = 'urine_specific_gravity'
+        mean = df_merged['urine_specific_gravity'].mean()
+        std =  df_merged['urine_specific_gravity'].std()
+        
+        df_merged['urine_specific_gravity_zscore'] = (df_merged['urine_specific_gravity'] -  mean) / std                                                        
+        y_feature = 'urine_specific_gravity_zscore'
+        
+    if cohort == 'UNM':
+        orig_dilution = 'Creat_Corr_Result'
+        mean = df_merged['Creat_Corr_Result'].mean()
+        std =  df_merged['Creat_Corr_Result'].std()
+        
+        df_merged['Creat_Corr_Result_zscore'] = (df_merged['Creat_Corr_Result'] -  mean) / std                                                        
+        y_feature = 'Creat_Corr_Result_zscore'
+         
+    data = add_confound(df_merged, x_feature, y_feature, dilution_covars)
+    
+    data.drop(['CohortType'], inplace = True, axis = 1)
+
+    data['intercept'] = 1
+
+    print(data.columns)
+
+    ids = data['PIN_Patient'].values
+
+    data = data.select_dtypes(include = ['float','integer'])
+     
+    #data.drop(['PIN_Patient'], inplace = True, axis = 1)
+    
+    X = data[[x for x in data.columns if x !=y_feature]]
+    Y = data[y_feature]
+
+  
+    if X.shape[0] > 2:
+
+        reg = sm.OLS(Y, X).fit() 
+        ret = reg.summary()
+    else:
+        ret = 'error'
+
+    fit_string = y_feature + '~'
+    
+    for x in X.columns:
+        fit_string += ' + ' + str(x)
+    
+    fit_string = fit_string.replace('~ +','~')
+    
+    header = '<div> <b> Number samples: </b> ' + str(X.shape[0]) + '</div>'
+    header += '<div> <b>  Model: </b>' + fit_string + '</div>'
+    header += '<div> ===============================================</div>'
+    print(fit_string)
+    
+    Y_pred = reg.predict(X)
+    
+    #Y = original
+    #Y_pred = prediction
+    #X = dataset
+    #ids = patient id
+    #ret = summary fromm model..
+    
+    #pack predicted values with original and ids
+    df_out = pd.DataFrame(list(zip(ids, Y, Y_pred)), columns = ['PIN_Patient','original', 'prediction'])
+    bb = data.merge(df_out, on = 'PIN_Patient')
+    
+    # sanity check: make sure the index didn't get shifted
+    assert bb[y_feature].values.tolist() == bb['original'].values.tolist()
+    
+    #4) back-transformed the Z-scores into the original units, <br>
+    df_out['prediction_xvalue'] = df_out['prediction'] * std + mean
+    df_out['original_xvalue'] = df_out['original'] * std + mean
+    
+    df_out2 = df_out.merge(df_merged[['PIN_Patient',orig_dilution]], on = 'PIN_Patient')
+    df_out2 = df_out2.drop_duplicates()
+    #5) calculated dilution ratios for each person by taking their predicted specific gravity (or creatinine) value and dividing it by their observed value, <br>
+    # UDR for 
+    if cohort in ['NEU', 'DAR']:
+        df_out2['UDR'] = (df_out2['original_xvalue']-1) / (df_out2['prediction_xvalue'] - 1)
+
+        dil_indicator = 0
+    # UDR for creatinine urine dilution
+    if cohort == 'UNM':
+        df_out2['UDR'] = df_out2['original_xvalue'] / df_out2['prediction_xvalue']
+        dil_indicator = 1
+    
+    df_out2['Cohort'] = cohort
+    df_out2['dil_indicator'] = dil_indicator
+    
+    return df_out2
+
+
 

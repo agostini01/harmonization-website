@@ -339,7 +339,7 @@ def getRegDetailedPlot(data, x_feature, y_feature, color_by):
             slope, intercept, r_value, p_value)
 
         # TODO return value is incompatible with jointplot stat_func
-        return reg_info
+        return reg_infozf
 
     def r_squared(x, y):
         return stats.pearsonr(x, y)[0] ** 2
