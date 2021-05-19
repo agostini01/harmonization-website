@@ -402,7 +402,7 @@ def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution):
 
     data = data.select_dtypes(include = ['float','integer'])
 
-    X = data[[x for x in data.columns if x !=y_feature]]
+    X = data[[x for x in data.columns if x !=y_feature and x!= 'PIN_Patient']]
 
     Y = data[y_feature]
 
@@ -463,7 +463,7 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution):
     data = data.select_dtypes(include = ['float','integer'])
 
     #independent
-    X = data[[x for x in data.columns if x !=y_feature]]
+    X = data[[x for x in data.columns if x !=y_feature and x!= 'PIN_Patient']]
     #target
     Y = data[y_feature]
 
@@ -653,7 +653,11 @@ def add_confound(df_merged, x_feature, y_feature, conf):
 
     incomplete_N2 = df_merged.shape[0]
 
-    cols_to_mix =  [x_feature, y_feature, 'PIN_Patient', 'CohortType'] + conf
+    if len(conf) > 1:
+
+        cols_to_mix =  [x_feature, y_feature, 'PIN_Patient', 'CohortType'] + conf
+    else:
+        cols_to_mix = [x_feature, y_feature, 'PIN_Patient', 'CohortType']
 
     # drop any missing values as mixed model requires complete data
     df_nonan = df_merged[cols_to_mix].dropna(axis='rows')
@@ -753,7 +757,7 @@ def predict_dilution(df_merged, cohort):
      
     #data.drop(['PIN_Patient'], inplace = True, axis = 1)
     
-    X = data[[x for x in data.columns if x !=y_feature]]
+    X = data[[x for x in data.columns if x !=y_feature and x!= 'PIN_Patient']]
     Y = data[y_feature]
 
   
