@@ -59,7 +59,8 @@ def get_dataframe():
     covars = ['Outcome_weeks', 'age', 'ethnicity', 'race', 
     'BMI', 'smoking', 'parity', 'preg_complications',
     'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen',
-    'WeightCentile','LGA','SGA','ga_collection','education', 'birth_year','SPECIFICGRAVITY_V2']
+    'WeightCentile','LGA','SGA','ga_collection','education', 'birth_year',
+    'SPECIFICGRAVITY_V2', 'fish_pu_v2']
 
     #calculate extra variables
     #parity
@@ -80,8 +81,6 @@ def get_dataframe():
                         
     print(df)
     df = df.reset_index(level=indexes_to_columns)
-    
-
    
     # TODO - Should we drop NaN here?
 
@@ -96,7 +95,11 @@ def get_dataframe():
 
     df['CohortType'] = 'NEU'
     df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
-
+    ## as discussed, visit 2 only
+    df = df[df['TimePeriod'] == 2]
+    ## as discussed, no fish in past 48hrs for v2
+    df = df[df['fish_pu_v2'] == 0]
+    ## predict dilution for visit 2
     dilution = predict_dilution(df, 'NEU')
     dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(int).astype(str)
     df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')

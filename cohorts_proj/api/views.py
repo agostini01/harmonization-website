@@ -738,6 +738,7 @@ class InfoRequestView(views.APIView):
         fig_dpi = int(request.data['fig_dpi'])
         dataset_type = request.data['dataset_type']
         covar_choices = request.data['covar_choices']
+        adjust_dilution = request.data['adjust_dilution']
         
         t = plot_type
         gr = None
@@ -872,7 +873,7 @@ class InfoRequestView(views.APIView):
                 gr = cls.getRegColorPlot(df, x_feature, y_feature, color_by)
 
             if (t == 'linear_reg_detailed_plot'):
-                gr = analysis.crude_reg(df, x_feature, y_feature, covar_choices)
+                gr = analysis.crude_reg(df, x_feature, y_feature, covar_choices, adjust_dilution)
 
             if (t == 'linear_mixed_ml_summary'):
                 gr = analysis.crude_mixedML2(df, x_feature, y_feature, covar_choices)
@@ -882,7 +883,7 @@ class InfoRequestView(views.APIView):
                 gr = gr.as_html()
 
             if (t == 'logistic_regression'):
-                gr = analysis.crude_logreg(df, x_feature, y_feature, covar_choices)
+                gr = analysis.crude_logreg(df, x_feature, y_feature, covar_choices, adjust_dilution)
             
             if (t == 'categorical_summary'):
                 gr = analysis.categoricalCounts(df).to_html()

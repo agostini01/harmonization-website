@@ -376,7 +376,7 @@ def logisticregress(df, x_vars, targets, cohort):
 
     return rez_df
 
-def crude_reg(df_merged, x_feature, y_feature, covars):
+def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution):
     # inro for crude simple regression y = ax + b and report full results
     # y_feature has to be binary (i.e. 0,1)
 
@@ -387,7 +387,8 @@ def crude_reg(df_merged, x_feature, y_feature, covars):
     split_covars = covars.split('|')
 
     ## adjust dilution
-    df_merged[x_feature] = df_merged[x_feature] / df_merged['UDR']
+    if adjust_dilution == 'True':
+        df_merged[x_feature] = df_merged[x_feature] / df_merged['UDR']
 
     if len(split_covars) > 0:
         data = add_confound(df_merged, x_feature, y_feature, split_covars)
@@ -430,7 +431,7 @@ def crude_reg(df_merged, x_feature, y_feature, covars):
 
     return htmls
 
-def crude_logreg(df_merged, x_feature, y_feature, covars):
+def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution):
     # inro for crude simple logistic regression log(p(x)/1-p(x)) = ax + b and report slope, intercept, rvalue, plvalue, 'stderr
     # y_feature has to be binary (i.e. 0,1)
 
@@ -442,7 +443,8 @@ def crude_logreg(df_merged, x_feature, y_feature, covars):
     split_covars = covars.split('|')
 
     ## adjust dilution
-    df_merged[x_feature] = df_merged[x_feature] / df_merged['UDR']
+    if adjust_dilution == 'True':
+        df_merged[x_feature] = df_merged[x_feature] / df_merged['UDR']
 
     if len(split_covars) > 0:
         data = add_confound(df_merged, x_feature, y_feature, split_covars)
@@ -647,7 +649,6 @@ def add_confound(df_merged, x_feature, y_feature, conf):
             print('err on ' + col)
 
     #filter ga range
-
     df_merged = df_merged[(df_merged['ga_collection'] >= 13) & (df_merged['ga_collection'] <= 28)]
 
     incomplete_N2 = df_merged.shape[0]
@@ -681,7 +682,7 @@ def add_confound(df_merged, x_feature, y_feature, conf):
 
     if 'race' in conf: 
         df_nonan = add_cats('race', df_nonan, '1')
-    
+
     if 'smoking' in conf: 
         df_nonan = add_cats('smoking', df_nonan, '0')
     

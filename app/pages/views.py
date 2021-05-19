@@ -44,6 +44,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
         fig_dpi = int(request.GET.get('fig_dpi'))
         dataset_type = request.GET.get('dataset_type')
         covar_choices = request.GET.get('covar_choices')
+        adjust_dilution = request.GET.get('adjust_dilution')
 
         url = "http://api:8888/query/get-info/"
 
@@ -55,6 +56,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
                    'fig_dpi': fig_dpi,
                    'plot_name': 'test',
                    'dataset_type': dataset_type,
+                   'adjust_dilution': adjust_dilution,
                    'covar_choices': covar_choices}
                 
         files = []
