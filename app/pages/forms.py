@@ -73,6 +73,12 @@ COVAR_CHOICES = (
     (True, True)
 )
 
+DILUTION_CHOICES = (
+    (False, False),
+    (True, True)
+)
+
+
 COVAR_INDV_CHOICES = [
     ('age', 'age'),
     ('smoking', 'smoking'),
@@ -114,11 +120,12 @@ class FlowersForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,
         choices=COVAR_INDV_CHOICES,
     )
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     time_period = forms.ChoiceField(choices=(('NA', 'NA')),
                                     widget=forms.HiddenInput())
-    include_covars = forms.ChoiceField(choices=COVAR_CHOICES)
+   
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
                                      widget=forms.HiddenInput())
 
@@ -155,12 +162,13 @@ class UNMForm(forms.Form):
     color_by = forms.ChoiceField(choices=UNM_CATEGORICAL_CHOICES)
     time_period = forms.ChoiceField(choices=CAT_UNM_TIME_PERIOD,
                                     label='Time Period Filter')
-    include_covars = forms.ChoiceField(choices=COVAR_CHOICES)
+ 
     covar_choices = forms.MultipleChoiceField(
         required=False,
         widget=forms.CheckboxSelectMultiple,
         choices=COVAR_INDV_CHOICES,
     )
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -205,6 +213,7 @@ class NEUForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,
         choices=COVAR_INDV_CHOICES,
     )
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -243,12 +252,13 @@ class DARForm(forms.Form):
     color_by = forms.ChoiceField(choices=DAR_CATEGORICAL_CHOICES)
     time_period = forms.ChoiceField(choices=CAT_DAR_TIME_PERIOD,
                                     label='Time Period Filter')
-    include_covars = forms.ChoiceField(choices=COVAR_CHOICES)
+  
     covar_choices = forms.MultipleChoiceField(
         required=False,
         widget=forms.CheckboxSelectMultiple,
         choices=COVAR_INDV_CHOICES,
     )
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -278,12 +288,13 @@ class UNMNEUForm(forms.Form):
     color_by = forms.ChoiceField(choices=UNMNEU_CATEGORICAL_CHOICES)
     time_period = forms.ChoiceField(choices=CAT_UNMNEU_TIME_PERIOD,
                                     label='Time Period Filter')
-    include_covars = forms.ChoiceField(choices=COVAR_CHOICES)
+  
     covar_choices = forms.MultipleChoiceField(
         required=False,
         widget=forms.CheckboxSelectMultiple,
         choices=COVAR_INDV_CHOICES,
     )
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -313,12 +324,13 @@ class NEUDARForm(forms.Form):
     color_by = forms.ChoiceField(choices=NEUDAR_CATEGORICAL_CHOICES)
     time_period = forms.ChoiceField(choices=CAT_NEUDAR_TIME_PERIOD,
                                     label='Time Period Filter')
-    include_covars = forms.ChoiceField(choices=COVAR_CHOICES)
+
     covar_choices = forms.MultipleChoiceField(
         required=False,
         widget=forms.CheckboxSelectMultiple,
         choices=COVAR_INDV_CHOICES,
     )
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -348,7 +360,6 @@ class DARUNMForm(forms.Form):
     color_by = forms.ChoiceField(choices=DARUNM_CATEGORICAL_CHOICES)
     time_period = forms.ChoiceField(choices=CAT_DARUNM_TIME_PERIOD,
                                     label='Time Period Filter')
-    include_covars = forms.ChoiceField(choices=COVAR_CHOICES)
 
     covar_choices = forms.MultipleChoiceField(
         required=False,
@@ -374,6 +385,7 @@ class HARForm(forms.Form):
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New Harmonized Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[6][0]
+        self.initial['adjust_dilution'] = False
 
 
     plot_name = forms.CharField(max_length=100,
@@ -382,6 +394,7 @@ class HARForm(forms.Form):
     x_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
     y_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
     color_by = forms.ChoiceField(choices=HAR_CATEGORICAL_CHOICES)
+
     time_period = forms.ChoiceField(choices=CAT_HAR_TIME_PERIOD,
                                     label='Time Period Filter')
 
@@ -394,6 +407,7 @@ class HARForm(forms.Form):
         choices=COVAR_INDV_CHOICES,
     )
 
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
 
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
@@ -401,6 +415,3 @@ class HARForm(forms.Form):
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
                                      widget=forms.HiddenInput())
 
-    
-
-    

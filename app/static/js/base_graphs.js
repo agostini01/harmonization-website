@@ -26,7 +26,7 @@ function getPlot() {
     URL  +='&time_period=' + document.getElementById("id_time_period").value;
     URL  +='&fig_dpi='  + document.getElementById("id_fig_dpi").value;
     URL  +='&dataset_type='  + document.getElementById("id_dataset_type").value;
-    
+    URL  +='&adjust_dilution=' + document.getElementById("id_adjust_dilution").value;
 
     /**
      * Selection for specific covariates
