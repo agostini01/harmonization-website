@@ -406,6 +406,10 @@ def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution):
         data['babySex'] = data['babySex'].astype(float)
     except:
         xsd = 1
+    try:
+        data['parity'] = data['parity'].astype(float)
+    except:
+        xsd = 1
   
     data = data.select_dtypes(include = ['float','integer'])
 
@@ -473,6 +477,10 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution):
     #TODO: clean up
     try:
         data['babySex'] = data['babySex'].astype(float)
+    except:
+        xsd = 1
+    try:
+        data['parity'] = data['parity'].astype(float)
     except:
         xsd = 1
 

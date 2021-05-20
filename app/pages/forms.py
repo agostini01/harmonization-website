@@ -90,6 +90,7 @@ COVAR_INDV_CHOICES = [
     ('preg_complications', 'preg_complications'),
     ('folic_acid_supp', 'folic_acid_supp'),
     ('fish', 'fish'),
+    ('parity','parity'),
 ]
 
 
