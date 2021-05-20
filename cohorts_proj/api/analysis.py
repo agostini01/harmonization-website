@@ -376,13 +376,15 @@ def logisticregress(df, x_vars, targets, cohort):
 
     return rez_df
 
+
 def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution):
     # inro for crude simple regression y = ax + b and report full results
     # y_feature has to be binary (i.e. 0,1)
 
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
-
-    df_temp = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna())]
+    df_merged = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna())]
+    #make sure all concentrations are above 0 - assuption is ok because lowest conc should have LOD
+    df_merged = df_merged[df_merged[x_feature]> 0]
 
     split_covars = covars.split('|')
 
@@ -393,30 +395,40 @@ def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution):
     if len(split_covars) > 0:
         data = add_confound(df_merged, x_feature, y_feature, split_covars)
     else:
-        data = df_temp
+        data = df_merged
 
     data_copy = data.copy()
     data.drop(['CohortType'], inplace = True, axis = 1)
 
     data['intercept'] = 1
-
+    #TODO: clean up
+    try:
+        data['babySex'] = data['babySex'].astype(float)
+    except:
+        xsd = 1
+  
     data = data.select_dtypes(include = ['float','integer'])
 
+    #X and Y features TODO: clean up
     X = data[[x for x in data.columns if x !=y_feature and x!= 'PIN_Patient']]
-
     Y = data[y_feature]
+    Y = np.log(Y)
 
-    if df_temp.shape[0] > 2:
+    if df_merged.shape[0] > 2:
 
         reg = sm.OLS(Y, X).fit() 
         ret = reg.summary()
     else:
         ret = 'error'
-
+    # model string
     fit_string = y_feature + '~'
     
     for x in X.columns:
-        fit_string += ' + ' + str(x)
+        if x == x_feature:
+            fit_string += ' + log(' + str(x) +')'
+        else:
+
+            fit_string += ' + ' + str(x)
     
     fit_string = fit_string.replace('~ +','~')
     header = ''
@@ -434,11 +446,11 @@ def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution):
 def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution):
     # inro for crude simple logistic regression log(p(x)/1-p(x)) = ax + b and report slope, intercept, rvalue, plvalue, 'stderr
     # y_feature has to be binary (i.e. 0,1)
-
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+    df_merged = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna()) & (df_merged[y_feature].isin([0.0,1.0,0,1]))]
+    #make sure all concentrations are above 0 - assuption is ok because lowest conc should have LOD
+    df_merged = df_merged[df_merged[x_feature]> 0]
 
-    df_temp = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna()) & (df_merged[y_feature].isin([0.0,1.0,0,1]))]
-    
     #split the variables in the checkboxes
     split_covars = covars.split('|')
 
@@ -449,7 +461,7 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution):
     if len(split_covars) > 0:
         data = add_confound(df_merged, x_feature, y_feature, split_covars)
     else:
-        data = df_temp
+        data = df_merged
 
     #add confounding variables and adjust if they are categorical
     data = add_confound(df_merged, x_feature, y_feature, split_covars)
@@ -458,7 +470,11 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution):
     # set intercept to 1
     data['intercept'] = 1
 
-    print(data.columns)
+    #TODO: clean up
+    try:
+        data['babySex'] = data['babySex'].astype(float)
+    except:
+        xsd = 1
 
     data = data.select_dtypes(include = ['float','integer'])
 
@@ -467,7 +483,9 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution):
     #target
     Y = data[y_feature]
 
-    if df_temp.shape[0] > 2:
+    Y = np.log(Y)
+
+    if df_merged.shape[0] > 2:
         log_reg = sm.Logit(Y, X).fit()
         ret = log_reg.summary()
         
@@ -477,7 +495,11 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution):
     fit_string = y_feature + '~'
     
     for x in X.columns:
-        fit_string += ' + ' + str(x)
+        if x == x_feature:
+            fit_string += ' + log(' + str(x) +')'
+        else:
+
+            fit_string += ' + ' + str(x)
     
     fit_string = fit_string.replace('~ +',' ~')
     header = '<div> <b> Logistic Regression </b> </div>'
@@ -486,7 +508,6 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution):
     header += '<div> <b> Group: </b> CohortType '
     
     htmls = header + ret.tables[0].as_html() + ret.tables[1].as_html()      
- 
 
     return htmls
 
