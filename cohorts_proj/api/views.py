@@ -739,6 +739,9 @@ class InfoRequestView(views.APIView):
         dataset_type = request.data['dataset_type']
         covar_choices = request.data['covar_choices']
         adjust_dilution = request.data['adjust_dilution']
+
+        print('### covar choices ###')
+        print(covar_choices)
         
         t = plot_type
         gr = None
