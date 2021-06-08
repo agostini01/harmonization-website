@@ -377,10 +377,11 @@ def logisticregress(df, x_vars, targets, cohort):
     return rez_df
 
 
-def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution):
+def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution, output):
     # inro for crude simple regression y = ax + b and report full results
     # y_feature has to be binary (i.e. 0,1)
-
+    print('Printing covars')
+    print(covars)
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
     df_merged = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna())]
     #make sure all concentrations are above 0 - assuption is ok because lowest conc should have LOD
@@ -445,9 +446,15 @@ def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution):
 
     htmls = header + ret.tables[0].as_html() + ret.tables[1].as_html() 
 
-    return htmls
+    # depending where we are calling it from
+    if output == 'csv':
+        final_return = ret
+    if output == 'html':
+        final_return = htmls
 
-def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution):
+    return final_return
+
+def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution, output):
     # inro for crude simple logistic regression log(p(x)/1-p(x)) = ax + b and report slope, intercept, rvalue, plvalue, 'stderr
     # y_feature has to be binary (i.e. 0,1)
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
@@ -518,7 +525,13 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution):
     
     htmls = header + ret.tables[0].as_html() + ret.tables[1].as_html()      
 
-    return htmls
+    # depending where we are calling it from
+    if output == 'csv':
+        final_return = ret
+    if output == 'html':
+        final_return = htmls
+
+    return final_return
 
 def crude_mixedML2(df_merged, x_feature, y_feature, covars):
 
@@ -851,6 +864,111 @@ def predict_dilution(df_merged, cohort):
     df_out2['dil_indicator'] = dil_indicator
     
     return df_out2
+
+
+
+def runcustomanalysis():
+
+    ## Get data
+    df_NEU = adapters.neu.get_dataframe()
+    df_UNM = adapters.unm.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe()
+
+    #crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution)
+
+    df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
+    df_NEUDAR = merge2CohortFrames(df_NEU,df_DAR)
+    df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
+
+    df_merged_3 = merge3CohortFrames(df_NEU,df_UNM,df_DAR)
+
+    frames_for_analysis = [
+        ('NEU', df_NEU),
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('NEUUNM', df_NEUUNM),
+        ('NEUDAR', df_NEUDAR),
+        ('UNMDAR', df_UNMDAR),
+        ('UNMDARNEU', df_merged_3),
+
+    ]
+
+    x_feature = 'UTAS'
+    covars = 'babySex|BMI|parity|smoking|education'
+    all_vars = covars.split('|') + [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc']
+    Y_features_binary    = ['LGA','SGA','Outcome']
+    
+    ## Number of Participants
+
+    output_path = '/usr/src/app/mediafiles/analysisresults/model1/'
+    #output_path = '../mediafiles/analysisresults/'
+
+    try:
+        os.mkdir(output_path)
+    except:
+        print('Exists')
+
+    #print('Files written to: ' + output_path)
+
+    #df_merged.groupby(['CohortType'])['PIN_Patient'].nunique()\
+    #        .to_csv(output_path + 'number_unique_participats.csv', index = True)
+
+    for name, frame in frames_for_analysis:
+
+        print('*************************************#####**')
+        for y_feature in Y_features_continous:
+            try:
+
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv')
+                dims = frame.shape
+                print(out)
+                print(name)
+                print(frame.shape)
+    
+                text_file = open(output_path + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                print(e)
+
+
+        for y_feature in Y_features_binary:
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv')
+                dims = frame.shape
+                print(out)
+                print(name)
+                print(frame.shape)
+                
+                text_file = open(output_path + "logistic_reg_{}_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                print(e)
+
+
+
+
+
+
+
+
+   
+
+
+
+    
+
+
+
 
 
 

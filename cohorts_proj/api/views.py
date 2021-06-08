@@ -876,7 +876,7 @@ class InfoRequestView(views.APIView):
                 gr = cls.getRegColorPlot(df, x_feature, y_feature, color_by)
 
             if (t == 'linear_reg_detailed_plot'):
-                gr = analysis.crude_reg(df, x_feature, y_feature, covar_choices, adjust_dilution)
+                gr = analysis.crude_reg(df, x_feature, y_feature, covar_choices, adjust_dilution, 'html')
 
             if (t == 'linear_mixed_ml_summary'):
                 gr = analysis.crude_mixedML2(df, x_feature, y_feature, covar_choices)
@@ -899,6 +899,12 @@ class InfoRequestView(views.APIView):
 
             if (t == 'binomial_bayesian_mixed_ml'):
                 gr = analysis.crude_mixedMLbayse(df, x_feature, y_feature, include_covars, True).to_html()
+
+            if (t == 'custom_analysis'):
+                analysis.runcustomanalysis()
+                
+                gr = graphs.noDataMessage()
+
 
         
         response = HttpResponse(gr)
