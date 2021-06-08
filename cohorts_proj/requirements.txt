@@ -10,7 +10,7 @@ numpy==1.18.3
 matplotlib
 pandas==1.0.3
 seaborn
-pillow==6.2.2
+pillow==8.2.0
 jupyter==1.0.0
 ipython==7.16.1
 django-extensions==3.0.3
