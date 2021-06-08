@@ -58,8 +58,8 @@ def get_dataframe():
 
     covars = ['Outcome_weeks', 'age', 'ethnicity', 'race', 
     'BMI', 'smoking', 'parity', 'preg_complications',
-    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen',
-    'WeightCentile','LGA','SGA','ga_collection','education', 'birth_year',
+    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen', 'headCirc',
+    'WeightCentile','LGA','SGA','ga_collection','education', 'birth_year', 
     'SPECIFICGRAVITY_V2', 'fish_pu_v2']
 
     #calculate extra variables
