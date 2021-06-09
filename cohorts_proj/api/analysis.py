@@ -384,8 +384,6 @@ def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution, output):
     df_merged = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna())]
     #make sure all concentrations are above 0 - assuption is ok because lowest conc should have LOD
     df_merged = df_merged[df_merged[x_feature]> 0]
-    df_merged = df_merged[df_merged['UDR']> 0 ]
-
     split_covars = covars.split('|')
 
     ## adjust dilution
@@ -460,7 +458,6 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution, outpu
     df_merged = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna()) & (df_merged[y_feature].isin([0.0,1.0,0,1]))]
     #make sure all concentrations are above 0 - assuption is ok because lowest conc should have LOD
     df_merged = df_merged[df_merged[x_feature]> 0]
-    df_merged = df_merged[df_merged['UDR']> 0 ]
 
     #split the variables in the checkboxes
     split_covars = covars.split('|')
