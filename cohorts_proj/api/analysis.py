@@ -416,7 +416,7 @@ def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution, output):
     #X and Y features TODO: clean up
     X = data[[x for x in data.columns if x !=y_feature and x!= 'PIN_Patient']]
     Y = data[y_feature]
-    X[x_feature]= np.log(X[x_feature])
+    #X[x_feature]= np.log(X[x_feature])
 
     if df_merged.shape[0] > 2:
 
@@ -498,7 +498,7 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution, outpu
     #target
     Y = data[y_feature]
     #log of the exposure
-    X[x_feature]= np.log(X[x_feature])
+    #X[x_feature]= np.log(X[x_feature])
 
 
     if df_merged.shape[0] > 2:
