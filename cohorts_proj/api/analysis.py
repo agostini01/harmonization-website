@@ -880,6 +880,7 @@ def runcustomanalysis():
     ]
 
     for name, df in frames_for_analysis:
+        print('Data Stats')
         print(name)
         print(df.shape)
 
