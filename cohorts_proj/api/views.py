@@ -886,7 +886,7 @@ class InfoRequestView(views.APIView):
                 gr = gr.as_html()
 
             if (t == 'logistic_regression'):
-                gr = analysis.crude_logreg(df, x_feature, y_feature, covar_choices, adjust_dilution)
+                gr = analysis.crude_logreg(df, x_feature, y_feature, covar_choices, adjust_dilution, 'html')
             
             if (t == 'categorical_summary'):
                 gr = analysis.categoricalCounts(df).to_html()

@@ -921,6 +921,7 @@ def runcustomanalysis():
                 text_file.write(str(out))
                 text_file.close()
             except Exception as e:
+                print('Logistic Regression Error:**')
                 print(e)
 
 
@@ -938,6 +939,7 @@ def runcustomanalysis():
                 text_file.write(str(out))
                 text_file.close()
             except Exception as e:
+                print('Logistic Regression Error:**')
                 print(e)
 
 
