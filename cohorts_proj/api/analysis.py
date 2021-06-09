@@ -380,12 +380,11 @@ def logisticregress(df, x_vars, targets, cohort):
 def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution, output):
     # inro for crude simple regression y = ax + b and report full results
     # y_feature has to be binary (i.e. 0,1)
-    print('Printing covars')
-    print(covars)
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
     df_merged = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna())]
     #make sure all concentrations are above 0 - assuption is ok because lowest conc should have LOD
     df_merged = df_merged[df_merged[x_feature]> 0]
+    df_merged = df_merged[df_merged['UDR']> 0 ]
 
     split_covars = covars.split('|')
 
@@ -461,10 +460,11 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution, outpu
     df_merged = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna()) & (df_merged[y_feature].isin([0.0,1.0,0,1]))]
     #make sure all concentrations are above 0 - assuption is ok because lowest conc should have LOD
     df_merged = df_merged[df_merged[x_feature]> 0]
+    df_merged = df_merged[df_merged['UDR']> 0 ]
 
     #split the variables in the checkboxes
     split_covars = covars.split('|')
-
+ 
     ## adjust dilution
     if adjust_dilution == 'True':
         df_merged[x_feature] = df_merged[x_feature] / df_merged['UDR']
@@ -541,13 +541,9 @@ def crude_mixedML2(df_merged, x_feature, y_feature, covars):
 
     split_covars = covars.split('|')
 
-    print(split_covars)
-
     data = add_confound(df_merged, x_feature, y_feature, split_covars)
 
     data['intercept'] = 1
-
-    print(data.columns)
     #data = data.select_dtypes(include = ['float','integer'])
 
     X = data[[x for x in data.columns if x !=y_feature and x!= 'CohortType']]
@@ -667,8 +663,6 @@ def crude_mixedMLbayse(df_merged, x_feature, y_feature, covars='False', logit = 
                     fit_string += ' + ' + x + ' '
                 cnt+=1        
     
-    print('mixedML string:')
-    print(fit_string)
     fit_string += '+ (1|CohortType)'
     if logit == False:
         model = bmb.Model(data)
@@ -684,15 +678,15 @@ def crude_mixedMLbayse(df_merged, x_feature, y_feature, covars='False', logit = 
 def add_confound(df_merged, x_feature, y_feature, conf):
     
     for col in df_merged:
-        print(col)
         try:
             df_merged[col] = df_merged[col].astype(int)
             df_merged.loc[df_merged[col] < 0, col] = np.nan
         except:
-            print('err on ' + col)
+            #print('err on ' + col)
+            pp = 1
 
     #filter ga range
-    df_merged = df_merged[(df_merged['ga_collection'] >= 13) & (df_merged['ga_collection'] <= 28)]
+    #df_merged = df_merged[(df_merged['ga_collection'] >= 13) & (df_merged['ga_collection'] <= 28)]
 
     incomplete_N2 = df_merged.shape[0]
 
@@ -711,9 +705,6 @@ def add_confound(df_merged, x_feature, y_feature, conf):
     
     ## dummy race annd smoking varible
     def add_cats(name, df_nonan, ref_val):
-
-        print('adding cats')
-        print(df_nonan.shape)
 
         df_nonan[name] = df_nonan[name].astype('float').astype(int)
 
@@ -792,8 +783,6 @@ def predict_dilution(df_merged, cohort):
 
     data['intercept'] = 1
 
-    print(data.columns)
-
     ids = data['PIN_Patient'].values
 
     data = data.select_dtypes(include = ['float','integer'])
@@ -834,9 +823,6 @@ def predict_dilution(df_merged, cohort):
     df_out = pd.DataFrame(list(zip(ids, Y, Y_pred)), columns = ['PIN_Patient','original', 'prediction'])
 
     data['PIN_Patient'] = ids
-
-    print(df_out.columns)
-    print(data.columns)
     
     bb = data.merge(df_out, on = 'PIN_Patient')
     
@@ -872,7 +858,7 @@ def runcustomanalysis():
     ## Get data
     df_NEU = adapters.neu.get_dataframe()
     df_UNM = adapters.unm.get_dataframe()
-    df_DAR = adapters.dar.get_dataframe()
+    df_DAR = adapters.unm.get_dataframe()
 
     #crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution)
 
@@ -892,6 +878,11 @@ def runcustomanalysis():
         ('UNMDARNEU', df_merged_3),
 
     ]
+
+    for name, df in frames_for_analysis:
+        print('Data Stats')
+        print(name)
+        print(df.shape)
 
     x_feature = 'UTAS'
     covars = 'babySex|BMI|parity|smoking|education'
@@ -922,9 +913,6 @@ def runcustomanalysis():
 
                 out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv')
                 dims = frame.shape
-                print(out)
-                print(name)
-                print(frame.shape)
     
                 text_file = open(output_path + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
                 text_file.write(str(frame[all_vars + [y_feature]].describe()))
@@ -941,9 +929,7 @@ def runcustomanalysis():
             try:
                 out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv')
                 dims = frame.shape
-                print(out)
-                print(name)
-                print(frame.shape)
+
                 
                 text_file = open(output_path + "logistic_reg_{}_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
                 text_file.write(str(frame[all_vars + [y_feature]].describe()))

@@ -44,7 +44,6 @@ def get_dataframe():
     choices = [1,2,3,4,5]
 
     df['education'] = np.select(conditions, choices, default=-9)
-    print(df['PPDATEDEL'].unique())
     ## birth year
     df['PPDATEDEL'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce')
     df['birth_year'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce').dt.year
@@ -79,7 +78,6 @@ def get_dataframe():
                         columns=categorical_to_columns,
                         aggfunc=np.average)
                         
-    print(df)
     df = df.reset_index(level=indexes_to_columns)
    
     # TODO - Should we drop NaN here?
