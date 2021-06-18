@@ -1022,7 +1022,7 @@ def runcustomanalysis():
     
     ## Number of Participants
     output_path_model3_adj = '/usr/src/app/mediafiles/analysisresults/model3adj/'
-    output_path_model3_noadj = '/usr/src/app/mediafiles/analysisresults/model3adj/'
+    output_path_model3_noadj = '/usr/src/app/mediafiles/analysisresults/model3noadj/'
     #output_path = '../mediafiles/analysisresults/'
 
     try:
