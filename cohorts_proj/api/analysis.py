@@ -840,7 +840,7 @@ def predict_dilution(df_merged, cohort):
     df_out['original_xvalue'] = df_out['original'] * std + mean
     
     df_out2 = df_out.merge(df_merged[['PIN_Patient',orig_dilution]], on = 'PIN_Patient')
-    df_out2 = df_out2.drop_duplicates()
+    df_out2 = df_out2.drop_duplicates(['PIN_Patient'])
     #5) calculated dilution ratios for each person by taking their predicted specific gravity (or creatinine) value and dividing it by their observed value, <br>
     # UDR for 
     if cohort in ['NEU', 'DAR']:
@@ -864,7 +864,7 @@ def runcustomanalysis():
     ## Get data
     df_NEU = adapters.neu.get_dataframe()
     df_UNM = adapters.unm.get_dataframe()
-    df_DAR = adapters.dar.get_dataframe()
+    df_DAR = adapters.unm.get_dataframe()
 
     #crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution)
     df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
@@ -894,12 +894,14 @@ def runcustomanalysis():
     Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc']
     Y_features_binary    = ['LGA','SGA','Outcome']
     
-    ## Number of Participants
-    output_path_model1 = '/usr/src/app/mediafiles/analysisresults/model1/'
+    output_path_model1_adj = '/usr/src/app/mediafiles/analysisresults/model1adj/'
+    output_path_model1_noadj = '/usr/src/app/mediafiles/analysisresults/model1noadj/'
+
     #output_path = '../mediafiles/analysisresults/'
 
     try:
-        os.mkdir(output_path_model1)
+        os.mkdir(output_path_model1_adj)
+        os.mkdir(output_path_model1_noadj)
     except:
         print('Exists')
 
@@ -912,13 +914,13 @@ def runcustomanalysis():
 
     for name, frame in frames_for_analysis:
 
-
+        
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
         frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
 
         for y_feature in Y_features_continous:
-            text_file = open(output_path_model1 + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            text_file = open(output_path_model1_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
 
             try:
@@ -938,7 +940,56 @@ def runcustomanalysis():
             text_file.close()
 
         for y_feature in Y_features_binary:
-            text_file = open(output_path_model1 + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            text_file = open(output_path_model1_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv')
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+    
+    #no adjustment
+    
+    for name, frame in frames_for_analysis:
+
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model1_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+
+            try:
+
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv')
+                dims = frame.shape
+    
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model1_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
             try:
                 out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv')
@@ -970,16 +1021,20 @@ def runcustomanalysis():
     Y_features_binary    = ['LGA','SGA','Outcome']
     
     ## Number of Participants
-    output_path_model3 = '/usr/src/app/mediafiles/analysisresults/model3/'
+    output_path_model3_adj = '/usr/src/app/mediafiles/analysisresults/model3adj/'
+    output_path_model3_noadj = '/usr/src/app/mediafiles/analysisresults/model3adj/'
     #output_path = '../mediafiles/analysisresults/'
 
     try:
-        os.mkdir(output_path_model3)
+        os.mkdir(output_path_model3_adj)
+        os.mkdir(output_path_model3_noadj)
     except:
         print('Exists')
 
 
     # Model 3
+
+    # adj
     df_UNMDAR_UASB = df_UNMDAR[df_UNMDAR['UASB'] <= 1]
 
     frames_for_analysis3 = [
@@ -993,7 +1048,55 @@ def runcustomanalysis():
 
         
         for y_feature in Y_features_continous:
-            text_file = open(output_path_model3 + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            text_file = open(output_path_model3_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+
+            try:
+
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv')
+                dims = frame.shape
+    
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model3_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv')
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+    #no adj
+    for name, frame in frames_for_analysis3:
+
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model3_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
 
             try:
@@ -1013,7 +1116,7 @@ def runcustomanalysis():
             text_file.close()
 
         for y_feature in Y_features_binary:
-            text_file = open(output_path_model3 + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            text_file = open(output_path_model3_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
             try:
                 out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv')
@@ -1031,7 +1134,6 @@ def runcustomanalysis():
                 text_file.write('Logistic Regression Error:*\n')
                 text_file.write(str(e))
             text_file.close()
-
 
 
    
