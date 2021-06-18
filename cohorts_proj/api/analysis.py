@@ -923,7 +923,7 @@ def runcustomanalysis():
 
             try:
 
-                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv')
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv')
                 dims = frame.shape
     
                 text_file.write(str(frame[all_vars + [y_feature]].describe()))
@@ -941,7 +941,7 @@ def runcustomanalysis():
             text_file = open(output_path_model1 + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
             try:
-                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv')
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv')
                 dims = frame.shape
 
                 
@@ -998,7 +998,7 @@ def runcustomanalysis():
 
             try:
 
-                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv')
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv')
                 dims = frame.shape
     
                 text_file.write(str(frame[all_vars + [y_feature]].describe()))
@@ -1016,7 +1016,7 @@ def runcustomanalysis():
             text_file = open(output_path_model3 + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
             try:
-                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv')
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv')
                 dims = frame.shape
 
                 
