@@ -89,7 +89,8 @@ def saveUNMToDB(csv_file):
             birth_month = entry.birth_month,
             LGA	= entry.LGA,
             SGA= entry.SGA,
-            gestAge_collection = entry.gestAge_collection
+            gestAge_collection = entry.gestAge_collection,
+            headCirc = entry.headCir
         )
 
 def saveNEUToDB(csv_file):
