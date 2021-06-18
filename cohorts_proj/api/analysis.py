@@ -864,7 +864,7 @@ def runcustomanalysis():
     ## Get data
     df_NEU = adapters.neu.get_dataframe()
     df_UNM = adapters.unm.get_dataframe()
-    df_DAR = adapters.unm.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe()
 
     #crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution)
     df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
