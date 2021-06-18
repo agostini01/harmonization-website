@@ -383,7 +383,7 @@ def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution, output):
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
     df_merged = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna())]
     #make sure all concentrations are above 0 - assuption is ok because lowest conc should have LOD
-    df_merged = df_merged[df_merged[x_feature]> 0]
+    df_merged = df_merged[(df_merged[x_feature]> 0) & (~df_merged[x_feature].isna())  ]
     split_covars = covars.split('|')
 
     ## adjust dilution
@@ -394,6 +394,8 @@ def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution, output):
         data = add_confound(df_merged, x_feature, y_feature, split_covars)
     else:
         data = df_merged
+
+    data = data[(data[x_feature]> 0) & (~data[x_feature].isna())  ]
 
     data_copy = data.copy()
     data.drop(['CohortType'], inplace = True, axis = 1)
@@ -478,6 +480,7 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution, outpu
 
     #add confounding variables and adjust if they are categorical
     data = add_confound(df_merged, x_feature, y_feature, split_covars)
+    data = data[(data[x_feature]> 0) & (~data[x_feature].isna())  ]
 
     data.drop(['CohortType'], inplace = True, axis = 1)
     # set intercept to 1
@@ -920,7 +923,7 @@ def runcustomanalysis():
 
             try:
 
-                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv')
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv')
                 dims = frame.shape
     
                 text_file.write(str(frame[all_vars + [y_feature]].describe()))
@@ -938,7 +941,7 @@ def runcustomanalysis():
             text_file = open(output_path_model1 + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
             try:
-                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv')
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False, 'csv')
                 dims = frame.shape
 
                 
