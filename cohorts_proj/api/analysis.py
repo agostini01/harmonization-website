@@ -941,7 +941,7 @@ def runcustomanalysis():
             text_file = open(output_path_model1 + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
             try:
-                out = crude_logreg(frame, x_feature, y_feature, covars, 'False, 'csv')
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv')
                 dims = frame.shape
 
                 
