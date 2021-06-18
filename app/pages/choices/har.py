@@ -33,6 +33,8 @@ ADDITIONAL_FEATURES = [('Categorical', (
     ('SGA',  'SGA (Binary)'),
     ('LGA',  'LGA (Binary)'),
     ('birthWt',  'Birth Weight (continous)'),
+    ('headCirc', 'Head Circumference (continous)'),
+    ('birthLen', 'Birth Length (continous)'),
     ('Outcome_weeks',  'Outcome Weeks (continous)'),
     ('Outcome',  'Outcome (binary)'),
 

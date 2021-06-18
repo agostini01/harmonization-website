@@ -188,6 +188,8 @@ class RawUNM(models.Model):
     
     SGA= models.FloatField(blank = True, default = -9.0)
 
+    headCirc = models.FloatField(blank = True, default = -9.0)
+
     gestAge_collection = models.FloatField(blank = True, default = -9.0)
 
     birth_year = models.IntegerField(blank=True, default = -9)

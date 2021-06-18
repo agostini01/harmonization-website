@@ -28,7 +28,7 @@ def get_dataframe():
 
     covars = ['Outcome_weeks', 'age', 'ethnicity',
        'race', 'education', 'BMI', 'income', 'smoking', 'parity',
-       'preg_complications', 'folic_acid_supp', 'fish', 'babySex', 'birthWt',
+       'preg_complications', 'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'headCirc',
        'birthLen','WeightCentile','LGA','SGA','ga_collection','Creat_Corr_Result','birth_year']
 
     df['ga_collection'] = df['gestAge_collection']
