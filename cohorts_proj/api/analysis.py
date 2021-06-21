@@ -866,7 +866,7 @@ def runcustomanalysis():
     ## Get data with no fish
     df_NEU = adapters.neu.get_dataframe_nofish()
     df_UNM = adapters.unm.get_dataframe_nofish()
-    df_DAR = adapters.unm.get_dataframe_nofish()
+    df_DAR = adapters.dar.get_dataframe_nofish()
 
     ## merge data frames
     df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
@@ -1005,7 +1005,7 @@ def runcustomanalysis():
     
     ## Get data with fish
     df_UNM = adapters.unm.get_dataframe()
-    df_DAR = adapters.unm.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe()
 
     ## merge data frames
     df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
