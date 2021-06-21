@@ -861,8 +861,8 @@ def predict_dilution(df_merged, cohort):
 
 def runcustomanalysis():
 
-    #pd.set_option('display.max_columns', None)
-    #pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_rows', None)
 
     ## Model 1: Restricted to participants with no fish/seafood consumption.
 
@@ -915,7 +915,7 @@ def runcustomanalysis():
 
     for name, frame in frames_for_analysis:
 
-        
+        frame[frame < 0] = np.nan
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
         frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
@@ -958,7 +958,7 @@ def runcustomanalysis():
     
     for name, frame in frames_for_analysis:
 
-        
+        frame[frame < 0] = np.nan
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
         frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
@@ -1043,7 +1043,7 @@ def runcustomanalysis():
 
     for name, frame in frames_for_analysis:
 
-        
+        frame[frame < 0] = np.nan
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
         frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
@@ -1092,7 +1092,7 @@ def runcustomanalysis():
     
     for name, frame in frames_for_analysis:
 
-        
+        frame[frame < 0] = np.nan
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
         frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
@@ -1169,7 +1169,7 @@ def runcustomanalysis():
     ]
 
     for name, frame in frames_for_analysis3:
-
+        frame[frame < 0] = np.nan
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
         frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
@@ -1212,7 +1212,7 @@ def runcustomanalysis():
 
     #no adj
     for name, frame in frames_for_analysis3:
-
+        frame[frame < 0] = np.nan
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
         frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
@@ -1284,7 +1284,7 @@ def runcustomanalysis():
     ]
 
     for name, frame in frames_for_analysis3:
-
+        frame[frame < 0] = np.nan
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
         frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
@@ -1327,7 +1327,7 @@ def runcustomanalysis():
 
     #no adj
     for name, frame in frames_for_analysis3:
-
+        frame[frame < 0] = np.nan
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
         frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
