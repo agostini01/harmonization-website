@@ -861,6 +861,9 @@ def predict_dilution(df_merged, cohort):
 
 def runcustomanalysis():
 
+    #pd.set_option('display.max_columns', None)
+    #pd.set_option('display.max_rows', None)
+
     ## Model 1: Restricted to participants with no fish/seafood consumption.
 
     ## Get data with no fish
@@ -1251,7 +1254,120 @@ def runcustomanalysis():
                 text_file.write(str(e))
             text_file.close()
 
+   #Model 4: Restricted to arsenic speciation data with AsB ≤1 µg/L.
 
+    x_feature = 'UTAS'
+    covars = 'babySex|BMI|parity|smoking|education'
+    all_vars = covars.split('|') + [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc', 'birthLen']
+    Y_features_binary    = ['LGA','SGA','Outcome']
+    
+    ## Number of Participants
+    output_path_model4_adj = '/usr/src/app/mediafiles/analysisresults/model4adj/'
+    output_path_model4_noadj = '/usr/src/app/mediafiles/analysisresults/model4noadj/'
+    #output_path = '../mediafiles/analysisresults/'
+
+    try:
+        os.mkdir(output_path_model4_adj)
+        os.mkdir(output_path_model4_noadj)
+    except:
+        print('Exists')
+
+    ## Get data with fish
+    df_UNM = adapters.unm.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe()
+
+    frames_for_analysis3 = [
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('UNMDAR', df_UNMDAR)
+    ]
+
+    for name, frame in frames_for_analysis3:
+
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model4_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv')
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model4_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv')
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+    #no adj
+    for name, frame in frames_for_analysis3:
+
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model4_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv')
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model4_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv')
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
    
 
 
