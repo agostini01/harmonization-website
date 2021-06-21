@@ -24,8 +24,6 @@ def get_dataframe():
         values()
     )
 
-    print(df)
-
     covars = ['Outcome_weeks', 'age', 'ethnicity',
        'race', 'education', 'BMI', 'income', 'smoking', 'parity',
        'preg_complications', 'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'headCirc',
@@ -75,3 +73,12 @@ def get_dataframe():
     df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
 
     return df_new
+
+def get_dataframe_nofish():
+    """Returns a pandas DataFrame with fish removed for cohort"""
+
+    df = get_dataframe()
+    neu_logic = (df['fish'] == 0)
+    df_nofish = df[neu_logic]
+
+    return df_nofish

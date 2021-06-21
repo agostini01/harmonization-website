@@ -147,3 +147,16 @@ def get_dataframe():
     df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
 
     return df_new
+
+
+def get_dataframe_nofish():
+    """Returns a pandas DataFrame with fish removed for cohort"""
+
+    df_new = get_dataframe()
+
+    dar_logic = (df_new['PNFFQFR_FISH_KIDS'] == 0) & (df_new['PNFFQDK_FISH'] == 0) & (df_new['fish'] == 0)  & (df_new['PNFFQSHRIMP_CKD'] == 0)  \
+                (df_new['PNFFQSHRIMP_CKD'] == 0) & (df_new['TOTALFISH_SERV'] == 0) & (df_new['PNFFQTUNA'] == 0)
+
+    df_nofish = df_new[dar_logic]
+
+    return df_nofish

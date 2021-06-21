@@ -104,6 +104,15 @@ def get_dataframe():
 
     return df_new
 
+def get_dataframe_nofish():
+    """Returns a pandas DataFrame with fish removed for cohort"""
 
+    df = get_dataframe()
+
+    neu_logic = (df['fish_pu_v2'] == 0) & (df['fish'] == 0)
+
+    df_nofish = df[neu_logic]
+
+    return df_nofish
 
 
