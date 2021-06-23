@@ -1089,6 +1089,7 @@ def runcustomanalysis():
     # remove the AsB <= 1
     df_UNM = df_UNM[df_UNM['UASB'] <= 1]
     df_DAR = df_DAR[df_DAR['UASB'] <= 1]
+    
     df_UNMDAR_UASB = df_UNMDAR[df_UNMDAR['UASB'] <= 1]
 
     frames_for_analysis3 = [
@@ -1213,7 +1214,7 @@ def runcustomanalysis():
     df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
     df_merged_3 = merge3CohortFrames(df_NEU,df_UNM,df_DAR)
 
-    frames_for_analysis = [
+    frames_for_analysis4 = [
         ('NEU', df_NEU),
         ('UNM', df_UNM),
         ('DAR', df_DAR),
@@ -1223,7 +1224,7 @@ def runcustomanalysis():
         ('UNMDARNEU', df_merged_3),
     ]
 
-    for name, frame in frames_for_analysis3:
+    for name, frame in frames_for_analysis4:
         
         print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
         frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
