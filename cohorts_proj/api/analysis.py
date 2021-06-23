@@ -1183,7 +1183,7 @@ def runcustomanalysis():
                 text_file.write(str(e))
             text_file.close()
 
-   #Model 4: Restricted to arsenic speciation data with AsB ≤1 µg/L.
+   #Model 4: Sensitivity analysis 
 
     x_feature = 'UTAS'
     covars = 'babySex|BMI|parity|smoking|education'
@@ -1202,14 +1202,25 @@ def runcustomanalysis():
     except:
         print('Exists')
 
-    ## Get data with fish
+    ## Get data with no fish
+    df_NEU = adapters.neu.get_dataframe()
     df_UNM = adapters.unm.get_dataframe()
     df_DAR = adapters.dar.get_dataframe()
 
-    frames_for_analysis3 = [
+    ## merge data frames
+    df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
+    df_NEUDAR = merge2CohortFrames(df_NEU,df_DAR)
+    df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
+    df_merged_3 = merge3CohortFrames(df_NEU,df_UNM,df_DAR)
+
+    frames_for_analysis = [
+        ('NEU', df_NEU),
         ('UNM', df_UNM),
         ('DAR', df_DAR),
-        ('UNMDAR', df_UNMDAR)
+        ('NEUUNM', df_NEUUNM),
+        ('NEUDAR', df_NEUDAR),
+        ('UNMDAR', df_UNMDAR),
+        ('UNMDARNEU', df_merged_3),
     ]
 
     for name, frame in frames_for_analysis3:
