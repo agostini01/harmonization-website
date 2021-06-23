@@ -78,6 +78,7 @@ def get_dataframe_nofish():
     """Returns a pandas DataFrame with fish removed for cohort"""
 
     df = get_dataframe()
+    df['fish'] = df['fish'].astype(float)
     neu_logic = (df['fish'] == 0)
     df_nofish = df[neu_logic]
 

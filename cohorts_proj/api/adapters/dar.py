@@ -154,6 +154,16 @@ def get_dataframe_nofish():
 
     df_new = get_dataframe()
 
+    fishvars = ['PNFFQFR_FISH_KIDS',
+                'PNFFQDK_FISH',
+                'PNFFQSHRIMP_CKD',
+                'PNFFQSHRIMP_CKD',
+                'TOTALFISH_SERV',
+                'PNFFQTUNA']
+
+    for var in fishvars:
+        df_new[var] = df_new[var].astype(int)
+
     dar_logic = (df_new['PNFFQFR_FISH_KIDS'] == 0) & (df_new['PNFFQDK_FISH'] == 0) & (df_new['fish'] == 0)  & (df_new['PNFFQSHRIMP_CKD'] == 0)  & (df_new['PNFFQSHRIMP_CKD'] == 0) & (df_new['TOTALFISH_SERV'] == 0) & (df_new['PNFFQTUNA'] == 0)
 
     df_nofish = df_new[dar_logic]
