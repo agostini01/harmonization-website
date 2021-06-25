@@ -49,7 +49,9 @@ PLOT_TYPES = [
         ("logistic_regression", "logistic_regression"),
         ("bayesian_mixed_ml", "bayesian_mixed_ml"),
         ("binomial_bayesian_mixed_ml", "binomial_bayesian_mixed_ml"),
-        ("custom_analysis", "custom_analysis"),
+        ("custom_analysis1", "custom_analysis1"),
+        ("custom_analysis2", "custom_analysis2"),
+        ("custom_analysis3", "custom_analysis3"),
     ),
     )
 ]

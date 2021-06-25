@@ -901,13 +901,16 @@ class InfoRequestView(views.APIView):
             if (t == 'binomial_bayesian_mixed_ml'):
                 gr = analysis.crude_mixedMLbayse(df, x_feature, y_feature, include_covars, True).to_html()
 
-            if (t == 'custom_analysis'):
-                analysis.runcustomanalysis()
-                
+            if (t == 'custom_analysis1'):
+                analysis.runcustomanalysis1()
+                gr = graphs.noDataMessage()
+            if (t == 'custom_analysis2'):
+                analysis.runcustomanalysis2()
+                gr = graphs.noDataMessage()
+            if (t == 'custom_analysis3'):
+                analysis.runcustomanalysis3()
                 gr = graphs.noDataMessage()
 
-
-        
         response = HttpResponse(gr)
 
     
