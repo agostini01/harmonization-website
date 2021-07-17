@@ -207,8 +207,8 @@ def saveDARToDB(csv_file):
             WeightCentile = entry.WeightCentile,
             LGA	= entry.LGA,
             SGA= entry.SGA,
-            GDMTest1Age = entry.GDMTest1Age,,
-            GDMTest2Age = entry.GDMTest2Age,,
+            GDMTest1Age = entry.GDMTest1Age,
+            GDMTest2Age = entry.GDMTest2Age,
             GDMtest1 =  entry.GDMtest1,
             GDMtest2 =  entry.GDMtest1,
             Ag=entry.urine_m24G_Ag,
@@ -438,7 +438,8 @@ class GraphRequestView(views.APIView):
             df = adapters.neu.get_dataframe()
 
         if dataset_type == 'dar_dataset':
-            df = adapters.dar.get_dataframe()
+            #df = adapters.dar.get_dataframe()
+            df = adapters.dar.get_dataframe_test()
 
         if dataset_type == 'unmneu_dataset':
             df1 = adapters.unm.get_dataframe()

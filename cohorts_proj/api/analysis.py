@@ -290,19 +290,44 @@ def categoricalCounts(df):
 
     #each participant should only have 1 measurment per fvariable
 
-    categorical = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
+    cohort = df['CohortType'].unique():
+
+
+    categorical1 = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
                 'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education']
-        
-    df22 = df[categorical].drop_duplicates(['PIN_Patient'])
 
-    categorical.remove('PIN_Patient')
-
-    df22 = df22[categorical]
-    
-    df33 = pd.DataFrame(pd.melt(df22,id_vars=['CohortType'])\
-                        .groupby(['Analyte','value'])['value'].count())
+    categorical2 = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
+                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education','GDMtest1','GDMtest2']
         
-    df33.index.names = ['variable', 'cat']
+    try:
+        df22 = df[categorical].drop_duplicates(['PIN_Patient'])
+
+        categorical.remove('PIN_Patient')
+
+        df22 = df22[categorical1]
+
+        melted = pd.melt(df22,id_vars=['CohortType'])
+
+        print(melted.columns)
+        
+        df33 = melted.groupby(['variable','value'])['value'].count()
+            
+        df33.index.names = ['variable', 'cat']
+        
+    except:
+        df22 = df[categorical].drop_duplicates(['PIN_Patient'])
+
+        categorical.remove('PIN_Patient')
+
+        df22 = df22[categorical2]
+
+        melted = pd.melt(df22,id_vars=['CohortType'])
+
+        print(melted.columns)
+        
+        df33 = melted.groupby(['variable','value'])['value'].count()
+            
+        df33.index.names = ['variable', 'cat']
    
     return df33.reset_index()
 def turntofloat(df):
