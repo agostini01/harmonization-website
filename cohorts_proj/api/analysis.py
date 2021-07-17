@@ -806,7 +806,7 @@ def predict_dilution(df_merged, cohort):
     return df_out2
 
 
-
+## main analysis
 def runcustomanalysis1():
 
     pd.set_option('display.max_columns', None)
@@ -956,7 +956,7 @@ def runcustomanalysis1():
     
     ## Get data with fish
     df_UNM = adapters.unm.get_dataframe()
-    df_DAR = adapters.dar.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe_pred()
 
     ## merge data frames
     df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
@@ -1222,10 +1222,10 @@ def runcustomanalysis1():
     except:
         print('Exists')
 
-    ## Get data with no fish
+    ## Get data all
     df_NEU = adapters.neu.get_dataframe()
     df_UNM = adapters.unm.get_dataframe()
-    df_DAR = adapters.dar.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe_pred()
 
     ## merge data frames
     df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
@@ -1480,7 +1480,7 @@ def runcustomanalysis2():
     
     ## Get data with fish
     df_UNM = adapters.unm.get_dataframe()
-    df_DAR = adapters.dar.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe_pred()
 
     ## merge data frames
     df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
@@ -1749,7 +1749,7 @@ def runcustomanalysis2():
     ## Get data with no fish
     df_NEU = adapters.neu.get_dataframe()
     df_UNM = adapters.unm.get_dataframe()
-    df_DAR = adapters.dar.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe_pred()
 
     ## merge data frames
     df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
