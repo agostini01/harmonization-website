@@ -439,7 +439,7 @@ class GraphRequestView(views.APIView):
 
         if dataset_type == 'dar_dataset':
             #df = adapters.dar.get_dataframe()
-            df = adapters.dar.get_dataframe_test()
+            df = adapters.dar.get_dataframe()
 
         if dataset_type == 'unmneu_dataset':
             df1 = adapters.unm.get_dataframe()

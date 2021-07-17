@@ -255,8 +255,8 @@ class RawDAR(models.Model):
     # variables added for new outcome - gestational diabetes
     GDMTest1Age = models.FloatField(blank = True, default = -9.0)
     GDMTest2Age = models.FloatField(blank = True, default = -9.0)
-    GDMtest1 =  models.CharField(max_length=2, choices=CAT_DAR_GDM, blank=True, default = '-9')
-    GDMtest2 =  models.CharField(max_length=2, choices=CAT_DAR_GDM, blank=True, default = '-9')
+    GDMtest1 =  models.CharField(max_length=11, choices=CAT_DAR_GDM, blank=True, default = '-9')
+    GDMtest2 =  models.CharField(max_length=11, choices=CAT_DAR_GDM, blank=True, default = '-9')
     
     iAs = models.FloatField(blank=True, null=True, default = -9.0)
     iAs_IDL = models.FloatField(blank=True, null=True, default = -9.0)
