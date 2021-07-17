@@ -685,16 +685,15 @@ def predict_dilution(df_merged, cohort):
     'calculate predicted dilutions per cohort (UNM - Predcreatinine, DAR/NEU - PredSG)'
 
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
-
     df_merged = df_merged[df_merged['CohortType'] == cohort]
-
+    #covariates needed for prediction
     #Where covariates = race + education + age + pre-pregnancy BMI + gestational age at sample collection + year of delivery + study site
     #these have to be in the dataset
     dilution_covars = ['race', 'education','babySex','BMI', 'ga_collection','birth_year']
-    
     x_feature = 'age'
+
     #1) calculated specific gravity (or creatinine) Z-scores, <br>
-    
+
     if cohort == 'NEU':
         orig_dilution = 'SPECIFICGRAVITY_V2'
         mean = df_merged['SPECIFICGRAVITY_V2'].mean()
@@ -719,10 +718,9 @@ def predict_dilution(df_merged, cohort):
         df_merged['Creat_Corr_Result_zscore'] = (df_merged['Creat_Corr_Result'] -  mean) / std                                                        
         y_feature = 'Creat_Corr_Result_zscore'
          
+    # convert the categorical variables to 0-1 dummy/ one-hot encoding
     data = add_confound(df_merged, x_feature, y_feature, dilution_covars)
-    
     data.drop(['CohortType'], inplace = True, axis = 1)
-
     data['intercept'] = 1
 
     ids = data['PIN_Patient'].values
@@ -734,42 +732,31 @@ def predict_dilution(df_merged, cohort):
     X = data[[x for x in data.columns if x !=y_feature and x!= 'PIN_Patient']]
     Y = data[y_feature]
 
-  
-    if X.shape[0] > 2:
-
+    # Fit the linear regression 
+    if X.shape[0] > 1:
         reg = sm.OLS(Y, X).fit() 
         ret = reg.summary()
     else:
-        ret = 'error'
+        ret = 'no samples'
 
-    fit_string = y_feature + '~'
-    
-    for x in X.columns:
-        fit_string += ' + ' + str(x)
-    
-    fit_string = fit_string.replace('~ +','~')
-    
-    header = '<div> <b> Number samples: </b> ' + str(X.shape[0]) + '</div>'
-    header += '<div> <b>  Model: </b>' + fit_string + '</div>'
-    header += '<div> ===============================================</div>'
-
+    # predict z-scores
     Y_pred = reg.predict(X)
     
     #Y = original
     #Y_pred = prediction
     #X = dataset
     #ids = patient id
-    #ret = summary fromm model..
+    #ret = summary from regression model.
     
-    #pack predicted values with original and ids
+    #zip predicted values with original and ids
     df_out = pd.DataFrame(list(zip(ids, Y, Y_pred)), columns = ['PIN_Patient','original', 'prediction'])
 
     data['PIN_Patient'] = ids
     
-    bb = data.merge(df_out, on = 'PIN_Patient')
+    check_ids = data.merge(df_out, on = 'PIN_Patient')
     
     # sanity check: make sure the index didn't get shifted
-    assert bb[y_feature].values.tolist() == bb['original'].values.tolist()
+    assert check_ids[y_feature].values.tolist() == check_ids['original'].values.tolist()
     
     #4) back-transformed the Z-scores into the original units, <br>
     df_out['prediction_xvalue'] = df_out['prediction'] * std + mean
@@ -777,11 +764,11 @@ def predict_dilution(df_merged, cohort):
     
     df_out2 = df_out.merge(df_merged[['PIN_Patient',orig_dilution]], on = 'PIN_Patient')
     df_out2 = df_out2.drop_duplicates(['PIN_Patient'])
+
     #5) calculated dilution ratios for each person by taking their predicted specific gravity (or creatinine) value and dividing it by their observed value, <br>
     # UDR for specific gravity dilution
     if cohort in ['NEU', 'DAR']:
         df_out2['UDR'] = (df_out2['original_xvalue']-1) / (df_out2['prediction_xvalue'] - 1)
-
         dil_indicator = 0
     # UDR for creatinine urine dilution
     if cohort == 'UNM':
