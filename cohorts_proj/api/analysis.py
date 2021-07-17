@@ -290,7 +290,7 @@ def categoricalCounts(df):
 
     #each participant should only have 1 measurment per fvariable
 
-    cohort = df['CohortType'].unique():
+    cohort = df['CohortType'].unique()
 
 
     categorical1 = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
@@ -313,7 +313,7 @@ def categoricalCounts(df):
         df33 = melted.groupby(['variable','value'])['value'].count()
             
         df33.index.names = ['variable', 'cat']
-        
+
     except:
         df22 = df[categorical].drop_duplicates(['PIN_Patient'])
 
