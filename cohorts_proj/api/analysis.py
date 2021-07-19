@@ -2002,7 +2002,7 @@ def runcustomanalysis3():
     
     ## Get data with fish
     df_UNM = adapters.unm.get_dataframe()
-    df_DAR = adapters.dar.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe_pred()
 
     ## merge data frames
     df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
@@ -2271,7 +2271,7 @@ def runcustomanalysis3():
     ## Get data with fish
     df_NEU = adapters.neu.get_dataframe()
     df_UNM = adapters.unm.get_dataframe()
-    df_DAR = adapters.dar.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe_pred()
 
     ## merge data frames
     df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
