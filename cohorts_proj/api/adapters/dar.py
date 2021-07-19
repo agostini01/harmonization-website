@@ -130,7 +130,7 @@ def get_dataframe_pred():
     #     df[a]=df[a]*10000
 
     df['CohortType'] = 'DAR'
-
+    #
     time_period_mapper = {
         '12G': 0,
         '24G': 1,
@@ -152,8 +152,8 @@ def get_dataframe_pred():
 
 def get_dataframe_nofish():
     """Returns a pandas DataFrame with fish removed for cohort"""
-
-    df_new = get_dataframe()
+    ## fix later
+    df_new = get_dataframe_pred()
 
     fishvars = ['PNFFQFR_FISH_KIDS',
                 'PNFFQDK_FISH',
