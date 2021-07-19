@@ -130,7 +130,7 @@ def get_dataframe_pred():
     #     df[a]=df[a]*10000
 
     df['CohortType'] = 'DAR'
-
+    #
     time_period_mapper = {
         '12G': 0,
         '24G': 1,
