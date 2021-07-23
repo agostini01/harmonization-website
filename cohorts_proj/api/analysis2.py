@@ -76,11 +76,16 @@ def crude_classification(df, x_feature, y_feature, adjust_dilution, encode_cats,
     ##gets rid of na values in the feature and target columns and keeps different ways
     ##1 and 0 could be written in the target column (Outcome)
     df = df.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+
+    print(df[y_feature].unique())
+    
     df = df[(~df[x_feature].isna()) & (~df[y_feature].isna()) & 
         (df[y_feature].isin([0.0,1.0,0,1, '0', '1']))]
 
     print('inside classification / after filter ******************************************')
     print(df.shape)
+
+
     
     #make sure all concentrations are above 0 - assuption is ok because lowest conc should have LOD
     #df = df[df[x_feature]> 0]
