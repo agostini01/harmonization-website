@@ -11,6 +11,7 @@ import statsmodels.formula.api as smf
 import statsmodels
 import bambi as bmb
 import arviz as az
+import sklearn
 
 from datasets.models import RawFlower, RawUNM, RawDAR
 from django.contrib.auth.models import User
@@ -443,13 +444,10 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution, outpu
     if len(split_covars) > 1 & encode_cats == True:
         data = add_confound(df_merged, x_feature, y_feature, split_covars)
     if len(split_covars) > 1 & encode_cats == False:
-        print('huehue')
         data = df_merged[[x_feature]+ [y_feature] + split_covars + ['CohortType']]
         data = data.dropna(axis = 'rows')
         data = turntofloat(data)
-
     else:
-        print('huehuehue222')
         data = df_merged[[x_feature]+ [y_feature] + ['CohortType']]
         data = data.dropna(axis = 'rows')
         data = turntofloat(data)
@@ -472,7 +470,6 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution, outpu
 
     data = data.select_dtypes(include = ['float','integer'])
     print('Data shape after intselect')
-    print(data.shape)
 
     #independent
     X = data[[x for x in data.columns if x !=y_feature and x!= 'PIN_Patient']]
@@ -1050,7 +1047,6 @@ def runcustomanalysis1():
 
 
             try:
-
                 out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
                 dims = frame.shape
     
@@ -1072,7 +1068,6 @@ def runcustomanalysis1():
                 out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
                 dims = frame.shape
 
-                
                 text_file.write(str(frame[all_vars + [y_feature]].describe()))
                 text_file.write('\n')
                 text_file.write("Number of participants: {}\n".format(dims[0]))

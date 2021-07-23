@@ -11,6 +11,7 @@ from datasets.models import RawFlower, RawUNM, RawNEU, RawDAR
 from api import adapters
 from api import graphs
 from api import analysis
+from api import analysis2
 import os
 
 import numpy as np
@@ -913,8 +914,10 @@ class InfoRequestView(views.APIView):
                 analysis.runcustomanalysis2()
                 gr = graphs.noDataMessage()
             if (t == 'custom_analysis3'):
-                analysis.runcustomanalysis3()
+                #analysis.runcustomanalysis3()
+                analysis2.run_crude_reg_analysis()
                 gr = graphs.noDataMessage()
+                
 
         response = HttpResponse(gr)
 
