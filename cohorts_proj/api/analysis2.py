@@ -78,6 +78,9 @@ def crude_classification(df, x_feature, y_feature, adjust_dilution, encode_cats,
     df = df.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
     df = df[(~df[x_feature].isna()) & (~df[y_feature].isna()) & 
         (df[y_feature].isin([0.0,1.0,0,1, '0', '1']))]
+
+    print('inside classification / after filter ******************************************')
+    print(df.shape)
     
     #make sure all concentrations are above 0 - assuption is ok because lowest conc should have LOD
     #df = df[df[x_feature]> 0]
@@ -401,6 +404,7 @@ def run_crude_reg_analysis():
         print(name + ":")
         print('Min: {} Max: {}'.format(frame["UTAS"].min(), frame["UTAS"].max()))
         frame = frame[(frame["UTAS"] > 0) & (~frame["UTAS"].isna())]
+        print()
         
         ##gets the Logsitic Regression Model results for the dataframe
         for y_feature in Y_features_binary:
