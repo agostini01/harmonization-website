@@ -292,42 +292,26 @@ def categoricalCounts(df):
     #each participant should only have 1 measurment per fvariable
 
     cohort = df['CohortType'].unique()
-
-
     categorical1 = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
                 'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education']
 
     categorical2 = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
                 'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education','GDMtest1','GDMtest2']
-        
+    
+    #TODO: fix this should detect the dataset type
     try:
         df22 = df[categorical].drop_duplicates(['PIN_Patient'])
-
         categorical.remove('PIN_Patient')
-
         df22 = df22[categorical1]
-
-        melted = pd.melt(df22,id_vars=['CohortType'])
-
-        print(melted.columns)
-        
+        melted = pd.melt(df22,id_vars=['CohortType'])    
         df33 = melted.groupby(['variable','value'])['value'].count()
-            
         df33.index.names = ['variable', 'cat']
-
     except:
         df22 = df[categorical].drop_duplicates(['PIN_Patient'])
-
         categorical.remove('PIN_Patient')
-
         df22 = df22[categorical2]
-
         melted = pd.melt(df22,id_vars=['CohortType'])
-
-        print(melted.columns)
-        
         df33 = melted.groupby(['variable','value'])['value'].count()
-            
         df33.index.names = ['variable', 'cat']
    
     return df33.reset_index()
@@ -365,8 +349,7 @@ def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution, output, 
         data = df_merged[[x_feature]+ [y_feature] + ['CohortType']]
         data = data.dropna(axis = 'rows')
         data = turntofloat(data)
-
-
+        
     data = data[(data[x_feature]> 0) & (~data[x_feature].isna())  ]
     
     data_copy = data.copy()
@@ -478,14 +461,13 @@ def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution, outpu
     #log of the exposure
     X[x_feature]= np.log(X[x_feature])
 
-
-    if df_merged.shape[0] > 2:
+    # fit the model
+    if df_merged.shape[0] > 1:
         log_reg = sm.Logit(Y, X).fit()
         ret = log_reg.summary()
-        
     else:
         ret = 'error'
-
+    # fit string for site
     fit_string = y_feature + '~'
     
     for x in X.columns:
@@ -654,19 +636,14 @@ def crude_mixedMLbayse(df_merged, x_feature, y_feature, covars='False', logit = 
 
 def add_confound(df_merged, x_feature, y_feature, conf):
     
-    incomplete_N2 = df_merged.shape[0]
-
+    # check if confounders are added
     if len(conf) > 1:
-
         cols_to_mix =  [x_feature, y_feature, 'PIN_Patient', 'CohortType'] + conf
     else:
         cols_to_mix = [x_feature, y_feature, 'PIN_Patient', 'CohortType']
 
     # drop any missing values as mixed model requires complete data
     df_nonan = df_merged[cols_to_mix].dropna(axis='rows')
-
-    complete_N = df_nonan.shape[0]
-
     #df_nonan['smoking'] = df_nonan['smoking'].astype(int)
     
     ## dummy race annd smoking varible
@@ -696,20 +673,20 @@ def add_confound(df_merged, x_feature, y_feature, conf):
     ## keep only first visit result if duplicate samples reported
 
     df_nonan = df_nonan.drop_duplicates(['PIN_Patient'], keep = 'first')
- 
-    #df_fin_UTAS.drop(['PIN_Patient','race','race_1','education','education_5'], inplace = True, axis = 1)
-
-    #df_nonan.drop(['PIN_Patient'], inplace = True, axis = 1)
 
     return df_nonan
-
+def verifyclean(df):
+    df = df.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+    return df
+#dilution prediction procedure
 def predict_dilution(df_merged, cohort):
     'calculate predicted dilutions per cohort (UNM - Predcreatinine, DAR/NEU - PredSG)'
 
-    df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+    df_merged = verifyclean(df_merged)
     df_merged = df_merged[df_merged['CohortType'] == cohort]
     #covariates needed for prediction
-    #Where covariates = race + education + age + pre-pregnancy BMI + gestational age at sample collection + year of delivery + study site
+    #Where covariates = race + education + age + pre-pregnancy BMI + 
+    #                   gestational age at sample collection + year of delivery + study site
     #these have to be in the dataset
     dilution_covars = ['race', 'education','babySex','BMI', 'ga_collection','birth_year']
     x_feature = 'age'
@@ -777,7 +754,7 @@ def predict_dilution(df_merged, cohort):
     
     check_ids = data.merge(df_out, on = 'PIN_Patient')
     
-    # sanity check: make sure the index didn't get shifted
+    # check: 
     assert check_ids[y_feature].values.tolist() == check_ids['original'].values.tolist()
     
     #4) back-transformed the Z-scores into the original units, <br>
@@ -2329,11 +2306,8 @@ def runcustomanalysis3():
     #no adj
     for name, frame in frames_for_analysis3:
         
-        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
         frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
-        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
 
-        
         for y_feature in Y_features_continous:
             text_file = open(output_path_model4_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
             try:

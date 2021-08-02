@@ -10,8 +10,7 @@ from datasets.models import RawFlower, RawUNM, RawNEU, RawDAR
 
 from api import adapters
 from api import graphs
-from api import analysis
-from api import analysis2
+from api import analysis, analysis2, checkdilution
 import os
 
 import numpy as np
@@ -915,7 +914,8 @@ class InfoRequestView(views.APIView):
                 gr = graphs.noDataMessage()
             if (t == 'custom_analysis3'):
                 #analysis.runcustomanalysis3()
-                analysis2.run_crude_reg_analysis()
+                #analysis2.run_crude_reg_analysis()
+                checkdilution.generatedilutionstats()
                 gr = graphs.noDataMessage()
                 
 
