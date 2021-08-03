@@ -61,9 +61,6 @@ def get_dataframe():
 
     df = df.reset_index(level=indexes_to_columns)
 
-
-    count = df.groupby([columns_to_indexes]).count()
-
     print(count)
     # TODO - Should we drop NaN here?
 
