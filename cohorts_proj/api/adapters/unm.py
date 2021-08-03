@@ -61,7 +61,6 @@ def get_dataframe():
 
     df = df.reset_index(level=indexes_to_columns)
 
-    print(count)
     # TODO - Should we drop NaN here?
 
     # After pivot
