@@ -913,10 +913,14 @@ class InfoRequestView(views.APIView):
                 analysis.runcustomanalysis2()
                 gr = graphs.noDataMessage()
             if (t == 'custom_analysis3'):
-                #analysis.runcustomanalysis3()
+                analysis.runcustomanalysis3()
                 #analysis2.run_crude_reg_analysis()
+                #checkdilution.generatedilutionstats()
+                gr = graphs.noDataMessage()
+            if (t == 'check_dilution'):
                 checkdilution.generatedilutionstats()
                 gr = graphs.noDataMessage()
+                
                 
 
         response = HttpResponse(gr)

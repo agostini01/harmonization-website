@@ -71,7 +71,8 @@ def get_dataframe():
     dilution = predict_dilution(df, 'UNM')
     dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(str)
     df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
-
+    #remove missing creat
+    df_new = df_new[~df_new['Creat_Corr_Result_x'].isna()]
     return df_new
 
 def get_dataframe_nofish():

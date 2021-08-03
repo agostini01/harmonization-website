@@ -146,6 +146,8 @@ def get_dataframe_pred():
     dilution = predict_dilution(df, 'DAR')
     dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(str)
     df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
+    
+    df_new = df_new[~df_new['urine_specific_gravity_x'].isna()]
 
     return df_new
 

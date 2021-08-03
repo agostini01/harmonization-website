@@ -25,7 +25,7 @@ def OriginalVsAdjustedZscore(df, path):
 
     #stats
     
-    df[['original','prediction']].describe().to_csv(path + "Original and Predicted Specific Gravity zscore {}.csv".format(cohort), index = False)
+    df[['original','prediction']].describe().round(4).to_csv(path + "Original and Predicted Specific Gravity zscore {}.csv".format(cohort), index = True)
     
     #figure
     x = df['original']
@@ -36,12 +36,12 @@ def OriginalVsAdjustedZscore(df, path):
     plt.hist(x, bins=50, color='c', alpha=.55, label = 'Original SG')
 
     plt.axvline(x.median(), color='k', linestyle='dashed', linewidth=1.5)
-    plt.text(x.median(), 40,'Orig = ' + str(round(x.median(),4)), size = 15)
+    plt.text(x.median(), 30,'Orig = ' + str(round(x.median(),4)), size = 15)
 
     plt.hist(y, bins=50, color='r',  alpha=0.3, label = 'Predicted SG')
 
     plt.axvline(y.median(), color='k', linestyle='dashed', linewidth=1.5)
-    plt.text(y.median() + -1, 40, 'Pred = ' + str(round(y.median(),4)), size = 15)
+    plt.text(y.median() + -.75, 20, 'Pred = ' + str(round(y.median(),4)), size = 15)
 
     plt.xlabel("sg zscore", size=14)
     plt.ylabel("Count", size=14)
@@ -58,7 +58,7 @@ def OriginalVsAdjustedAnalyte(df, path):
 
     # table stats
     df['UTAS_adj'] = df['UTAS'] / df['UDR']
-    df[['UTAS','UTAS_adj']].describe().to_csv(path + "Original and ADjusted concentrations {}.csv".format(cohort), index = False)
+    df[['UTAS','UTAS_adj']].describe().round(4).to_csv(path + "Original and ADjusted concentrations {}.csv".format(cohort), index = True)
 
     # figure
     x = np.log(df['UTAS'])
@@ -69,12 +69,12 @@ def OriginalVsAdjustedAnalyte(df, path):
     plt.hist(x, bins=50, color='c', alpha=0.50, label = 'Original')
 
     plt.axvline(x.median(), color='k', linestyle='dashed', linewidth=1.5)
-    plt.text(x.median()-2, 45, 'Median Original = ' + str(round(x.median(),4)), size = 15)
+    plt.text(x.median()-2, 35, 'Median Original = ' + str(round(x.median(),4)), size = 15)
 
     plt.hist(y, bins=50, color='r',  alpha=0.50, label = 'Adjusted')
 
     plt.axvline(y.median(), color='k', linestyle='dashed', linewidth=1.5)
-    plt.text(y.median()+.05, 45, 'Median Adjusted = ' + str(round(y.median(),4)), size = 15)
+    plt.text(y.median()+.05, 20, 'Median Adjusted = ' + str(round(y.median(),4)), size = 15)
 
     plt.xlabel("Concentration log(UTAS)", size=14)
     plt.ylabel("Count", size=14)
