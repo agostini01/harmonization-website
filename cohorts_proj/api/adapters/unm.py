@@ -73,6 +73,15 @@ def get_dataframe():
     df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
     #remove missing creat
     df_new = df_new[~df_new['Creat_Corr_Result_x'].isna()]
+
+    print('Original shape')
+    print(df.shape)
+    print('Dilution shape')
+    print(dilution.shape)
+    print('Check the data seize')
+    print(df_new.shape)
+
+
     return df_new
 
 def get_dataframe_nofish():
