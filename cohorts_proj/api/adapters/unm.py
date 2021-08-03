@@ -12,6 +12,7 @@ def get_dataframe():
     """Returns a pandas DataFrame with the correct
     format for the generic plotting functions."""
 
+
     # First is necessary to pivot the raw UNM dataset so it matches
     # the requested features.
 
@@ -24,13 +25,19 @@ def get_dataframe():
         values()
     )
 
+    print('UNM VERY FIRST******* SIZE ')
+    print(df.shape)
+
+
     covars = ['Outcome_weeks', 'age', 'ethnicity',
        'race', 'education', 'BMI', 'income', 'smoking', 'parity',
-       'preg_complications', 'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'headCirc',
-       'birthLen','WeightCentile','LGA','SGA','ga_collection','Creat_Corr_Result','birth_year']
+       'preg_complications', 'folic_acid_supp', 'fish', 'babySex',
+       'birthWt', 'headCirc',
+       'birthLen','WeightCentile',
+       'LGA','SGA','ga_collection','Creat_Corr_Result','birth_year']
 
     df['ga_collection'] = df['gestAge_collection']
-       
+    
     # RAW SAMPLE
     # id PIN_Patient Member_c TimePeriod Analyte    Result  Creat_Corr_Result
     #  1      A0000M        1          1     BCD  1.877245           -99999.0
@@ -46,6 +53,8 @@ def get_dataframe():
     columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome'] + covars
     categorical_to_columns = ['Analyte']
     indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
+
+    print(df)
 
     df = pd.pivot_table(df, values=numerical_values,
                         index=columns_to_indexes,
