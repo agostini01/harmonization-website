@@ -33,7 +33,7 @@ def get_dataframe():
        'preg_complications', 'folic_acid_supp', 'fish', 'babySex',
        'birthWt', 'headCirc',
        'birthLen','WeightCentile',
-       'LGA','SGA','ga_collection','ceatinine_mg-DL','birth_year']
+       'LGA','SGA','ga_collection','creatininemgdl','birth_year']
 
     df['ga_collection'] = df['gestAge_collection']
 
@@ -84,7 +84,7 @@ def get_dataframe():
     dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(str)
     df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
     #remove missing creat
-    df_new = df_new[~df_new['Creat_Corr_Result_x'].isna()]
+    df_new = df_new[~df_new['creatininemgdl_x'].isna()]
 
     print('Original shape')
     print(df.shape)
