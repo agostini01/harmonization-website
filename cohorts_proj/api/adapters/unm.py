@@ -28,16 +28,15 @@ def get_dataframe():
     print('UNM VERY FIRST******* SIZE ')
     print(df.shape)
 
-
     covars = ['Outcome_weeks', 'age', 'ethnicity',
        'race', 'education', 'BMI', 'income', 'smoking', 'parity',
        'preg_complications', 'folic_acid_supp', 'fish', 'babySex',
        'birthWt', 'headCirc',
        'birthLen','WeightCentile',
-       'LGA','SGA','ga_collection','Creat_Corr_Result','birth_year']
+       'LGA','SGA','ga_collection','ceatinine_mg-DL','birth_year']
 
     df['ga_collection'] = df['gestAge_collection']
-    
+
     # RAW SAMPLE
     # id PIN_Patient Member_c TimePeriod Analyte    Result  Creat_Corr_Result
     #  1      A0000M        1          1     BCD  1.877245           -99999.0
@@ -58,10 +57,14 @@ def get_dataframe():
 
     df = pd.pivot_table(df, values=numerical_values,
                         index=columns_to_indexes,
-                        columns=categorical_to_columns,
-                        aggfunc=np.average)
+                        columns=categorical_to_columns)
 
     df = df.reset_index(level=indexes_to_columns)
+
+
+    count = df.groupby([columns_to_indexes]).count()
+
+    print(count)
     # TODO - Should we drop NaN here?
 
     # After pivot
@@ -89,7 +92,6 @@ def get_dataframe():
     print(dilution.shape)
     print('Check the data seize')
     print(df_new.shape)
-
 
     return df_new
 

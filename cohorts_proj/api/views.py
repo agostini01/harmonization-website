@@ -67,6 +67,7 @@ def saveUNMToDB(csv_file):
             Analyte=entry.Analyte,
             Result=entry.Result,
             Creat_Corr_Result=entry.Creat_Corr_Result,
+            creatininemgdl = creatinine_mg-dL;
             Outcome=entry.PretermBirth,
             Outcome_weeks = entry.gestAge,
             age = entry.age,

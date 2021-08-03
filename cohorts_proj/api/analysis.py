@@ -667,13 +667,13 @@ def predict_dilution(df_merged, cohort):
         y_feature = 'zscore'
         
     if cohort == 'UNM':
-        orig_dilution = 'Creat_Corr_Result'
-        mean = df_merged['Creat_Corr_Result'].mean()
-        std =  df_merged['Creat_Corr_Result'].std()
+        orig_dilution = 'creatininemgdl'
+        mean = df_merged['creatininemgdl'].mean()
+        std =  df_merged['creatininemgdl'].std()
         
-        df_merged['zscore'] = (df_merged['Creat_Corr_Result'] -  mean) / std                                                        
+        df_merged['zscore'] = (df_merged['creatininemgdl'] -  mean) / std                                                        
         y_feature = 'zscore'
-         
+    
     # convert the categorical variables to 0-1 dummy/ one-hot encoding
     data = add_confound(df_merged, x_feature, y_feature, dilution_covars)
     
