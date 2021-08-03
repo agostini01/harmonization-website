@@ -96,12 +96,16 @@ def get_dataframe():
     ## as discussed, visit 2 only
     df = df[df['TimePeriod'] == 2]
     ## as discussed, no fish in past 48hrs for v2
-    df = df[df['fish_pu_v2'] == 0]
+    #df = df[df['fish_pu_v2'] == 0]
     ## predict dilution for visit 2
     dilution = predict_dilution(df, 'NEU')
+    print(dilution.info())
+    print(dilution.describe().transpose())
     dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(int).astype(str)
     df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
-
+    print(df_new[['original','prediction']].describe().transpose())
+    # remove any sg missing 
+    df_new = df_new[~df_new['SPECIFICGRAVITY_V2_x'].isna()]
     return df_new
 
 def get_dataframe_nofish():

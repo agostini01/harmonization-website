@@ -52,6 +52,7 @@ PLOT_TYPES = [
         ("custom_analysis1", "custom_analysis1"),
         ("custom_analysis2", "custom_analysis2"),
         ("custom_analysis3", "custom_analysis3"),
+        ("check_dilution", "check_dilution"),
     ),
     )
 ]
