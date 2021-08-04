@@ -224,18 +224,19 @@ def getRegPlot(data, x_feature, y_feature, color_by):
 
     sns.set()
 
-    plt.figure(figsize = (5,5))
+##change made here 
+    plt.figure(figsize = (6,5))
 
     #fig, ax = plt.subplots(1, 2, figsize=(5*2, 5))
 
     data = data[(~data[x_feature].isna()) & (~data[y_feature].isna()) ]
 
-    data['log_' + x_feature] = np.log(data[x_feature] )
+    data['log' + x_feature] = np.log(data[x_feature] )
 
-    gr = sns.regplot(data=data, x='log_' + x_feature,
+    gr = sns.regplot(data=data, x='log' + x_feature,
                      y=y_feature)
 
-    x = data['log_' + x_feature].values
+    x = data['log' + x_feature].values
     y = data[y_feature].values
 
     slope, intercept, r_value, p_value, std_err = stats.linregress(
@@ -246,6 +247,9 @@ def getRegPlot(data, x_feature, y_feature, color_by):
     slope, intercept, r_value**2, p_value, std_err)
     #plt.suptitle(''.join(reg_info), **{'x': 1.4, 'y':.98})
     gr.set_title(reg_info,**{'x': .5, 'y':.98})
+
+   
+    
 
     return gr.figure
 
