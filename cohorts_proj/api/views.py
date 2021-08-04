@@ -10,7 +10,7 @@ from datasets.models import RawFlower, RawUNM, RawNEU, RawDAR
 
 from api import adapters
 from api import graphs
-from api import analysis
+from api import analysis, analysis2, checkdilution
 import os
 
 import numpy as np
@@ -67,6 +67,7 @@ def saveUNMToDB(csv_file):
             Analyte=entry.Analyte,
             Result=entry.Result,
             Creat_Corr_Result=entry.Creat_Corr_Result,
+            creatininemgdl = entry.creatininemgdl,
             Outcome=entry.PretermBirth,
             Outcome_weeks = entry.gestAge,
             age = entry.age,
@@ -89,7 +90,8 @@ def saveUNMToDB(csv_file):
             birth_month = entry.birth_month,
             LGA	= entry.LGA,
             SGA= entry.SGA,
-            gestAge_collection = entry.gestAge_collection
+            gestAge_collection = entry.gestAge_collection,
+            headCirc = entry.headCir
         )
 
 def saveNEUToDB(csv_file):
@@ -206,6 +208,10 @@ def saveDARToDB(csv_file):
             WeightCentile = entry.WeightCentile,
             LGA	= entry.LGA,
             SGA= entry.SGA,
+            GDMTest1Age = entry.GDMTest1Age,
+            GDMTest2Age = entry.GDMTest2Age,
+            GDMtest1 =  entry.GDMtest1,
+            GDMtest2 =  entry.GDMtest1,
             Ag=entry.urine_m24G_Ag,
             Ag_BDL=entry.urine_m24G_bdl_Ag,
             Ag_IDL=entry.urine_m24G_dl_Ag,
@@ -433,6 +439,7 @@ class GraphRequestView(views.APIView):
             df = adapters.neu.get_dataframe()
 
         if dataset_type == 'dar_dataset':
+            #df = adapters.dar.get_dataframe()
             df = adapters.dar.get_dataframe()
 
         if dataset_type == 'unmneu_dataset':
@@ -739,6 +746,9 @@ class InfoRequestView(views.APIView):
         dataset_type = request.data['dataset_type']
         covar_choices = request.data['covar_choices']
         adjust_dilution = request.data['adjust_dilution']
+
+        print('### covar choices ###')
+        print(covar_choices)
         
         t = plot_type
         gr = None
@@ -873,7 +883,7 @@ class InfoRequestView(views.APIView):
                 gr = cls.getRegColorPlot(df, x_feature, y_feature, color_by)
 
             if (t == 'linear_reg_detailed_plot'):
-                gr = analysis.crude_reg(df, x_feature, y_feature, covar_choices, adjust_dilution)
+                gr = analysis.crude_reg(df, x_feature, y_feature, covar_choices, adjust_dilution, 'html')
 
             if (t == 'linear_mixed_ml_summary'):
                 gr = analysis.crude_mixedML2(df, x_feature, y_feature, covar_choices)
@@ -883,7 +893,7 @@ class InfoRequestView(views.APIView):
                 gr = gr.as_html()
 
             if (t == 'logistic_regression'):
-                gr = analysis.crude_logreg(df, x_feature, y_feature, covar_choices, adjust_dilution)
+                gr = analysis.crude_logreg(df, x_feature, y_feature, covar_choices, adjust_dilution, 'html')
             
             if (t == 'categorical_summary'):
                 gr = analysis.categoricalCounts(df).to_html()
@@ -897,7 +907,23 @@ class InfoRequestView(views.APIView):
             if (t == 'binomial_bayesian_mixed_ml'):
                 gr = analysis.crude_mixedMLbayse(df, x_feature, y_feature, include_covars, True).to_html()
 
-        
+            if (t == 'custom_analysis1'):
+                analysis.runcustomanalysis1()
+                gr = graphs.noDataMessage()
+            if (t == 'custom_analysis2'):
+                analysis.runcustomanalysis2()
+                gr = graphs.noDataMessage()
+            if (t == 'custom_analysis3'):
+                analysis.runcustomanalysis3()
+                #analysis2.run_crude_reg_analysis()
+                #checkdilution.generatedilutionstats()
+                gr = graphs.noDataMessage()
+            if (t == 'check_dilution'):
+                checkdilution.generatedilutionstats()
+                gr = graphs.noDataMessage()
+                
+                
+
         response = HttpResponse(gr)
 
     

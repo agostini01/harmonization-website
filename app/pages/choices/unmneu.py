@@ -27,6 +27,8 @@ ADDITIONAL_FEATURES = [('Categorical', (
     ('SGA',  'SGA'),
     ('LGA',  'LGA'),
     ('birthWt',  'Birth Weight'),
+    ('headCirc', 'headCirc'),
+    ('birthLen','birthLen'),
     ('Outcome_weeks',  'Outcome Weeks'),
     ('Outcome',  'Outcome'),
 
