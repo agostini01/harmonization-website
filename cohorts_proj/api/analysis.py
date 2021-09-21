@@ -9,10 +9,14 @@ import traceback
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import statsmodels
-
+import bambi as bmb
+import arviz as az
+import sklearn
 
 from datasets.models import RawFlower, RawUNM, RawDAR
 from django.contrib.auth.models import User
+
+from api.dilutionproc import predict_dilution
 
 from api import adapters
 
@@ -25,21 +29,15 @@ def getCorrelationPerVisit(data, x_cols, y_cols, corr_method):
             data.loc[data[x] < 0, x] = np.nan
         except:
             data[col] = data[col]
-
         df1 = data
         rez = []
         seen = []
         N = None
-        
         for x in x_cols:
             for y in y_cols:
-                
                 if x!=y:
-
                     for visit in df1['TimePeriod'].unique():
-                        
                         df_visit = df1[df1['TimePeriod']== visit]
-                        
                         try:
                             temp = df_visit[(~df_visit[x].isna()) & (~df_visit[y].isna()) ]
                             N = temp.shape[0]
@@ -49,7 +47,6 @@ def getCorrelationPerVisit(data, x_cols, y_cols, corr_method):
                             else:
                                 spearman = stats.pearsonr(temp[x], temp[y])
                                 rez.append([x,y,N,visit,spearman[0],spearman[1]])
-
                         except:
                             print('err')  
                             
@@ -163,19 +160,23 @@ def q2(x):
 def q3(x):
     return x.quantile(0.75)
 
-
 def cohortdescriptive_all(df_all):
     ' summary; minimum, quartile 1, median, quartile 3, and maximum.'
     
-    df_all = df_all.drop_duplicates(['CohortType','PIN_Patient','TimePeriod'])
+    #df_all = df_all.drop_duplicates(['CohortType','PIN_Patient','TimePeriod'])
 
     df_all = df_all.select_dtypes(include=['float64'])
+
+    categorical = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
+                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education']
+
+    df_all = df_all.loc[:, ~df_all.columns.isin(categorical)]
 
     #b = df_all.agg(['count','mean','std',lambda x: x.quantile(0.25), lambda x: x.quantile(0.50)])
 
     df_all[df_all < 0 ] = np.nan
+    b = df_all.agg(['count','mean','std','min',  q1, 'median', q3, 'max']).transpose().round(4)
 
-    b = df_all.agg(['count','mean','std','min',  q1, 'median', q3, 'max']).transpose()
 
     return b
 
@@ -229,6 +230,8 @@ def oneHotEncoding(df, toencode):
 
 def merge3CohortFrames(df1,df2,df3):
     'merge on feature intersections'
+    #only consider visit 2 for NEU
+    df2 = df2[df2['TimePeriod'] == 2]
 
     for as_feature in ['UASB', 'UDMA', 'UAS5', 'UIAS', 'UAS3', 'UMMA']:
         if as_feature not in df1.columns:
@@ -278,159 +281,292 @@ def merge2CohortFrames(df1,df2):
 
     return df_all
 
-def numberParticipants(df_all):
+def categoricalCounts(df):
 
-    df_all
+    #each participant should only have 1 measurment per fvariable
 
-def categoricalCounts(df,categorical, indv_or_all):
+    cohort = df['CohortType'].unique()
+    categorical1 = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
+                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education']
 
-    #each participant should only have 1 measurment per continous variable
-    df22 = df[categorical].drop_duplicates(['PIN_Patient'])
-
-    categorical.remove('PIN_Patient')
-
-    df22 = df22[categorical]
-    ## for all cohorts
-    if indv_or_all == 1:
-        df33 = pd.DataFrame(pd.melt(df22,id_vars=['CohortType'])\
-                        .groupby(['Analyte','value'])['value'].count())
-        
-
+    categorical2 = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
+                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education','GDMtest1','GDMtest2']
+    
+    #TODO: fix this should detect the dataset type
+    try:
+        df22 = df[categorical].drop_duplicates(['PIN_Patient'])
+        categorical.remove('PIN_Patient')
+        df22 = df22[categorical1]
+        melted = pd.melt(df22,id_vars=['CohortType'])    
+        df33 = melted.groupby(['variable','value'])['value'].count()
         df33.index.names = ['variable', 'cat']
-    ## counts by cohort individually
-    if indv_or_all == 0:
-        df33 = pd.DataFrame(pd.melt(df22,id_vars=['CohortType'])\
-                        .groupby(['CohortType','Analyte','value'])['value'].count())
-        
-
-        df33.index.names = ['CohortType','variable', 'cat']
-
+    except:
+        df22 = df[categorical].drop_duplicates(['PIN_Patient'])
+        categorical.remove('PIN_Patient')
+        df22 = df22[categorical2]
+        melted = pd.melt(df22,id_vars=['CohortType'])
+        df33 = melted.groupby(['variable','value'])['value'].count()
+        df33.index.names = ['variable', 'cat']
+   
     return df33.reset_index()
+def turntofloat(df):
 
-def linearreg(df, x_vars, targets, cohort):
-    # run simple linear regression y = ax + b and report slope, intercept, rvalue, plvalue, 'stderr
+    for col in df.columns:
+        try:
+            df[col] = df[col].astype(float)
+        except:
+            pass
+    return df
 
-    rez = []
-
-    df = df.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
-
-    for period in df['TimePeriod'].unique():
-        df_period = df[df['TimePeriod'] == period]
-
-        for x in x_vars:
-            for y in targets:
-                try:
-                    df_temp = df_period[(~df_period[x].isna()) & (~df_period[y].isna())  & (df_period[y] >= 0) & (df_period[x] >= 0) ]
-                    print('*************')
-                    print(df_temp.shape)
-
-                    X = df_temp[x]
-                    Y = df_temp[y]
-                    
-                    res = stats.linregress(X, Y)
-
-                    rez.append([cohort, x, y, len(X),res.slope, res.intercept, 
-                                            res.rvalue, res.pvalue, res.stderr,res.intercept_stderr])
-
-                except Exception as e:
-                    print(e)
-
-    rez_df = pd.DataFrame(rez, columns = ['cohort','x','y', 'N','slope', 'intercept','rvalue', 'pvalue', 'stderr','intercept_stderr'])
-
-    return rez_df
-
-def logisticregress(df, x_vars, targets, cohort):
-    # run simple logistic regression log(p(x)/1-p(x)) = ax + b and report slope, intercept, rvalue, plvalue, 'stderr
-
-    rez = []
-
-    df = df.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
-
-    for period in df['TimePeriod'].unique():
-        df_period = df[df['TimePeriod'] == period]
-
-        for x in x_vars:
-            for y in targets:
-                try:
-                    df_temp = df_period[(~df_period[x].isna()) & (~df_period[y].isna()) & (~df_period[y].isin([0.0,1.0,0,1]))]
-            
-                    df_temp['intercept'] = 1
-                    X = df_temp[['intercept',x]]
-                    df_temp[y] = df_temp[y].astype(int)
-                    Y = df_temp[y]
-
-                    print(Y)
-                    #res = stats.linregress(X, Y)
-                    if df_temp.shape[0] > 2:
-                        log_reg = sm.Logit(Y, X).fit() 
-
-                        intercept = log_reg.params[0]
-                        coef = log_reg.params[1]
-
-                        intercept_p = log_reg.pvalues[0]
-                        coef_p = log_reg.pvalues[1]
-
-                        rez.append([cohort, x, y, len(X),coef, coef_p, intercept, intercept_p])
-                    
-                        
-                    #    rez.append([cohort, x, y, len(X), np.nan, np.nan, np.nan, np.nan, np.nan, np.nan])
-                except Exception as e:
-                    print(e)
-
-    rez_df = pd.DataFrame(rez, columns = ['cohort','x','y', 'N','slope', 'slope_p', 'intercept','intercept_p'])
-
-    return rez_df
-
-
-def crude_logreg(df_merged, x_feature, y_feature):
-    # inro for crude simple logistic regression log(p(x)/1-p(x)) = ax + b and report slope, intercept, rvalue, plvalue, 'stderr
+def crude_reg(df_merged, x_feature, y_feature, covars, adjust_dilution, output, encode_cats):
+    # inro for crude simple regression y = ax + b and report full results
     # y_feature has to be binary (i.e. 0,1)
-
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+    df_merged = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna())]
+    #make sure all concentrations are above 0 - assuption is ok because lowest conc should have LOD
+    df_merged = df_merged[(df_merged[x_feature]> 0) & (~df_merged[x_feature].isna())  ]
+    split_covars = covars.split('|')
+    print(split_covars)
+    print(len(split_covars))
+    ## adjust dilution
+    if adjust_dilution == 'True':
+        df_merged[x_feature] = df_merged[x_feature] / df_merged['UDR']
 
-    df_temp = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna()) & (df_merged[y_feature].isin([0.0,1.0,0,1]))]
+    if len(split_covars) > 1 & encode_cats == True:
+        data = add_confound(df_merged, x_feature, y_feature, split_covars)
+    if len(split_covars) > 1 & encode_cats == False:
+        data = df_merged[[x_feature]+ [y_feature] + split_covars + ['CohortType']]
+        data = data.dropna(axis = 'rows')
+        data = turntofloat(data)
 
+    else:
+        data = df_merged[[x_feature]+ [y_feature] + ['CohortType']]
+        data = data.dropna(axis = 'rows')
+        data = turntofloat(data)
+    ## problem - if we are using z_score to predict might be an issue
+    
+    data = data[(data[x_feature]> 0) & (~data[x_feature].isna())  ]
+    
+    data_copy = data.copy()
+    data.drop(['CohortType'], inplace = True, axis = 1)
 
-    df_temp['intercept'] = 1
-    X = df_temp[['intercept',x_feature]]
-    df_temp[y_feature] = df_temp[y_feature].astype(int)
-    Y = df_temp[y_feature]
+    data['intercept'] = 1
+    #TODO: clean up - sometimes these variables are in the data, sometimes not (depends on selection )
+    try:
+        data['babySex'] = data['babySex'].astype(float)
+    except:
+        pass
+    try:
+        data['parity'] = data['parity'].astype(float)
+    except:
+        pass
+  
+    data = data.select_dtypes(include = ['float','integer'])
 
-    if df_temp.shape[0] > 2:
+    #X and Y features TODO: clean up
+    X = data[[x for x in data.columns if x !=y_feature and x!= 'PIN_Patient']]
+    Y = data[y_feature]
+    X[x_feature]= np.log(X[x_feature])
 
-        log_reg = sm.Logit(Y, X).fit() 
+    if df_merged.shape[0] > 2:
 
-        #intercept = log_reg.params[0]
-        #coef = log_reg.params[1]
-
-        #intercept_p = log_reg.pvalues[0]
-        #coef_p = log_reg.pvalues[1]
-
-        ret = log_reg.summary()
-        
-        #    rez.append([cohort, x, y, len(X), np.nan, np.nan, np.nan, np.nan, np.nan, np.nan])
+        reg = sm.OLS(Y, X).fit() 
+        ret = reg.summary()
     else:
         ret = 'error'
 
-    return ret
+    # model string
+    fit_string = y_feature + '~'
+    for x in X.columns:
+        if x == x_feature:
+            fit_string += ' + log(' + str(x) +')'
+        else:
+            fit_string += ' + ' + str(x)
+    
+    fit_string = fit_string.replace('~ +','~')
+    header = ''
+    # info to display on webpage
+    for cohort in data_copy['CohortType'].unique():
+        cohort_data = data_copy[data_copy['CohortType'] == cohort]
+        header += '<div> <b> ' + cohort +'  Number samples :</b> ' + str(cohort_data.shape[0]) + '</div>'
+    header += '<div> <b> Total Number samples :</b> ' + str(X.shape[0]) + '</div>'
+    header += '<div> <b>  Model: </b>' + fit_string + '</div>'
+    header += '<div> ===================================================</div>'
 
-def crude_binomial_mixedML(df_merged, x_feature, y_feature):
+    htmls = header + ret.tables[0].as_html() + ret.tables[1].as_html() 
+
+    # depending where we are calling it from
+    if output == 'csv':
+        final_return = ret
+    if output == 'html':
+        final_return = htmls
+
+    return final_return
+
+def crude_logreg(df_merged, x_feature, y_feature, covars, adjust_dilution, output, encode_cats):
+    # inro for crude simple logistic regression log(p(x)/1-p(x)) = ax + b and report slope, intercept, rvalue, plvalue, 'stderr
+    # y_feature has to be binary (i.e. 0,1)
+    df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+    df_merged = df_merged[(~df_merged[x_feature].isna()) & (~df_merged[y_feature].isna()) & \
+        (df_merged[y_feature].isin([0.0,1.0,0,1, '0', '1', '0.0', '1.0']))]
+    #make sure all concentrations are above 0 - assuption is ok because lowest conc should have LOD
+    #df_merged = df_merged[df_merged[x_feature]> 0]
+
+    #split the variables in the checkboxes
+    split_covars = covars.split('|')
+    print(split_covars)
+    print(len(split_covars))
+    ##adjust dilution
+    if adjust_dilution == 'True':
+        df_merged[x_feature] = df_merged[x_feature] / df_merged['UDR']
+
+    if len(split_covars) > 1 & encode_cats == True:
+        data = add_confound(df_merged, x_feature, y_feature, split_covars)
+    if len(split_covars) > 1 & encode_cats == False:
+        data = df_merged[[x_feature]+ [y_feature] + split_covars + ['CohortType']]
+        data = data.dropna(axis = 'rows')
+        data = turntofloat(data)
+    else:
+        data = df_merged[[x_feature]+ [y_feature] + ['CohortType']]
+        data = data.dropna(axis = 'rows')
+        data = turntofloat(data)
+
+    data = data[(data[x_feature]> 0) & (~data[x_feature].isna())  ]
+    data = data.dropna(how = 'any')
+    data.drop(['CohortType'], inplace = True, axis = 1)
+    # set intercept to 1
+    data['intercept'] = 1
+
+    #TODO: clean up
+    try:
+        data['babySex'] = data['babySex'].astype(float)
+    except:
+        pass
+    try:
+        data['parity'] = data['parity'].astype(float)
+    except:
+        pass
+
+    data = data.select_dtypes(include = ['float','integer'])
+    print('Data shape after intselect')
+
+    #independent
+    X = data[[x for x in data.columns if x !=y_feature and x!= 'PIN_Patient']]
+    #target
+    Y = data[y_feature]
+    #log of the exposure
+    X[x_feature]= np.log(X[x_feature])
+
+    # fit the model
+    if df_merged.shape[0] > 1:
+        log_reg = sm.Logit(Y, X).fit()
+        ret = log_reg.summary()
+    else:
+        ret = 'error'
+    # fit string for site
+    fit_string = y_feature + '~'
+    
+    for x in X.columns:
+        if x == x_feature:
+            fit_string += ' + log(' + str(x) +')'
+        else:
+
+            fit_string += ' + ' + str(x)
+    
+    fit_string = fit_string.replace('~ +',' ~')
+    header = ' <div><b> Logistic Regression </b> </div>'
+    header += '<div><b> Number samples: </b> ' + str(X.shape[0]) + '</div>'
+    header += '<div><b> Model: </b>' + fit_string + '</div>'
+    header += '<div><b> Group: </b> CohortType '
+    
+    htmls = header + ret.tables[0].as_html() + ret.tables[1].as_html()      
+
+    # depending where we are calling it from
+    if output == 'csv':
+        final_return = ret
+    if output == 'html':
+        final_return = htmls
+
+    return final_return
+
+def crude_mixedML2(df_merged, x_feature, y_feature, covars):
+
+    #TODO: Replace covars variable with actual selection of indivdual features
+
+    df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+    split_covars = covars.split('|')
+    data = add_confound(df_merged, x_feature, y_feature, split_covars)
+
+    data['intercept'] = 1
+    #data = data.select_dtypes(include = ['float','integer'])
+
+    X = data[[x for x in data.columns if x !=y_feature and x!= 'CohortType']]
+
+    Y = data[y_feature]
+
+    if X.shape[0] > 2:
+        reg = sm.MixedLM(Y, X, groups=data["CohortType"], exog_re=X["intercept"]).fit()
+        ret = reg.summary()
+    else:
+        ret = 'error'
+
+    fit_string = y_feature + '~'
+    
+    for x in X.columns:
+        fit_string += ' + ' + str(x)
+    
+    fit_string = fit_string.replace('~ +','~') + ' + (1|CohortType)'
+    header = '<div> <b> Liear Mixed Model with Random Intercept </b> </div>'
+    header += '<div> <b> Number samples: </b> ' + str(X.shape[0]) + '</div>'
+    header += '<div> <b>  Model: </b>' + fit_string + '</div>'
+    header += '<div> <b> Group: </b> CohortType '
+
+    htmls = header + ret.tables[0].to_html() + ret.tables[1].to_html()      
+    return htmls
+
+
+def crude_binomial_mixedML(df_merged, x_feature, y_feature,covars):
 
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
 
-    data = df_merged[[x_feature,y_feature,'CohortType']].dropna(how = 'any', axis='rows')
+    if covars == 'False':
+        
+        data = df_merged[[x_feature,y_feature,'CohortType']].dropna(how = 'any', axis='rows')
 
-    data[x_feature] = data[x_feature] + 1
-    random = {"a": '0 + C(CohortType)'}
+        data[x_feature] = data[x_feature] + 1
+        data[y_feature] = data[y_feature].astype(int)
+        
+        random = {"a": '0 + C(CohortType)'}
 
-    print(data.shape)
+        fit_string = y_feature + '~' + x_feature
 
-    data[y_feature] = data[y_feature].astype(int)
-    
-    fit_string = y_feature + '~' + x_feature
+    if covars == 'True':
 
-    print('mixedML string:')
-    print(fit_string)
+        random = {"a": '0 + C(CohortType)'}
+
+        data = add_confound(df_merged, x_feature, y_feature)
+
+            ## create the model string for 
+        fit_string = y_feature + '~'
+
+        cnt = 0
+        ## filter out target, at birth, and reference dummy variables in model
+        for x in data.columns:
+
+            #data.drop(['education'], inplace = True, axis = 0)
+            
+            if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
+                and x !='birthLen' and x != 'CohortType' and x != 'race' and x!='race_1' and x!= 'smoking' and x != 'smoking_3' \
+                and x != 'education_5' and x != 'education':
+                
+                
+                if cnt == 0:
+                    fit_string += ' ' + x + ' '
+                else:
+                    fit_string += ' + ' + x + ' '
+                cnt+=1    
+        
+        data[y_feature] = data[y_feature].astype(int) 
 
     ## miced linear model with group variable = CohortType
     md = statsmodels.genmod.bayes_mixed_glm.BinomialBayesMixedGLM.from_formula(
@@ -439,342 +575,1654 @@ def crude_binomial_mixedML(df_merged, x_feature, y_feature):
     ##fit the model 
     mdf = md.fit_vb()
 
-    print(mdf.summary())
 
     return mdf.summary()
 
+def crude_mixedMLbayse(df_merged, x_feature, y_feature, covars='False', logit = False):
 
-def crude_mixedML(df_merged, x_feature, y_feature):
+    #TODO: Replace covars variable with actual selection of indivdual features
 
     df_merged = df_merged.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
 
-    data = df_merged[[x_feature,y_feature,'CohortType']].dropna(how = 'any', axis='rows')
+    if covars == 'False':
+        
+        data = df_merged[[x_feature,y_feature,'CohortType']].dropna(how = 'any', axis='rows')
 
-    fit_string = y_feature + '~' + x_feature
+        fit_string = y_feature + '~' + x_feature
 
-    print('mixedML string:')
-    print(fit_string)
+    if covars == 'True':
+
+        data = add_confound(df_merged, x_feature, y_feature)
+
+            ## create the model string for 
+        fit_string = y_feature + '~'
+
+        cnt = 0
+        ## filter out target, at birth, and reference dummy variables in model
+        for x in data.columns:
+
+            #data.drop(['education'], inplace = True, axis = 0)
+            
+            if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
+                and x !='birthLen' and x != 'CohortType' and x != 'race' and x!='race_1' and x!= 'smoking' and x != 'smoking_3' \
+                and x != 'education_5' and x != 'education':
+                
+                if cnt == 0:
+                    fit_string += ' ' + x + ' '
+                else:
+                    fit_string += ' + ' + x + ' '
+                cnt+=1        
+    
+    fit_string += '+ (1|CohortType)'
+    if logit == False:
+        model = bmb.Model(data)
+        results = model.fit(fit_string)
+    else:
+        model = bmb.Model(data)
+        results = model.fit(fit_string, family='bernoulli',link = 'logit')
 
     ## miced linear model with group variable = CohortType
-    md = smf.mixedlm(fit_string, data, groups=data["CohortType"])
+    mdf = az.summary(results)
+    return mdf
 
-    ##fit the model 
-    mdf = md.fit(maxiter=200000)
-
-    print(mdf.summary())
-
-    return mdf.summary()
+def verifyclean(df):
+    df = df.replace(-9,np.nan).replace('-9',np.nan).replace(999,np.nan).replace(888,np.nan)
+    return df
 
 
-
-def mixedML(df_merged, target_var, target_analyte, categorical, output_path):
-    ## linear mixed model analysis for all 3 cohorts
-
-    for col in categorical:
-        print(col)
-        try:
-            df_merged[col] = df_merged[col].astype(int)
-            df_merged.loc[df_merged[col] < 0, col] = np.nan
-        except:
-            print('err on ' + col)
-    
-    ## drop any rows with nan - discuss in meetig whether we want to imput missing data
-
-    incomplete_N = df_merged.shape[0]
-
-    ## keep only a sepcific window of gestationn
-
-    df_merged = df_merged[(df_merged['ga_collection'] > 13) & (df_merged['ga_collection'] < 28)]
-
-    incomplete_N2 = df_merged.shape[0]
-
-    cols_to_mix =  [target_analyte, target_var, 'fish', 'smoking', 'parity', 
-       'babySex', 'ga_collection', 'education',
-       'preg_complications',
-       'race', 'BMI', 'PIN_Patient',
-       'age', 'CohortType', 'folic_acid_supp']
+def add_confound(df_merged, x_feature, y_feature, conf):
+    print(df_merged.shape)
+    # check if confounders are added
+    if len(conf) > 1:
+        cols_to_mix =  [x_feature, y_feature, 'PIN_Patient', 'CohortType'] + conf
+    else:
+        cols_to_mix = [x_feature, y_feature, 'PIN_Patient', 'CohortType']
 
     # drop any missing values as mixed model requires complete data
     df_nonan = df_merged[cols_to_mix].dropna(axis='rows')
-
-    complete_N = df_nonan.shape[0]
-
-    df_nonan['race'] = df_nonan['race'].astype(int)
-    df_nonan['smoking'] = df_nonan['smoking'].astype(int)
-    df_nonan['education'] = df_nonan['education'].astype(int)
+    #df_nonan['smoking'] = df_nonan['smoking'].astype(int)
+    print(df_nonan.shape)
 
     ## dummy race annd smoking varible
+    def add_cats(name, df_nonan, ref_val):
 
-    df_fin_UTAS = pd.concat([df_nonan, pd.get_dummies(df_nonan['race'], prefix = 'race')], axis = 1)
+        df_nonan[name] = df_nonan[name].astype('float').astype(int)
+        df = pd.concat([df_nonan, pd.get_dummies(df_nonan[name], prefix = name)], axis = 1)
+        #print(df.columns)
 
-    df_fin_UTAS = pd.concat([df_fin_UTAS, pd.get_dummies(df_fin_UTAS['smoking'], prefix = 'smoking')], axis = 1)
+        try:
+            df.drop([name,name + '_' + ref_val], inplace = True, axis = 1)
+        except:
+            pass
 
-    df_fin_UTAS = pd.concat([df_fin_UTAS, pd.get_dummies(df_fin_UTAS['education'], prefix = 'education')], axis = 1)
+        return df
 
-    dup_visit_N = df_fin_UTAS.shape[0]
+    if 'race' in conf: df_nonan = add_cats('race', df_nonan, '1')
+    if 'smoking' in conf: df_nonan = add_cats('smoking', df_nonan, '0')
+    if 'education' in conf: df_nonan = add_cats('education', df_nonan, '5')
 
-    ## keep only first visit result if duplicate samples reported
 
-    df_fin_UTAS = df_fin_UTAS.drop_duplicates(['PIN_Patient'], keep = 'first')
+    return df_nonan
+## main analysis
+## with categories encoded
+def runcustomanalysis1():
 
-    single_visit_N = df_fin_UTAS.shape[0]
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_rows', None)
 
-    N_DAR = df_fin_UTAS[df_fin_UTAS['CohortType'] == 'DAR'].shape[0]
-    N_UNM = df_fin_UTAS[df_fin_UTAS['CohortType'] == 'UNM'].shape[0]
-    N_NEU = df_fin_UTAS[df_fin_UTAS['CohortType'] == 'NEU'].shape[0]
+    ## Model 1: Restricted to participants with no fish/seafood consumption.
 
-    ## create the model string for 
+    ## Get data with no fish
+    df_NEU = adapters.neu.get_dataframe_nofish()
+    df_UNM = adapters.unm.get_dataframe_nofish()
+    df_DAR = adapters.dar.get_dataframe_nofish()
 
-    fit_string = target_var + '~'
+    ## merge data frames
+    df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
+    df_NEUDAR = merge2CohortFrames(df_NEU,df_DAR)
+    df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
+    df_merged_3 = merge3CohortFrames(df_NEU,df_UNM,df_DAR)
 
-    cnt = 0
+    frames_for_analysis = [
+        ('NEU', df_NEU),
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('NEUUNM', df_NEUUNM),
+        ('NEUDAR', df_NEUDAR),
+        ('UNMDAR', df_UNMDAR),
+        ('UNMDARNEU', df_merged_3),
+    ]
 
-    ## filter out target, at birth, and reference dummy variables in model
-    for x in df_fin_UTAS:
-        
-        if x != 'birthWt' and x !='Outcome_weeks' and x!= 'Outcome' and x != 'PIN_Patient' and x != 'SGA' and x != 'LGA' \
-            and x!='birthLen' and x != 'CohortType' and x != 'race' and x!='race_999' and x!= 'smoking' and x != 'smoking_3' \
-            and x!= 'education_5' and x!= 'education':
-            
-            if cnt == 0:
-                fit_string += ' ' + x + ' '
-            else:
-                fit_string += ' + ' + x + ' '
-            cnt+=1         
-        
-    print('mixedML string:')
-    print(fit_string)
+    for name, df in frames_for_analysis:
+        print('Data Stats')
+        print(name)
+        print(df.shape)
 
-    ## miced linear model with group variable = CohortType
-    md = smf.mixedlm(fit_string, df_fin_UTAS, groups=df_fin_UTAS["CohortType"])
-
-    ##fit the model 
-    mdf = md.fit(maxiter=200000)
-
-    print(mdf.summary())
-
-    text_file = open(output_path + 'Output {}.txt'.format(target_var + '_' + target_analyte), "w")
+    #set analysis parameters
     
-    text_file.write('DF Size with incompletes: '  + str(incomplete_N) + '\n')
-    text_file.write('DF Size with incompletes 13 - 28: '  + str(incomplete_N2) + '\n')
-    text_file.write('DF Size with completes only: ' + str(complete_N)+ '\n')
-    text_file.write('DF Size with multi visits: '  + str(dup_visit_N)+ '\n')
-    text_file.write('Final DF Size for Dar: ' + str(N_DAR)+ '\n')
-    text_file.write('Final DF Size for UNM: ' + str(N_UNM)+ '\n')
-    text_file.write('Final DF Size for NEU: ' + str(N_NEU)+ '\n')
-    text_file.write('Final DF Size: ' + str(single_visit_N)+ '\n')
-  
+    x_feature = 'UTAS'
+    covars = 'babySex|BMI|parity|smoking|education'
+    all_vars = covars.split('|') + [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc', 'birthLen']
+    Y_features_binary    = ['LGA','SGA','Outcome']
+    
+    # set output paths for results:
 
-    text_file.write('=====================================================================\n')
+    output_path_model1_adj = '/usr/src/app/mediafiles/analysisresults/model1adj/'
+    output_path_model1_noadj = '/usr/src/app/mediafiles/analysisresults/model1noadj/'
 
-    text_file.write(str(mdf.summary()))
-    text_file.close()
+    try:
+        os.mkdir(output_path_model1_adj)
+        os.mkdir(output_path_model1_noadj)
+    except:
+        print('Exists')
 
-    return 1
+    # start analysis
+
+    for name, frame in frames_for_analysis:
+
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model1_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model1_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+    
+    #without adjustment
+    
+    for name, frame in frames_for_analysis:
+
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model1_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
 
-def runcustomanalysis():
+            try:
 
-    ## Get data
-    df1 = adapters.neu.get_dataframe()
-    df2 = adapters.unm.get_dataframe()
-    df3 = adapters.dar.get_dataframe()
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
+    
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
 
-    ## should be presennt in both DAR and UNM
-    for as_feature in ['UASB', 'UDMA', 'UAS5', 'UIAS', 'UAS3', 'UMMA']:
-        if as_feature not in df1.columns:
-            df1[as_feature] = np.nan
-        if as_feature not in df2.columns:
-            df2[as_feature] = np.nan
-        if as_feature not in df3.columns:
-            df3[as_feature] = np.nan
+            text_file.close()
 
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model1_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
-    df_merged2 = merge2CohortFrames(df2,df3)
-    ## merge the frames
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
 
-    df_merged = merge3CohortFrames(df1,df2,df3)
-
-    ## distiinguish features between covariates and analytes
-
-    covariates = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome', 'Outcome_weeks',
-                'age', 'ethnicity', 'race', 'BMI', 'smoking', 'parity',
-                'preg_complications', 'folic_acid_supp', 'education',
-                'fish',
-                'babySex',
-                'birthWt',
-                'birthLen']
-
-    analytes = ['UBA', 'UBE', 'UCD', 'UCO', 'UCR', 'UCS', 'UCU', 'UHG',
-                'UMN', 'UMO', 'UNI', 'UPB', 'UPT', 'USB', 'USE', 'USN', 'UTAS', 'UTL',
-                'UTU', 'UUR', 'UVA', 'UZN']
-
-    analytes2 = ['UBA', 'USN', 'UPB', 'UBE', 'UUR', 'UTL', 'UHG', 'UMO',  'UMN', 'UCO']
-
-    analytes_arsenic_neu = ['UTAS','UIAS','UASB', 'UAS3', 'UAS5', 'UDMA','UMMA'] 
-
-    continuous = ['Outcome_weeks','age','BMI','fish','birthWt','birthLen','WeightCentile'] + analytes_arsenic_neu
-
-    categorical = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp',
-                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education']
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
 
 
-    ## Number of Participants
+    #Model 2: Restricted to participants with arsenic speciation data.
+    
+    ## Get data with fish
+    df_UNM = adapters.unm.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe_pred()
 
-    output_path = 'mediafiles/analysisresults/'
+    ## merge data frames
+    df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
+
+    frames_for_analysis = [
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('UNMDAR', df_UNMDAR)
+    ]
+
+    for name, df in frames_for_analysis:
+        print('Data Stats')
+        print(name)
+        print(df.shape)
+
+    x_feature = 'UTAS'
+    covars = 'babySex|BMI|parity|smoking|education'
+    all_vars = covars.split('|') + [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc', 'birthLen']
+    Y_features_binary    = ['LGA','SGA','Outcome']
+    
+    output_path_model2_adj = '/usr/src/app/mediafiles/analysisresults/model2adj/'
+    output_path_model2_noadj = '/usr/src/app/mediafiles/analysisresults/model2noadj/'
+
     #output_path = '../mediafiles/analysisresults/'
 
-    print('Files written to: ' + output_path)
+    try:
+        os.mkdir(output_path_model2_adj)
+        os.mkdir(output_path_model2_noadj)
+    except:
+        print('Exists')
 
-    df_merged.groupby(['CohortType'])['PIN_Patient'].nunique()\
-            .to_csv(output_path + 'number_unique_participats.csv', index = True)
+    for name, frame in frames_for_analysis:
 
-    ## Number of Records
+       
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
 
-    df_merged.groupby(['CohortType'])['PIN_Patient'].count()\
-            .to_csv(output_path + 'number_unique_records.csv', index = True)
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model2_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+
+            try:
+
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
     
-    ## Number of participants per visit
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
 
-    par_per_vis = df_merged.groupby(['CohortType','TimePeriod'])['PIN_Patient'].nunique().reset_index()
-    par_per_vis.to_csv(output_path +'number_unique_participats_per_visit.csv', index = True)
+            text_file.close()
 
-    #################################################################################################################################### 
-    #cohortdescriptiveOverall(df_merged[['CohortType'] + continuous]).reset_index()\
-    #    .to_csv(output_path + 'continous_descriptive_by_outcome.csv')
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model2_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
-    ## Continous descriptions
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
 
-    cohortdescriptive(df_merged[['CohortType','PIN_Patient','TimePeriod'] + continuous]).reset_index().round(4)\
-        .to_csv(output_path + 'continous_merged_descriptive_all.csv')
-
-
-    cohortdescriptive_all(df_merged[['CohortType','PIN_Patient','TimePeriod'] + continuous]).reset_index().round(4)\
-        .to_csv(output_path + 'continous_merged_descriptive.csv', index = False)
-    ####################################################################################################################################
-
-    ## Describe by outcome
-
-    cohortDescriptiveByOutcome(df_merged[continuous + ['Outcome']]).reset_index().round(4)\
-        .to_csv(output_path + 'continous_merged_descriptive_by_outcome.csv')
-
-    ####################################################################################################################################
-
-    ## Decribe categorical variables and percentages
-
-    ## For individual
-
-    df0_cat = categoricalCounts(df_merged,categorical + ['PIN_Patient'], 0).reset_index()
-
-    df0_cat.to_csv(output_path + 'individual_categorical_counts_and_percentage.csv', index = False)
-
-
-    ## For merged
-
-    df1_cat = categoricalCounts(df_merged,categorical + ['PIN_Patient'], 1).reset_index()
-
-    df1_tos = categoricalCounts(df_merged,categorical + ['PIN_Patient'], 1).groupby(['variable']).sum().reset_index()
-
-    df22 = df1_cat.merge(df1_tos, on = 'variable')
-
-    df22['percent'] = df22['value_x'] / df22['value_y']
-    df22.round(4)\
-        .to_csv(output_path + 'merged_categorical_counts_and_percentage.csv', index = False)
-
-    to_corr_cols = continuous
-
-    ##correlatiom heatmap overall
-
-    corr1 = getCorrelationHeatmap(df_merged, continuous)
-
-    df_merged[df_merged['TimePeriod'] == 1]
-
-    plt.savefig(output_path + '_combiend_correlations.png')
-
-    ##correlatiom heatmap per visit
-
-    for cohort in df_merged['CohortType'].unique():
-        df_cohort = df_merged[df_merged['CohortType'] == cohort]
-
-        for period in df_cohort['TimePeriod'].unique():
-
-            df_indv = df_cohort[df_cohort['CohortType']== cohort]
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
             
-            corr_i = getCorrelationHeatmap(df_indv, continuous)
-
-            plt.savefig(output_path + cohort + str(period) + '_indiv_correlations.png')
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
     
-    ## spearman correlations written to file
-
-    x_cols1 =  ['age',
-                'BMI', 'parity',
-                'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen'] + analytes_arsenic_neu
+    #without adjustment
     
-    y_cols = ['Outcome_weeks','birthWt','birthLen','fish']
+    for name, frame in frames_for_analysis:
 
-    for cohort in df_merged['CohortType'].unique():
-        df_cohort = df_merged[df_merged['CohortType'] == cohort]
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
 
-        for period in df_cohort['TimePeriod'].unique():
-            
-            df_period = df_cohort[df_cohort['TimePeriod'] == period]
-            
-            corr_period = getCorrelation(df_period, x_cols1, y_cols,'spearman').round(4)
-            
-            corr_period['TimePeriod'] = period
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model2_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
-            corr_period['Cohort'] = cohort
-            
-            corr_period.round(6).to_csv(output_path + str(cohort) + str(period)  + '_period_spearman_correlations.csv', index = False)
+
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
     
-   
-    x_cols =  ['folic_acid_supp', 'fish']
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
 
-    y_cols = analytes_arsenic_neu
+            text_file.close()
 
-    #getCorrelation(df3, x_cols, y_cols,'spearman').round(4).to_csv(output_path + 'dar_1_correlations.csv')
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model2_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
-    x_cols = ['PNFFQFR_FISH_KIDS','PNFFQSHRIMP_CKD','PNFFQDK_FISH','PNFFQOTH_FISH','mfsp_6','fish','TOTALFISH_SERV']
-    y_cols = ['UIAS', 'UASB', 'UAS3', 'UAS5','UHG','UAS']
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
 
-    #getCorrelation(df3, x_cols, y_cols,'spearman').round(4).to_csv(output_path + 'dar_fish_correlations.csv')
-
-    ###
-
-    x_cols = ['UIAS', 'UASB', 'UAS3', 'UAS5','UHG','UAS','UTAS']
-    y_cols = ['Outcome_weeks']
-
-    #getCorrelation(df3, x_cols, y_cols,'spearman').round(4).to_csv(output_path + 'dar_3_correlations.csv')
-
-    ### univariate linear regression:
-    ###
-    ###
-
-    confound = continuous + x_cols
-
-    neu = linearreg(df1, confound, ['Outcome_weeks','birthWt','fish'], 'NEU')
-
-    unm = linearreg(df2, confound, ['Outcome_weeks','birthWt','fish'], 'UNM')
-
-    dar = linearreg(df3, confound, ['Outcome_weeks','birthWt','fish'], 'DAR')
-
-    pd.concat([neu,unm,dar]).round(4).to_csv(output_path +  'uni_var_linregress_results.csv', index = False)
-
-    ### fit models:: TODO Remove variables that seem problematic...
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
 
 
+    #Model 3: Restricted to arsenic speciation data with AsB ≤1 µg/L.
 
-    _ = mixedML(df_merged, 'birthWt', 'UTAS', categorical, output_path)
-
-    _ = mixedML(df_merged, 'Outcome_weeks', 'UTAS', categorical, output_path)
-
-
-
-
-   
-
-
-
+    x_feature = 'UTAS'
+    covars = 'babySex|BMI|parity|smoking|education'
+    all_vars = covars.split('|') + [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc', 'birthLen']
+    Y_features_binary    = ['LGA','SGA','Outcome']
     
+    ## Number of Participants
+    output_path_model3_adj = '/usr/src/app/mediafiles/analysisresults/model3adj/'
+    output_path_model3_noadj = '/usr/src/app/mediafiles/analysisresults/model3noadj/'
+    #output_path = '../mediafiles/analysisresults/'
+
+    try:
+        os.mkdir(output_path_model3_adj)
+        os.mkdir(output_path_model3_noadj)
+    except:
+        print('Exists')
+
+    # remove the AsB <= 1
+    df_UNM = df_UNM[df_UNM['UASB'] <= 1]
+    df_DAR = df_DAR[df_DAR['UASB'] <= 1]
+    
+    df_UNMDAR_UASB = df_UNMDAR[df_UNMDAR['UASB'] <= 1]
+
+    frames_for_analysis3 = [
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('UNMDAR', df_UNMDAR)
+    ]
+
+    for name, frame in frames_for_analysis3:
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model3_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model3_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+    #no adj
+    for name, frame in frames_for_analysis3:
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model3_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model3_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+   #Model 4: Sensitivity analysis 
+
+    x_feature = 'UTAS'
+    covars = 'babySex|BMI|parity|smoking|education'
+    all_vars = covars.split('|') + [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc', 'birthLen']
+    Y_features_binary    = ['LGA','SGA','Outcome']
+    
+    ## Number of Participants
+    output_path_model4_adj = '/usr/src/app/mediafiles/analysisresults/model4adj/'
+    output_path_model4_noadj = '/usr/src/app/mediafiles/analysisresults/model4noadj/'
+    #output_path = '../mediafiles/analysisresults/'
+
+    try:
+        os.mkdir(output_path_model4_adj)
+        os.mkdir(output_path_model4_noadj)
+    except:
+        print('Exists')
+
+    ## Get data all
+    df_NEU = adapters.neu.get_dataframe()
+    df_UNM = adapters.unm.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe_pred()
+
+    ## merge data frames
+    df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
+    df_NEUDAR = merge2CohortFrames(df_NEU,df_DAR)
+    df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
+    df_merged_3 = merge3CohortFrames(df_NEU,df_UNM,df_DAR)
+
+    frames_for_analysis4 = [
+        ('NEU', df_NEU),
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('NEUUNM', df_NEUUNM),
+        ('NEUDAR', df_NEUDAR),
+        ('UNMDAR', df_UNMDAR),
+        ('UNMDARNEU', df_merged_3),
+    ]
+
+    for name, frame in frames_for_analysis4:
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model4_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model4_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+    #no adj
+    for name, frame in frames_for_analysis3:
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model4_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model4_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+# run crude models mo confounders
+def runcustomanalysis2():
+
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_rows', None)
+
+    ## Model 1: Restricted to participants with no fish/seafood consumption.
+
+    ## Get data with no fish
+    df_NEU = adapters.neu.get_dataframe_nofish()
+    df_UNM = adapters.unm.get_dataframe_nofish()
+    df_DAR = adapters.dar.get_dataframe_nofish()
+
+    ## merge data frames
+    df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
+    df_NEUDAR = merge2CohortFrames(df_NEU,df_DAR)
+    df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
+    df_merged_3 = merge3CohortFrames(df_NEU,df_UNM,df_DAR)
+
+    frames_for_analysis = [
+        ('NEU', df_NEU),
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('NEUUNM', df_NEUUNM),
+        ('NEUDAR', df_NEUDAR),
+        ('UNMDAR', df_UNMDAR),
+        ('UNMDARNEU', df_merged_3),
+    ]
+
+    for name, df in frames_for_analysis:
+        print('Data Stats')
+        print(name)
+        print(df.shape)
+
+    #set analysis parameters
+    
+    x_feature = 'UTAS'
+    covars = ''
+    all_vars = [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc', 'birthLen']
+    Y_features_binary    = ['LGA','SGA','Outcome']
+    
+    # set output paths for results:
+
+    output_path_model1_adj = '/usr/src/app/mediafiles/analysisresults/crudemodel1adj/'
+    output_path_model1_noadj = '/usr/src/app/mediafiles/analysisresults/crudemodel1noadj/'
+
+    try:
+        os.mkdir(output_path_model1_adj)
+        os.mkdir(output_path_model1_noadj)
+    except:
+        print('Exists')
+
+    # start analysis
+
+    for name, frame in frames_for_analysis:
+
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model1_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model1_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+    
+    #without adjustment
+    
+    for name, frame in frames_for_analysis:
+
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model1_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
 
 
+            try:
+
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
+    
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model1_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+
+    #Model 2: Restricted to participants with arsenic speciation data.
+    
+    ## Get data with fish
+    df_UNM = adapters.unm.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe_pred()
+
+    ## merge data frames
+    df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
+
+    frames_for_analysis = [
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('UNMDAR', df_UNMDAR)
+    ]
+
+    for name, df in frames_for_analysis:
+        print('Data Stats')
+        print(name)
+        print(df.shape)
+
+    x_feature = 'UTAS'
+    covars = ''
+    all_vars = [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc', 'birthLen']
+    Y_features_binary    = ['LGA','SGA','Outcome']
+    
+    output_path_model2_adj = '/usr/src/app/mediafiles/analysisresults/crudemodel2adj/'
+    output_path_model2_noadj = '/usr/src/app/mediafiles/analysisresults/crudemodel2noadj/'
+
+    #output_path = '../mediafiles/analysisresults/'
+
+    try:
+        os.mkdir(output_path_model2_adj)
+        os.mkdir(output_path_model2_noadj)
+    except:
+        print('Exists')
+
+    for name, frame in frames_for_analysis:
+
+       
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model2_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+
+            try:
+
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+    
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model2_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+    
+    #without adjustment
+    
+    for name, frame in frames_for_analysis:
+
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model2_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+
+            try:
+
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
+    
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model2_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+
+    #Model 3: Restricted to arsenic speciation data with AsB ≤1 µg/L.
+
+    x_feature = 'UTAS'
+    covars = ''
+    all_vars = [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc', 'birthLen']
+    Y_features_binary    = ['LGA','SGA','Outcome']
+    
+    ## Number of Participants
+    output_path_model3_adj = '/usr/src/app/mediafiles/analysisresults/crudemodel3adj/'
+    output_path_model3_noadj = '/usr/src/app/mediafiles/analysisresults/crudemodel3noadj/'
+    #output_path = '../mediafiles/analysisresults/'
+
+    try:
+        os.mkdir(output_path_model3_adj)
+        os.mkdir(output_path_model3_noadj)
+    except:
+        print('Exists')
+
+    # remove the AsB <= 1
+    df_UNM = df_UNM[df_UNM['UASB'] <= 1]
+    df_DAR = df_DAR[df_DAR['UASB'] <= 1]
+    
+    df_UNMDAR_UASB = df_UNMDAR[df_UNMDAR['UASB'] <= 1]
+
+    frames_for_analysis3 = [
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('UNMDAR', df_UNMDAR)
+    ]
+
+    for name, frame in frames_for_analysis3:
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model3_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model3_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+    #no adj
+    for name, frame in frames_for_analysis3:
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model3_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model3_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+   #Model 4: Sensitivity analysis 
+
+    x_feature = 'UTAS'
+    covars = ''
+    all_vars = [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc', 'birthLen']
+    Y_features_binary    = ['LGA','SGA','Outcome']
+    
+    ## Number of Participants
+    output_path_model4_adj = '/usr/src/app/mediafiles/analysisresults/crudemodel4adj/'
+    output_path_model4_noadj = '/usr/src/app/mediafiles/analysisresults/crudemodel4noadj/'
+    #output_path = '../mediafiles/analysisresults/'
+
+    try:
+        os.mkdir(output_path_model4_adj)
+        os.mkdir(output_path_model4_noadj)
+    except:
+        print('Exists')
+
+    ## Get data with no fish
+    df_NEU = adapters.neu.get_dataframe()
+    df_UNM = adapters.unm.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe_pred()
+
+    ## merge data frames
+    df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
+    df_NEUDAR = merge2CohortFrames(df_NEU,df_DAR)
+    df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
+    df_merged_3 = merge3CohortFrames(df_NEU,df_UNM,df_DAR)
+
+    frames_for_analysis4 = [
+        ('NEU', df_NEU),
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('NEUUNM', df_NEUUNM),
+        ('NEUDAR', df_NEUDAR),
+        ('UNMDAR', df_UNMDAR),
+        ('UNMDARNEU', df_merged_3),
+    ]
+
+    for name, frame in frames_for_analysis4:
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model4_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model4_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv', True)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+    #no adj
+    for name, frame in frames_for_analysis3:
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model4_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model4_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv', True)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+def runcustomanalysis3():
+
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_rows', None)
+
+    ## Model 1: Restricted to participants with no fish/seafood consumption.
+
+    ## Get data with no fish
+    df_NEU = adapters.neu.get_dataframe_nofish()
+    df_UNM = adapters.unm.get_dataframe_nofish()
+    df_DAR = adapters.dar.get_dataframe_nofish()
+
+    ## merge data frames
+    df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
+    df_NEUDAR = merge2CohortFrames(df_NEU,df_DAR)
+    df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
+    df_merged_3 = merge3CohortFrames(df_NEU,df_UNM,df_DAR)
+
+    frames_for_analysis = [
+        ('NEU', df_NEU),
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('NEUUNM', df_NEUUNM),
+        ('NEUDAR', df_NEUDAR),
+        ('UNMDAR', df_UNMDAR),
+        ('UNMDARNEU', df_merged_3),
+    ]
+
+    for name, df in frames_for_analysis:
+        print('Data Stats')
+        print(name)
+        print(df.shape)
+
+    #set analysis parameters
+    
+    x_feature = 'UTAS'
+    covars = 'babySex|BMI|parity|smoking|education'
+    all_vars = covars.split('|') + [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc', 'birthLen']
+    Y_features_binary    = ['LGA','SGA','Outcome']
+    
+    # set output paths for results:
+
+    output_path_model1_adj = '/usr/src/app/mediafiles/analysisresults/model1adjnoenc/'
+    output_path_model1_noadj = '/usr/src/app/mediafiles/analysisresults/model1noadjnoenc/'
+
+    try:
+        os.mkdir(output_path_model1_adj)
+        os.mkdir(output_path_model1_noadj)
+    except:
+        print('Exists')
+
+    # start analysis
+
+    for name, frame in frames_for_analysis:
+
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model1_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv', False)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model1_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv', False)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+    
+    #without adjustment
+    
+    for name, frame in frames_for_analysis:
+
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model1_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+
+            try:
+
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv', False)
+                dims = frame.shape
+    
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model1_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv', False)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+
+    #Model 2: Restricted to participants with arsenic speciation data.
+    
+    ## Get data with fish
+    df_UNM = adapters.unm.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe_pred()
+
+    ## merge data frames
+    df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
+
+    frames_for_analysis = [
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('UNMDAR', df_UNMDAR)
+    ]
+
+    for name, df in frames_for_analysis:
+        print('Data Stats')
+        print(name)
+        print(df.shape)
+
+    x_feature = 'UTAS'
+    covars = 'babySex|BMI|parity|smoking|education'
+    all_vars = covars.split('|') + [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc', 'birthLen']
+    Y_features_binary    = ['LGA','SGA','Outcome']
+    
+    output_path_model2_adj = '/usr/src/app/mediafiles/analysisresults/model2adjnoenc/'
+    output_path_model2_noadj = '/usr/src/app/mediafiles/analysisresults/model2noadjnoenc/'
+
+    #output_path = '../mediafiles/analysisresults/'
+
+    try:
+        os.mkdir(output_path_model2_adj)
+        os.mkdir(output_path_model2_noadj)
+    except:
+        print('Exists')
+
+    for name, frame in frames_for_analysis:
+
+       
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model2_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+
+            try:
+
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv', False)
+                dims = frame.shape
+    
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model2_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv', False)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+    
+    #without adjustment
+    
+    for name, frame in frames_for_analysis:
+
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model2_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+
+            try:
+
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv', False)
+                dims = frame.shape
+    
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model2_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv', False)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+
+    #Model 3: Restricted to arsenic speciation data with AsB ≤1 µg/L.
+
+    x_feature = 'UTAS'
+    covars = 'babySex|BMI|parity|smoking|education'
+    all_vars = covars.split('|') + [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc', 'birthLen']
+    Y_features_binary    = ['LGA','SGA','Outcome']
+    
+    ## Number of Participants
+    output_path_model3_adj = '/usr/src/app/mediafiles/analysisresults/model3adjnoenc/'
+    output_path_model3_noadj = '/usr/src/app/mediafiles/analysisresults/model3noadjnoenc/'
+    #output_path = '../mediafiles/analysisresults/'
+
+    try:
+        os.mkdir(output_path_model3_adj)
+        os.mkdir(output_path_model3_noadj)
+    except:
+        print('Exists')
+
+    # remove the AsB <= 1
+    df_UNM = df_UNM[df_UNM['UASB'] <= 1]
+    df_DAR = df_DAR[df_DAR['UASB'] <= 1]
+    
+    df_UNMDAR_UASB = df_UNMDAR[df_UNMDAR['UASB'] <= 1]
+
+    frames_for_analysis3 = [
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('UNMDAR', df_UNMDAR)
+    ]
+
+    for name, frame in frames_for_analysis3:
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model3_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv', False)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model3_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv', False)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+    #no adj
+    for name, frame in frames_for_analysis3:
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model3_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv', False)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model3_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv', False)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+   #Model 4: Sensitivity analysis 
+
+    x_feature = 'UTAS'
+    covars = 'babySex|BMI|parity|smoking|education'
+    all_vars = covars.split('|') + [x_feature] 
+    Y_features_continous = ['Outcome_weeks','birthWt', 'headCirc', 'birthLen']
+    Y_features_binary    = ['LGA','SGA','Outcome']
+    
+    ## Number of Participants
+    output_path_model4_adj = '/usr/src/app/mediafiles/analysisresults/model4adjnoenc/'
+    output_path_model4_noadj = '/usr/src/app/mediafiles/analysisresults/model4noadjnoenc/'
+    #output_path = '../mediafiles/analysisresults/'
+
+    try:
+        os.mkdir(output_path_model4_adj)
+        os.mkdir(output_path_model4_noadj)
+    except:
+        print('Exists')
+
+    ## Get data with fish
+    df_NEU = adapters.neu.get_dataframe()
+    df_UNM = adapters.unm.get_dataframe()
+    df_DAR = adapters.dar.get_dataframe_pred()
+
+    ## merge data frames
+    df_NEUUNM = merge2CohortFrames(df_NEU,df_UNM)
+    df_NEUDAR = merge2CohortFrames(df_NEU,df_DAR)
+    df_UNMDAR = merge2CohortFrames(df_UNM,df_DAR)
+    df_merged_3 = merge3CohortFrames(df_NEU,df_UNM,df_DAR)
+
+    frames_for_analysis4 = [
+        ('NEU', df_NEU),
+        ('UNM', df_UNM),
+        ('DAR', df_DAR),
+        ('NEUUNM', df_NEUUNM),
+        ('NEUDAR', df_NEUDAR),
+        ('UNMDAR', df_UNMDAR),
+        ('UNMDARNEU', df_merged_3),
+    ]
+
+    for name, frame in frames_for_analysis4:
+        
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+        print('Min: {} Max: {}'.format(frame['UTAS'].min(), frame['UTAS'].max()))
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model4_adj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'True', 'csv', False)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model4_adj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'True', 'csv', False)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()
+
+    #no adj
+    for name, frame in frames_for_analysis3:
+        
+        frame = frame[(frame['UTAS'] > 0) & (~frame['UTAS'].isna())]
+
+        for y_feature in Y_features_continous:
+            text_file = open(output_path_model4_noadj + "linear_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+            try:
+                out = crude_reg(frame, x_feature, y_feature, covars, 'False', 'csv', False)
+                dims = frame.shape
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+                text_file.close()
+            except Exception as e:
+                text_file.write('Linear Regression Error:*\n')
+                text_file.write(str(e))
+
+            text_file.close()
+
+        for y_feature in Y_features_binary:
+            text_file = open(output_path_model4_noadj + "logistic_reg_{}_{}_log({}).txt".format(name, y_feature, x_feature), "w")
+
+            try:
+                out = crude_logreg(frame, x_feature, y_feature, covars, 'False', 'csv', False)
+                dims = frame.shape
+
+                
+                text_file.write(str(frame[all_vars + [y_feature]].describe()))
+                text_file.write('\n')
+                text_file.write("Number of participants: {}\n".format(dims[0]))
+                text_file.write(str(out))
+            
+            except Exception as e:
+                print('Logistic Regression Error:**')
+                print(e)
+                text_file.write('Logistic Regression Error:*\n')
+                text_file.write(str(e))
+            text_file.close()

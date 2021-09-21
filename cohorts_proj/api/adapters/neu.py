@@ -1,6 +1,11 @@
 import pandas as pd
 import numpy as np
 from datasets.models import RawNEU
+from api.dilutionproc import predict_dilution
+from api.analysis import add_confound
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+import statsmodels
 
 
 def get_dataframe():
@@ -19,14 +24,13 @@ def get_dataframe():
         values()
     )
 
-    print('************************')
 
-    print(df.shape)
-
+    ## birth weight and length
+  
     df['birthWt'] = df['birthWt'] * 1000
     df['birthLen'] = df['birthLen'] * 2.54
 
-    ## education connversionn
+    ## education connversion
 
     df['ed'] = df['ed'].astype(float)
 
@@ -39,40 +43,43 @@ def get_dataframe():
     ]
     choices = [1,2,3,4,5]
 
-
     df['education'] = np.select(conditions, choices, default=-9)
-
-
+    ## birth year
+    df['PPDATEDEL'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce')
+    df['birth_year'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce').dt.year
+    
     ## new covariates
 
-    #df.rename(columns = {'pregnum':'parity'}, inplace = True)
+    ## df.rename(columns = {'pregnum':'parity'}, inplace = True)
     #new covars
+
+
 
     covars = ['Outcome_weeks', 'age', 'ethnicity', 'race', 
     'BMI', 'smoking', 'parity', 'preg_complications',
-    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen',
-    'WeightCentile','LGA','SGA','ga_collection','education']
+    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen', 'headCirc',
+    'WeightCentile','LGA','SGA','ga_collection','education', 'birth_year', 
+    'SPECIFICGRAVITY_V2', 'fish_pu_v2']
 
     #calculate extra variables
     #parity
     df['parity'] = df['pregnum']
     #ga at collection
 
-   
-    print(df.columns) 
-
     # Pivoting the table and reseting index
     numerical_values = 'Result'
+
     columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome'] + covars
     categorical_to_columns = ['Analyte']
     indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
+
     df = pd.pivot_table(df, values=numerical_values,
                         index=columns_to_indexes,
                         columns=categorical_to_columns,
                         aggfunc=np.average)
-    print(df.columns)                   
+                        
     df = df.reset_index(level=indexes_to_columns)
-
+   
     # TODO - Should we drop NaN here?
 
     # After pivot
@@ -84,13 +91,32 @@ def get_dataframe():
     # A0001M               3        1  1.365789  ...  0.143302  1.692582  0.020716
     # A0002M               1        1  1.547669  ...  0.387643  0.988567  1.081877
 
-    
-
     df['CohortType'] = 'NEU'
     df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
+    ## as discussed, visit 2 only
+    df = df[df['TimePeriod'] == 2]
+    ## as discussed, no fish in past 48hrs for v2
+    #df = df[df['fish_pu_v2'] == 0]
+    ## predict dilution for visit 2
+    dilution = predict_dilution(df, 'NEU')
+    print(dilution.info())
+    print(dilution.describe().transpose())
+    dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(int).astype(str)
+    df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
+    print(df_new[['original','prediction']].describe().transpose())
+    # remove any sg missing 
+    df_new = df_new[~df_new['SPECIFICGRAVITY_V2_x'].isna()]
+    return df_new
 
-    return df
+def get_dataframe_nofish():
+    """Returns a pandas DataFrame with fish removed for cohort"""
 
+    df = get_dataframe()
 
+    neu_logic = (df['fish_pu_v2'] == 0) & (df['fish'] == 0)
+
+    df_nofish = df[neu_logic]
+
+    return df_nofish
 
 

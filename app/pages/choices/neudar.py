@@ -22,7 +22,18 @@ ADDITIONAL_FEATURES = [('Categorical', (
     ('Member_c', 'Family Member'),
     # ('TimePeriod', 'Collection Time'),
     ('CohortType', 'Cohort Type'),
-))]
+)), 
+('Outcomes', (
+   ('SGA',  'SGA'),
+    ('LGA',  'LGA'),
+    ('birthWt',  'Birth Weight'),
+    ('headCirc', 'headCirc'),
+    ('birthLen','birthLen'),
+    ('Outcome_weeks',  'Outcome Weeks'),
+    ('Outcome',  'Outcome'),
+
+)
+)]
 
 NEUDAR_FEATURE_CHOICES = CAT_NEUDAR_ANALYTES + ADDITIONAL_FEATURES
 NEUDAR_CATEGORICAL_CHOICES = ADDITIONAL_FEATURES

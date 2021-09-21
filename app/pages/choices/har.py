@@ -30,9 +30,13 @@ ADDITIONAL_FEATURES = [('Categorical', (
     ('CohortType', 'Cohort Type'),
 )), 
 ('Outcomes', (
-    ('birthWt',  'Birth Weight'),
-    ('Outcome_weeks',  'Outcome Weeks'),
-    ('fish','Total Fish Consum.')
+    ('SGA',  'SGA (Binary)'),
+    ('LGA',  'LGA (Binary)'),
+    ('birthWt',  'Birth Weight (continous)'),
+    ('headCirc', 'Head Circumference (continous)'),
+    ('birthLen', 'Birth Length (continous)'),
+    ('Outcome_weeks',  'Outcome Weeks (continous)'),
+    ('Outcome',  'Outcome (binary)'),
 
 )
 )]

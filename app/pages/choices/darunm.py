@@ -22,7 +22,18 @@ ADDITIONAL_FEATURES = [('Categorical', (
     ('Member_c', 'Family Member'),
     ('TimePeriod', 'Collection Time'),
     ('CohortType', 'Cohort Type'),
-))]
+)), 
+('Outcomes', (
+   ('SGA',  'SGA'),
+    ('LGA',  'LGA'),
+    ('birthWt',  'Birth Weight'),
+    ('headCirc', 'headCirc'),
+    ('birthLen','birthLen'),
+    ('Outcome_weeks',  'Outcome Weeks'),
+    ('Outcome',  'Outcome'),
+
+)
+)]
 
 DARUNM_FEATURE_CHOICES = CAT_DARUNM_ANALYTES + ADDITIONAL_FEATURES
 DARUNM_CATEGORICAL_CHOICES = ADDITIONAL_FEATURES

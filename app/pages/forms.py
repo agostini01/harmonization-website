@@ -20,12 +20,9 @@ PLOT_TYPES = [
         ("pair_plot", "pair_plot"),
         ("corr_plot", "corr_plot"),
         ("clustermap","clustermap"),
-        ("analysis", "analysis"),
         ("arsenic_facet_continous", "arsenic_facet_continous"),
-
         ("covars_facet_continous", "covars_facet_continous"),
-        ("covars_facet_categorical", "covars_facet_categorical"),
-         ("custom_facet_LM_plot", "custom_facet_LM_plot"),
+        ("covars_facet_categorical", "covars_facet_categorical")
     ),
     ),
     ('Categorical plots', (
@@ -33,9 +30,14 @@ PLOT_TYPES = [
         ("violin_cat_plot", "violin_cat_plot"),
     ),
     ),
+    ('Data Summary', (
+        ("continous_summary","continous_summary"),
+        ("categorical_summary","categorical_summary"),
+    ),
+    ),
     ('1D plots', (
         ("histogram_plot", "histogram_plot"),
-         ("kde_plot", "kde_plot")
+        ("kde_plot", "kde_plot")
     ),
     ),
     ('Regressions', (
@@ -45,6 +47,12 @@ PLOT_TYPES = [
         ("linear_mixed_ml_summary", "linear_mixed_ml_summary"),
         ("binomial_mixed_ml_summary", "binomial_mixed_ml_summary"),
         ("logistic_regression", "logistic_regression"),
+        ("bayesian_mixed_ml", "bayesian_mixed_ml"),
+        ("binomial_bayesian_mixed_ml", "binomial_bayesian_mixed_ml"),
+        ("custom_analysis1", "custom_analysis1"),
+        ("custom_analysis2", "custom_analysis2"),
+        ("custom_analysis3", "custom_analysis3"),
+        ("check_dilution", "check_dilution"),
     ),
     )
 ]
@@ -64,6 +72,33 @@ DATASET_CHOICES = (
     ("har_dataset", "har_dataset"),
 )
 
+COVAR_CHOICES = (
+    (False, False),
+    (True, True)
+)
+
+DILUTION_CHOICES = (
+    (False, False),
+    (True, True)
+)
+
+
+COVAR_INDV_CHOICES = [
+    ('age', 'age'),
+    ('smoking', 'smoking'),
+    ('babySex', 'babySex'),
+    ('ga_collection', 'ga_collection'),
+    ('education', 'education'),
+    ('race', 'race'),
+    ('BMI', 'BMI'),
+    ('preg_complications', 'preg_complications'),
+    ('folic_acid_supp', 'folic_acid_supp'),
+    ('fish', 'fish'),
+    ('parity','parity'),
+]
+
+
+
 
 class FlowersForm(forms.Form):
 
@@ -77,6 +112,7 @@ class FlowersForm(forms.Form):
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New Flowers Plot'
         self.initial['dataset_type'] = 'flowers_dataset'
+        self.initial['include_covars'] = False
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
@@ -84,10 +120,17 @@ class FlowersForm(forms.Form):
     x_feature = forms.ChoiceField(choices=FLOWER_FEATURE_CHOICES)
     y_feature = forms.ChoiceField(choices=FLOWER_FEATURE_CHOICES)
     color_by = forms.ChoiceField(choices=FLOWER_FEATURE_CHOICES)
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     time_period = forms.ChoiceField(choices=(('NA', 'NA')),
                                     widget=forms.HiddenInput())
+   
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
                                      widget=forms.HiddenInput())
 
@@ -114,6 +157,7 @@ class UNMForm(forms.Form):
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New UNM Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[0][0]
+        self.initial['include_covars'] = False
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
@@ -123,6 +167,13 @@ class UNMForm(forms.Form):
     color_by = forms.ChoiceField(choices=UNM_CATEGORICAL_CHOICES)
     time_period = forms.ChoiceField(choices=CAT_UNM_TIME_PERIOD,
                                     label='Time Period Filter')
+ 
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -151,6 +202,7 @@ class NEUForm(forms.Form):
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New NEU Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[1][0]
+        self.initial['include_covars'] = False
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
@@ -160,6 +212,13 @@ class NEUForm(forms.Form):
     color_by = forms.ChoiceField(choices=NEU_CATEGORICAL_CHOICES)
     time_period = forms.ChoiceField(choices=CAT_NEU_TIME_PERIOD,
                                     label='Time Period Filter')
+
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -188,15 +247,23 @@ class DARForm(forms.Form):
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New Dartmouth Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[2][0]
+        self.initial['include_covars'] = False
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
-    plot_type = forms.ChoiceField(choices=PLOT_TYPES)
+    plot_type = forms.ChoiceField(choices=PLOT_TYPES, label = 'Plot type / analysis')
     x_feature = forms.ChoiceField(choices=DAR_FEATURE_CHOICES)
     y_feature = forms.ChoiceField(choices=DAR_FEATURE_CHOICES)
     color_by = forms.ChoiceField(choices=DAR_CATEGORICAL_CHOICES)
     time_period = forms.ChoiceField(choices=CAT_DAR_TIME_PERIOD,
                                     label='Time Period Filter')
+  
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -216,15 +283,23 @@ class UNMNEUForm(forms.Form):
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New UNM and NEU Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[3][0]
+        self.initial['include_covars'] = False
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
-    plot_type = forms.ChoiceField(choices=PLOT_TYPES)
+    plot_type = forms.ChoiceField(choices=PLOT_TYPES, label = 'Plot type / analysis')
     x_feature = forms.ChoiceField(choices=UNMNEU_FEATURE_CHOICES)
     y_feature = forms.ChoiceField(choices=UNMNEU_FEATURE_CHOICES)
     color_by = forms.ChoiceField(choices=UNMNEU_CATEGORICAL_CHOICES)
     time_period = forms.ChoiceField(choices=CAT_UNMNEU_TIME_PERIOD,
                                     label='Time Period Filter')
+  
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -244,15 +319,23 @@ class NEUDARForm(forms.Form):
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New NEU and DAR Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[4][0]
+        self.initial['include_covars'] = False
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
-    plot_type = forms.ChoiceField(choices=PLOT_TYPES)
+    plot_type = forms.ChoiceField(choices=PLOT_TYPES, label = 'Plot type / analysis')
     x_feature = forms.ChoiceField(choices=NEUDAR_FEATURE_CHOICES)
     y_feature = forms.ChoiceField(choices=NEUDAR_FEATURE_CHOICES)
     color_by = forms.ChoiceField(choices=NEUDAR_CATEGORICAL_CHOICES)
     time_period = forms.ChoiceField(choices=CAT_NEUDAR_TIME_PERIOD,
                                     label='Time Period Filter')
+
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -272,15 +355,22 @@ class DARUNMForm(forms.Form):
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New DAR and UNM Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[5][0]
+        self.initial['include_covars'] = False
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
-    plot_type = forms.ChoiceField(choices=PLOT_TYPES)
+    plot_type = forms.ChoiceField(choices=PLOT_TYPES, label = 'Plot type / analysis')
     x_feature = forms.ChoiceField(choices=DARUNM_FEATURE_CHOICES)
     y_feature = forms.ChoiceField(choices=DARUNM_FEATURE_CHOICES)
     color_by = forms.ChoiceField(choices=DARUNM_CATEGORICAL_CHOICES)
     time_period = forms.ChoiceField(choices=CAT_DARUNM_TIME_PERIOD,
                                     label='Time Period Filter')
+
+    covar_choices = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
@@ -300,18 +390,33 @@ class HARForm(forms.Form):
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New Harmonized Plot'
         self.initial['dataset_type'] = DATASET_CHOICES[6][0]
+        self.initial['adjust_dilution'] = False
+
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")
-    plot_type = forms.ChoiceField(choices=PLOT_TYPES)
+    plot_type = forms.ChoiceField(choices=PLOT_TYPES, label = 'Plot type / analysis')
     x_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
     y_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
     color_by = forms.ChoiceField(choices=HAR_CATEGORICAL_CHOICES)
+
     time_period = forms.ChoiceField(choices=CAT_HAR_TIME_PERIOD,
                                     label='Time Period Filter')
+
+
+
+    covar_choices = forms.MultipleChoiceField(
+        label='Covariate Selection',
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=COVAR_INDV_CHOICES,
+    )
+
+    adjust_dilution = forms.ChoiceField(choices=DILUTION_CHOICES)
+
     fig_dpi = forms.ChoiceField(choices=DPI_CHOICES,
                                 help_text="low_res=100dpi, high_res=300dpi.")
+
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
                                      widget=forms.HiddenInput())
-
 

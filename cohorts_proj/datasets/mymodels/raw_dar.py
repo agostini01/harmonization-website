@@ -136,6 +136,11 @@ CAT_DAR_SEX = [
     ('3', 'Ambiguos Genitalia')
 ]
 
+CAT_DAR_GDM = [
+    ('0','Normal'),
+    ('1', 'Glucose intolerance'),
+    ('2', 'GDM')]
+
 class RawDAR(models.Model):
 
     # PIN_Patient: unique identifier
@@ -186,7 +191,11 @@ class RawDAR(models.Model):
     folic_acid_supp	= models.CharField(max_length=100, choices=CAT_DAR_FOLIC, blank=True, default = '-9')
     
     babySex	= models.CharField(max_length=100, choices=CAT_DAR_SEX, blank=True, default = '-9')
+
+    birth_year = models.IntegerField(blank=True, default = -9)
     
+    birth_month = models.IntegerField(blank=True, default = -9)
+
     birthWt = models.FloatField(blank = True, default = -9.0)
     
     birthLen = models.FloatField(blank = True, default = -9.0)
@@ -242,6 +251,12 @@ class RawDAR(models.Model):
     LGA	= models.FloatField(blank = True, default = -9.0)
     
     SGA= models.FloatField(blank = True, default = -9.0)
+
+    # variables added for new outcome - gestational diabetes
+    GDMTest1Age = models.FloatField(blank = True, default = -9.0)
+    GDMTest2Age = models.FloatField(blank = True, default = -9.0)
+    GDMtest1 =  models.CharField(max_length=11, choices=CAT_DAR_GDM, blank=True, default = '-9')
+    GDMtest2 =  models.CharField(max_length=11, choices=CAT_DAR_GDM, blank=True, default = '-9')
     
     iAs = models.FloatField(blank=True, null=True, default = -9.0)
     iAs_IDL = models.FloatField(blank=True, null=True, default = -9.0)

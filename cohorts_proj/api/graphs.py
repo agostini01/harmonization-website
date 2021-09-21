@@ -24,8 +24,6 @@ def getInfoString(data, x_feature, y_feature, color_by):
 
     return info
 
-
-
 def getHistInfoString(data, feature):
     """Return high level statistics of unique samples for histogram plot."""
 
@@ -74,7 +72,7 @@ def getViolinCatInfoString(data, x_feature,y_feature, color_by):
 
 def addInfoToAxis(info, ax, id=1):
     """Add info to axis ax, at position id."""
-    sns.despine(ax=ax[id], left=True, bottom=True, trim=True)
+    sns.despine(ax=ax[id], left=False, bottom=False, trim=True)
     ax[id].set(xlabel=None)
     ax[id].set(xticklabels=[])
 
@@ -90,6 +88,21 @@ def noDataMessage():
         'Solution: Select a different query combination.'
 
     fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+
+    ax.set(xlabel=None, ylabel=None, xticklabels=[], yticklabels=[])
+    sns.despine(ax=ax, left=True, bottom=True, trim=True)
+    ax.text(0.5, .5, info, style='italic', fontsize='large',
+            bbox={'facecolor': 'azure', 'alpha': 1.0, 'pad': 10},
+            horizontalalignment='center',
+            verticalalignment='center',
+            transform=ax.transAxes)
+
+    return fig
+
+def noGraphMessage():
+    info = 'Report '
+
+    fig, ax = plt.subplots(1, 1, figsize=(3, 1))
 
     ax.set(xlabel=None, ylabel=None, xticklabels=[], yticklabels=[])
     sns.despine(ax=ax, left=True, bottom=True, trim=True)
@@ -172,7 +185,7 @@ def getMLPlot(data, x_feature, y_feature, color_by):
 
 def getbinomialMLPlot(data, x_feature, y_feature, color_by):
 
-    mixed_ml_info = analysis.crude_binomial_mixedML(data, x_feature, y_feature)
+    #mixed_ml_info = analysis.crude_binomial_mixedML(data, x_feature, y_feature)
 
     sns.set(style = 'white')
 
@@ -191,36 +204,7 @@ def getbinomialMLPlot(data, x_feature, y_feature, color_by):
 
 def getlogistcRegPlot(data, x_feature, y_feature, color_by):
 
-    mixed_ml_info = analysis.crude_logreg(data, x_feature, y_feature)
-
-    print(mixed_ml_info)
-
-    fig, ax = plt.subplots(1, 2, figsize=(5*2, 5))
-
-    sns.set()
-
-    #plt.figure(figsize = (5,5))
-
-    #fig, ax = plt.subplots(1, 2, figsize=(5*2, 5))
-
-    data['log_' + x_feature] = np.log(data[x_feature] )
-    
-    gr = sns.regplot(data=data, x='log_' + x_feature,
-                     y=y_feature, logistic = True,  ax=ax[0])
-                     
-
-    addInfoToAxis(mixed_ml_info, ax)
-
-    #ax.text(0, 0, mixed_ml_info, style='italic',
-    #            bbox={'facecolor': 'azure', 'alpha': 1.0, 'pad': 10},
-    #            horizontalalignment='left',
-     #           verticalalignment='bottom')
-    
-    sns.despine(left = False, bottom = False)
-
-    return fig
-
-def getRegPlot(data, x_feature, y_feature, color_by):
+    #fig, ax = plt.subplots(2, 1, figsize=(5*2, 5*2))
 
     sns.set()
 
@@ -230,6 +214,24 @@ def getRegPlot(data, x_feature, y_feature, color_by):
 
     data['log_' + x_feature] = np.log(data[x_feature] )
     
+    gr = sns.regplot(data=data, x='log_' + x_feature,
+                     y=y_feature, logistic = True)
+                    
+
+    return gr.figure
+
+def getRegPlot(data, x_feature, y_feature, color_by):
+
+    sns.set()
+
+    plt.figure(figsize = (5,5))
+
+    #fig, ax = plt.subplots(1, 2, figsize=(5*2, 5))
+
+    data = data[(~data[x_feature].isna()) & (~data[y_feature].isna()) ]
+
+    data['log_' + x_feature] = np.log(data[x_feature] )
+
     gr = sns.regplot(data=data, x='log_' + x_feature,
                      y=y_feature)
 
@@ -337,13 +339,13 @@ def getRegDetailedPlot(data, x_feature, y_feature, color_by):
             slope, intercept, r_value, p_value)
 
         # TODO return value is incompatible with jointplot stat_func
-        return reg_info
+        return reg_infozf
 
     def r_squared(x, y):
         return stats.pearsonr(x, y)[0] ** 2
 
     gr = sns.jointplot(data=data, x=x_feature,
-                       y=y_feature, kind="reg", stat_func=r_squared)
+                       y=y_feature, kind="reg")
 
     return gr
 

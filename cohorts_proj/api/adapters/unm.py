@@ -1,11 +1,17 @@
 import pandas as pd
 import numpy as np
 from datasets.models import RawUNM
+from api.dilutionproc import predict_dilution
+from api.analysis import add_confound
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+import statsmodels
 
 
 def get_dataframe():
     """Returns a pandas DataFrame with the correct
     format for the generic plotting functions."""
+
 
     # First is necessary to pivot the raw UNM dataset so it matches
     # the requested features.
@@ -19,15 +25,18 @@ def get_dataframe():
         values()
     )
 
-    print(df)
+    print('UNM VERY FIRST******* SIZE ')
+    print(df.shape)
 
     covars = ['Outcome_weeks', 'age', 'ethnicity',
        'race', 'education', 'BMI', 'income', 'smoking', 'parity',
-       'preg_complications', 'folic_acid_supp', 'fish', 'babySex', 'birthWt',
-       'birthLen','WeightCentile','LGA','SGA','ga_collection']
+       'preg_complications', 'folic_acid_supp', 'fish', 'babySex',
+       'birthWt', 'headCirc',
+       'birthLen','WeightCentile',
+       'LGA','SGA','ga_collection','creatininemgdl','birth_year']
 
     df['ga_collection'] = df['gestAge_collection']
-       
+
     # RAW SAMPLE
     # id PIN_Patient Member_c TimePeriod Analyte    Result  Creat_Corr_Result
     #  1      A0000M        1          1     BCD  1.877245           -99999.0
@@ -44,11 +53,14 @@ def get_dataframe():
     categorical_to_columns = ['Analyte']
     indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
 
+    print(df)
+
     df = pd.pivot_table(df, values=numerical_values,
                         index=columns_to_indexes,
-                        columns=categorical_to_columns,
-                        aggfunc=np.average)
+                        columns=categorical_to_columns)
+
     df = df.reset_index(level=indexes_to_columns)
+
     # TODO - Should we drop NaN here?
 
     # After pivot
@@ -63,4 +75,28 @@ def get_dataframe():
     df['CohortType'] = 'UNM'
     df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
 
-    return df
+
+    dilution = predict_dilution(df, 'UNM')
+    dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(str)
+    df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
+    #remove missing creat
+    df_new = df_new[~df_new['creatininemgdl_x'].isna()]
+
+    print('Original shape')
+    print(df.shape)
+    print('Dilution shape')
+    print(dilution.shape)
+    print('Check the data seize')
+    print(df_new.shape)
+
+    return df_new
+
+def get_dataframe_nofish():
+    """Returns a pandas DataFrame with fish removed for cohort"""
+
+    df = get_dataframe()
+    df['fish'] = df['fish'].astype(float)
+    neu_logic = (df['fish'] == 0)
+    df_nofish = df[neu_logic]
+
+    return df_nofish

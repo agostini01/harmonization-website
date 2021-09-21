@@ -146,6 +146,8 @@ class RawUNM(models.Model):
 
     # Creat_Corr_Result: value, corrected for creatinine (urine only), ug/L
     Creat_Corr_Result = models.FloatField()
+
+    creatininemgdl = models.FloatField()
     
     # Outcome – categorical variable: 1 = preterm birth; 0 = term
     Outcome = models.CharField(max_length=1, choices=CAT_UNM_OUTCOME, blank=True)
@@ -188,7 +190,13 @@ class RawUNM(models.Model):
     
     SGA= models.FloatField(blank = True, default = -9.0)
 
+    headCirc = models.FloatField(blank = True, default = -9.0)
+
     gestAge_collection = models.FloatField(blank = True, default = -9.0)
+
+    birth_year = models.IntegerField(blank=True, default = -9)
+    
+    birth_month = models.IntegerField(blank=True, default = -9)
 
 
 
