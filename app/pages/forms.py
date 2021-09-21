@@ -313,3 +313,5 @@ class HARForm(forms.Form):
                                 help_text="low_res=100dpi, high_res=300dpi.")
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
                                      widget=forms.HiddenInput())
+
+

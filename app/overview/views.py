@@ -2,9 +2,8 @@ from django.views.generic import TemplateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 
-from .forms import FlowersForm, UNMForm, NEUForm, DARForm, HARForm
-#from .forms import HAROverviewForm
-from .forms import UNMNEUForm, NEUDARForm, DARUNMForm
+from pages.forms import FlowersForm, UNMForm, NEUForm, DARForm, HARForm
+from pages.forms import UNMNEUForm, NEUDARForm, DARUNMForm
 from .validation import checkFormRequest, getErrorImage
 
 import requests

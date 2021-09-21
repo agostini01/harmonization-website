@@ -9,7 +9,7 @@ from .views import GraphsUNMNEUPagesView
 from .views import GraphsNEUDARPagesView
 from .views import GraphsDARUNMPagesView
 from .views import GraphsHARPagesView
-
+from .views import GraphsHAROverviewpagesView
 
 urlpatterns = [
     path('graphs/flowers/', GraphsFlowersPagesView.as_view(), name='graphs-flowers'),
@@ -20,6 +20,7 @@ urlpatterns = [
     path('graphs/neu-dar/', GraphsNEUDARPagesView.as_view(), name='graphs-neu-dar'),
     path('graphs/dar-unm/', GraphsDARUNMPagesView.as_view(), name='graphs-dar-unm'),
     path('graphs/har/', GraphsHARPagesView.as_view(), name='graphs-har'),
+    path('overview/haroverview/',GraphsHAROverviewpagesView.as_view(), name = 'graphs-haroverview' ),
     path('graphs/', GraphsHARPagesView.as_view(), name='graphs'),
     path('about/', AboutPageView.as_view(), name='about'),
     path('', HomePageView.as_view(), name='home'),
