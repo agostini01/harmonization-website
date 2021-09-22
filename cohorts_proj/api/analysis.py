@@ -16,7 +16,7 @@ import sklearn
 from datasets.models import RawFlower, RawUNM, RawDAR
 from django.contrib.auth.models import User
 
-from api.dilutionproc import predict_dilution
+#from api.dilutionproc import predict_dilution
 
 from api import adapters
 
