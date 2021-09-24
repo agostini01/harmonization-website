@@ -96,7 +96,7 @@ class HAROverviewForm(forms.Form):
     """Form to select what features from the harmonized dataset to plot"""
 
     def __init__(self, *args, **kwargs):
-        super(HARForm, self).__init__(*args, **kwargs)
+        super(HAROverviewForm, self).__init__(*args, **kwargs)
         self.initial['plot_type'] = PLOT_TYPES[0][0]
         self.initial['x_feature'] = HAR_FEATURE_CHOICES[0][1][0][0]
         self.initial['y_feature'] = HAR_FEATURE_CHOICES[0][1][1][0]
@@ -104,7 +104,7 @@ class HAROverviewForm(forms.Form):
         self.initial['time_period'] = CAT_HAR_TIME_PERIOD[0][0]
         self.initial['fig_dpi'] = DPI_CHOICES[0][0]
         self.initial['plot_name'] = 'New Harmonized Plot'
-        self.initial['dataset_type'] = DATASET_CHOICES[6][0]
+        self.initial['dataset_type'] = 'haroverview'
 
     plot_name = forms.CharField(max_length=100,
                                 help_text="Type the name of your next plot.")

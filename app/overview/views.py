@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 
 from pages.forms import FlowersForm, UNMForm, NEUForm, DARForm, HARForm
 from pages.forms import UNMNEUForm, NEUDARForm, DARUNMForm
+from .forms import HAROverviewForm
 from .validation import checkFormRequest, getErrorImage
 
 import requests
@@ -20,7 +21,7 @@ class AboutPageView(LoginRequiredMixin, TemplateView):
 
 
 class GraphsPageView(LoginRequiredMixin, FormView):
-    template_name = 'graphs/graphs_base.html'
+    template_name = 'overview/overview_base.html'
     login_url = '/accounts/login/'
     redirect_field_name = 'redirect'
 
@@ -105,7 +106,7 @@ class GraphsDARUNMPagesView(GraphsPageView):
 
 
 class GraphsHARPagesView(GraphsPageView):
-    form_class = HARForm
+    form_class = HAROverviewForm
 
 class GraphsHAROverviewpagesView(GraphsPageView):
-    form_class = HARForm
+    form_class = HAROverviewForm

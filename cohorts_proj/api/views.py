@@ -427,6 +427,8 @@ class GraphRequestView(views.APIView):
         # Selects the datasets
         # It only query the database for the correct columns
         df = pd.DataFrame()
+
+        print('Dataset type::::', dataset_type)
         if dataset_type == 'flowers_dataset':
             df = pd.DataFrame.from_records(
                 RawFlower.objects.all().values(x_feature, y_feature, color_by))
@@ -469,6 +471,16 @@ class GraphRequestView(views.APIView):
             df3 = adapters.dar.get_dataframe()  # [selected_columns]
             #df = pd.concat([df1, df2, df3])
             df = analysis.merge3CohortFrames(df1, df2, df3)
+        # This is the harmonized dataset
+        if dataset_type == 'haroverview':
+            # TODO Handle early exit when selected columns are not present
+            # selected_columns = [x_feature, y_feature, color_by, 'CohortType']
+            #df1 = adapters.unm.get_dataframe()  # [selected_columns]
+            #df2 = adapters.neu.get_dataframe()  # [selected_columns]
+            #df3 = adapters.dar.get_dataframe()  # [selected_columns]
+            #df = pd.concat([df1, df2, df3])
+            #df = analysis.merge3CohortFrames(df1, df2, df3)
+            df = adapters.neu.get_dataframe()
             
         # Apply Filters
         if time_period != 9:
