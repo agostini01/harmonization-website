@@ -15,9 +15,42 @@ import arviz as az
 from datasets.models import RawFlower, RawUNM, RawDAR
 from django.contrib.auth.models import User
 
-from api import analysis
-from api.analysis import add_confound
+#from api.analysis import add_confound
 from api import adapters
+
+def add_confound(df_merged, x_feature, y_feature, conf):
+    print(df_merged.shape)
+    # check if confounders are added
+    if len(conf) > 1:
+        cols_to_mix =  [x_feature, y_feature, 'PIN_Patient', 'CohortType'] + conf
+    else:
+        cols_to_mix = [x_feature, y_feature, 'PIN_Patient', 'CohortType']
+
+    # drop any missing values as mixed model requires complete data
+    df_nonan = df_merged[cols_to_mix].dropna(axis='rows')
+    #df_nonan['smoking'] = df_nonan['smoking'].astype(int)
+    print(df_nonan.shape)
+
+    ## dummy race annd smoking varible
+    def add_cats(name, df_nonan, ref_val):
+
+        df_nonan[name] = df_nonan[name].astype('float').astype(int)
+        df = pd.concat([df_nonan, pd.get_dummies(df_nonan[name], prefix = name)], axis = 1)
+        #print(df.columns)
+
+        try:
+            df.drop([name,name + '_' + ref_val], inplace = True, axis = 1)
+        except:
+            pass
+
+        return df
+
+    if 'race' in conf: df_nonan = add_cats('race', df_nonan, '1')
+    if 'smoking' in conf: df_nonan = add_cats('smoking', df_nonan, '0')
+    if 'education' in conf: df_nonan = add_cats('education', df_nonan, '5')
+
+
+    return df_nonan
 
 #dilution prediction procedure
 
