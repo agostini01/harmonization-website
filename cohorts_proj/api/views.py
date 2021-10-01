@@ -10,7 +10,7 @@ from datasets.models import RawFlower, RawUNM, RawNEU, RawDAR
 
 from api import adapters
 from api import graphs
-from api import analysis, analysis2, checkdilution
+from api import analysis, analysis2
 import os
 
 import numpy as np

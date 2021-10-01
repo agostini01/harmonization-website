@@ -177,7 +177,6 @@ def cohortdescriptive_all(df_all):
     df_all[df_all < 0 ] = np.nan
     b = df_all.agg(['count','mean','std','min',  q1, 'median', q3, 'max']).transpose().round(4)
 
-
     return b
 
 def cohortdescriptiveOverall(data):
@@ -294,15 +293,15 @@ def categoricalCounts(df):
     
     #TODO: fix this should detect the dataset type
     try:
-        df22 = df[categorical].drop_duplicates(['PIN_Patient'])
-        categorical.remove('PIN_Patient')
+        df22 = df[categorical1].drop_duplicates(['PIN_Patient'])
+        categorical1.remove('PIN_Patient')
         df22 = df22[categorical1]
         melted = pd.melt(df22,id_vars=['CohortType'])    
         df33 = melted.groupby(['variable','value'])['value'].count()
         df33.index.names = ['variable', 'cat']
     except:
-        df22 = df[categorical].drop_duplicates(['PIN_Patient'])
-        categorical.remove('PIN_Patient')
+        df22 = df[categorical2].drop_duplicates(['PIN_Patient'])
+        categorical2.remove('PIN_Patient')
         df22 = df22[categorical2]
         melted = pd.melt(df22,id_vars=['CohortType'])
         df33 = melted.groupby(['variable','value'])['value'].count()

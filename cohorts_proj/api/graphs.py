@@ -224,7 +224,8 @@ def getRegPlot(data, x_feature, y_feature, color_by):
 
     sns.set()
 
-    plt.figure(figsize = (5,5))
+##change made here 
+    plt.figure(figsize = (6,5))
 
     #fig, ax = plt.subplots(1, 2, figsize=(5*2, 5))
 
@@ -246,6 +247,9 @@ def getRegPlot(data, x_feature, y_feature, color_by):
     slope, intercept, r_value**2, p_value, std_err)
     #plt.suptitle(''.join(reg_info), **{'x': 1.4, 'y':.98})
     gr.set_title(reg_info,**{'x': .5, 'y':.98})
+
+   
+    
 
     return gr.figure
 
