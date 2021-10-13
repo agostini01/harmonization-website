@@ -116,7 +116,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
             status=requests_response.status_code,
             content_type=requests_response.headers['Content-Type']
         )
-
+        
         print(django_response)
         return django_response
 

@@ -404,10 +404,11 @@ class GraphRequestView(views.APIView):
     """
  
     def get(self, request, *args, **kwargs):
-
+        
         req = self.getPlot(request)
         
         return req
+  
 
     @classmethod
     def getPlot(cls, request):
@@ -576,6 +577,7 @@ class GraphRequestView(views.APIView):
 
             #if (t == 'logistic_regression'):
             #    gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
+            
             
             if (t not in graph_options):
                 
@@ -746,7 +748,7 @@ class InfoRequestView(views.APIView):
     @classmethod
     def getPlot(cls, request):
         """Called during get request to generate plots."""
-        print('Request data')
+
         print(request.data)
 
         plot_type = request.data['plot_type']
@@ -763,7 +765,9 @@ class InfoRequestView(views.APIView):
         print(covar_choices)
         
         t = plot_type
-        gr = None
+        print('### Plot type ###')
+        print(plot_type)
+        gr = None   
 
         # Selects the datasets
         # It only query the database for the correct columns
@@ -778,6 +782,8 @@ class InfoRequestView(views.APIView):
 
         if dataset_type == 'neu_dataset':
             df = adapters.neu.get_dataframe()
+            print('grabbing neu dataset*****')
+            print(df.shape)
 
         if dataset_type == 'dar_dataset':
             df = adapters.dar.get_dataframe()
@@ -809,15 +815,13 @@ class InfoRequestView(views.APIView):
             df3 = adapters.dar.get_dataframe()  # [selected_columns]
             #df = pd.concat([df1, df2, df3])
             df = analysis.merge3CohortFrames(df1, df2, df3)
-            
-
-        print('((((((')   
+             
         print(time_period)
         # Apply Filters
-        if time_period != 9:
-            df = df[df['TimePeriod'] == time_period]
-        else:
-            pass
+        #if time_period != 9:
+        #    df = df[df['TimePeriod'] == time_period]
+        #else:
+       #     pass
 
         # Build response figure
         response = HttpResponse(content_type="image/jpg")
@@ -825,7 +829,7 @@ class InfoRequestView(views.APIView):
 
         # Is there data after the filters?
         if(df.shape[0] == 0):
-            print('No data to plot after the filters')
+            print('No data to plot after the filters - info')
             gr = graphs.noDataMessage()
             gr.savefig(response, format="jpg", dpi=fig_dpi)
 
@@ -933,11 +937,27 @@ class InfoRequestView(views.APIView):
             if (t == 'check_dilution'):
                 checkdilution.generatedilutionstats()
                 gr = graphs.noDataMessage()
+
+            if (t == 'overview_report'):
+                #print('check')
+                #print(df.describe().transpose().reset_index())
+
+                df1 = adapters.neu.get_dataframe()  # [selected_columns]
+                df2 = adapters.neu.get_dataframe()  # [selected_columns]
+                df3 = adapters.neu.get_dataframe()  # [selected_columns]
+
                 
+                count1 = df1.describe().transpose()
+                count2 = df2.describe().transpose()
+                count3 = df3.describe().transpose()
                 
+                df = count1.join(count2, lsuffix='_neu', rsuffix='_dar')
+                df = df.join(count3, lsuffix = '', rsuffix = '_unm')
+                df = df[['count_neu','mean_neu','count_dar','mean_dar', 'count','mean']]
+                gr = df.reset_index().to_json(orient='records')
 
         response = HttpResponse(gr)
-
+    
     
         return response
 

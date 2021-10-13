@@ -1,14 +1,7 @@
 from django.urls import path
 
-from .views import HomePageView, AboutPageView, GraphsPageView
-from .views import GraphsFlowersPagesView
-from .views import GraphsUNMPagesView
-from .views import GraphsNEUPagesView
-from .views import GraphsDARPagesView
-from .views import GraphsUNMNEUPagesView
-from .views import GraphsNEUDARPagesView
-from .views import GraphsDARUNMPagesView
-from .views import GraphsHARPagesView
+from .views import HomePageView, AboutPageView
+
 from .views import GraphsHAROverviewpagesView
 
 urlpatterns = [
@@ -19,6 +12,7 @@ urlpatterns = [
 
     # TODO - Remove once all graph logic gets ported
     #path('graphs/getplot/', GraphsPageView.getPlot),
-    path('graphs/api/getplot/', GraphsPageView.getApiPlot),
-    path('graphs/api/getinfo/', GraphsPageView.getApiInfo),
+    #path('graphs/api/getplot/', GraphsPageView.getApiPlot),
+    #path('graphs/api/getinfo/', GraphsPageView.getApiInfo),
+    #path('overview/api/getoverview/', GraphsHAROverviewpagesView.getApiInfo),
 ]
