@@ -484,10 +484,9 @@ class GraphRequestView(views.APIView):
             df = adapters.neu.get_dataframe()
             
         # Apply Filters
-        if time_period != 9:
-            df = df[df['TimePeriod'] == time_period]
-        else:
-            pass
+        #if time_period != 9:
+        ##    df = df[df['TimePeriod'] == time_period]
+        #    pass
 
         # Build response figure
         response = HttpResponse(content_type="image/jpg")
@@ -495,7 +494,7 @@ class GraphRequestView(views.APIView):
 
         graph_options = ['scatter_plot','individual_scatter_plot','corr_plot', 'clustermap','analysis', 'covars_facet_continous', \
             'arsenic_facet_continous','covars_facet_categorical', 'custom_facet_LM_plot','pair_plot','cat_plot', 'violin_cat_plot', \
-                'histogram_plot','kde_plot','linear_reg_plot','linear_reg_with_color_plot']
+                'histogram_plot','kde_plot','linear_reg_plot','linear_reg_with_color_plot', 'overview_plot']
                 
         # Is there data after the filters?
         if(df.shape[0] == 0):
@@ -521,6 +520,10 @@ class GraphRequestView(views.APIView):
             if (t == 'clustermap'):
                 gr = cls.getClusterMap(
                     df, color_by)
+
+            if (t == 'overview_plot'):
+                gr = cls.getCorrelationHeatmap(
+                    df)
 
             if (t == 'analysis'):
                 print(os.listdir())

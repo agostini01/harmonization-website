@@ -79,12 +79,56 @@ class GraphsHAROverviewpagesView(LoginRequiredMixin, TemplateView):
 
         return render(request, template_name, context)
 
-    #def get_context_data(self, **kwargs):
-    #    context = super(GraphsPageView, self).get_context_data(**kwargs)
-    #   return context
+    @classmethod
+    def getOverviewPlot(self, request):
+        """This function requets graphs through the API container."""
+        plot_type = 'overview_plot'
+        x_feature = 'USB'
+        y_feature = 'UTAS'
+        color_by = 'Outcome'
+        time_period = '93'
+        fig_dpi = '100'
+        dataset_type = 'neu_dataset'
+        covar_choices = ''
 
-    #def form_valid(self, form):
-     #   # This method is called when valid form data has been POSTed.
-     #   return super(GraphsPageView, self).form_valid(form)
-    
-    
+        url = "http://api:8887/query/get-plot/"
+                
+        files = []
+        headers = {}
+
+        payload = {'plot_type': plot_type,
+                    'x_feature': x_feature,
+                    'y_feature': y_feature,
+                    'color_by': color_by,
+                    'time_period': time_period,
+                    'fig_dpi': fig_dpi,
+                    'plot_name': 'test',
+                    'dataset_type': dataset_type
+                    }
+                    
+        files = []
+        headers = {}
+
+
+        requests_response = requests.request(
+            "GET", url, headers=headers, data=payload, files=files)
+
+        print('**********')
+        print(requests_response)
+        django_response = HttpResponse(
+            content=requests_response.content,
+            status=requests_response.status_code,
+            content_type=requests_response.headers['Content-Type']
+        )
+        
+        
+        print(django_response)
+        return django_response
+
+    def get_context_data(self, **kwargs):
+        context = super(GraphsPageView, self).get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        return super(GraphsPageView, self).form_valid(form)
