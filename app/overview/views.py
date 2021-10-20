@@ -7,6 +7,7 @@ from .validation import checkFormRequest, getErrorImage
 from django.shortcuts import render
 import json
 import requests
+import csv
 
 
 class HomePageView(TemplateView):
@@ -27,7 +28,7 @@ class GraphsHAROverviewpagesView(LoginRequiredMixin, TemplateView):
     @classmethod
     def get(self, request):
         """This function requets graphs through the API container."""
-        plot_type = 'overview_report'
+        plot_type = 'overview_report2'
         x_feature = 'USB'
         y_feature = 'UTAS'
         color_by = 'Outcome'
@@ -37,7 +38,7 @@ class GraphsHAROverviewpagesView(LoginRequiredMixin, TemplateView):
         covar_choices = ''
         adjust_dilution = 'False'
 
-        url = "http://api:8887/query/get-info/"
+        url = "http://api:8888/query/get-info/"
                 
         files = []
         headers = {}
@@ -78,6 +79,7 @@ class GraphsHAROverviewpagesView(LoginRequiredMixin, TemplateView):
         template_name="overview.html"
 
         return render(request, template_name, context)
+    
 
     @classmethod
     def getOverviewPlot(self, request):
@@ -91,7 +93,7 @@ class GraphsHAROverviewpagesView(LoginRequiredMixin, TemplateView):
         dataset_type = 'neu_dataset'
         covar_choices = ''
 
-        url = "http://api:8887/query/get-plot/"
+        url = "http://api:8/query/get-plot/"
                 
         files = []
         headers = {}
@@ -132,3 +134,73 @@ class GraphsHAROverviewpagesView(LoginRequiredMixin, TemplateView):
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         return super(GraphsPageView, self).form_valid(form)
+
+    @classmethod
+    def getOverviewDownload(self, request):
+        """This function requets graphs through the API container."""
+        plot_type = 'overview_report2'
+        x_feature = 'USB'
+        y_feature = 'UTAS'
+        color_by = 'Outcome'
+        time_period = '93'
+        fig_dpi = '100'
+        dataset_type = 'neu_dataset'
+        covar_choices = ''
+        adjust_dilution = 'False'
+
+        url = "http://api:8888/query/get-info/"
+                
+        files = []
+        headers = {}
+
+        payload = {'plot_type': plot_type,
+                    'x_feature': x_feature,
+                    'y_feature': y_feature,
+                    'color_by': color_by,
+                    'time_period': time_period,
+                    'fig_dpi': fig_dpi,
+                    'plot_name': 'test',
+                    'dataset_type': dataset_type,
+                    'covar_choices': covar_choices,
+                    'adjust_dilution': adjust_dilution
+                    }
+                    
+        files = []
+        headers = {}
+
+
+        requests_response = requests.request(
+            "GET", url, headers=headers, data=payload, files=files)
+
+        #django_response = HttpResponse(
+        #    content=requests_response.content,
+        #    status=requests_response.status_code,
+        #    content_type=requests_response.headers['Content-Type']
+       # )
+
+
+        bytes_val = requests_response.content
+        
+        # Decode UTF-8 bytes to Unicode, and convert single quotes 
+        # to double quotes to make it valid JSON
+        my_json = bytes_val.decode('utf8').replace("'", '"')
+
+        # Load the JSON to a Python list & dump it back out as formatted JSON
+        data = json.loads(my_json)
+        s = json.dumps(data, indent=4, sort_keys=True)
+
+        response = HttpResponse(
+            content_type='text/csv',
+         
+            #headers={'Content-Disposition': 'attachment; filename="somefilename.csv"'},
+        )
+
+        writer = csv.writer(response)
+        writer.writerow(['index', 'UNM', 'NEU', 'DAR', 'Total'])
+        print(type(s))
+        print(type(data))
+        for obj in data:
+            print(obj)
+            writer.writerow([obj['index'], obj['UNM'], obj['NEU'], obj['DAR'], obj['Total']])
+        
+        return response

@@ -521,9 +521,7 @@ class GraphRequestView(views.APIView):
                 gr = cls.getClusterMap(
                     df, color_by)
 
-            if (t == 'overview_plot'):
-                gr = cls.getCorrelationHeatmap(
-                    df)
+
 
             if (t == 'analysis'):
                 print(os.listdir())
@@ -580,8 +578,15 @@ class GraphRequestView(views.APIView):
 
             #if (t == 'logistic_regression'):
             #    gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
-            
-            
+            if (t == 'overview_plot'):
+                df_neu = adapters.neu.get_dataframe()  # [selected_columns]
+                df_unm = adapters.unm.get_dataframe()  # [selected_columns]
+                df_dar = adapters.dar.get_dataframe()  # [selected_columns]
+                
+                #df = analysis.getCountsReport(df1,df2,df3)
+                gr = analysis.getOverviewPlot(df_neu,df_unm,df_dar)
+
+
             if (t not in graph_options):
                 
                 gr = graphs.noGraphMessage()
@@ -912,7 +917,7 @@ class InfoRequestView(views.APIView):
                 gr = gr.as_html()
 
             if (t == 'logistic_regression'):
-                gr = analysis.crude_logreg(df, x_feature, y_feature, covar_choices, adjust_dilution, 'html')
+                gr = analysis.crude_logreg(df, x_feature, y_feature, covar_choices, adjust_dilution, 'html', False)
             
             if (t == 'categorical_summary'):
                 gr = analysis.categoricalCounts(df).to_html()
@@ -946,8 +951,8 @@ class InfoRequestView(views.APIView):
                 #print(df.describe().transpose().reset_index())
 
                 df1 = adapters.neu.get_dataframe()  # [selected_columns]
-                df2 = adapters.neu.get_dataframe()  # [selected_columns]
-                df3 = adapters.neu.get_dataframe()  # [selected_columns]
+                df2 = adapters.unm.get_dataframe()  # [selected_columns]
+                df3 = adapters.dar.get_dataframe()  # [selected_columns]
 
                 
                 count1 = df1.describe().transpose()
@@ -958,6 +963,26 @@ class InfoRequestView(views.APIView):
                 df = df.join(count3, lsuffix = '', rsuffix = '_unm')
                 df = df[['count_neu','mean_neu','count_dar','mean_dar', 'count','mean']]
                 gr = df.reset_index().to_json(orient='records')
+
+            if (t == 'overview_report2'):
+                #print('check')
+                #print(df.describe().transpose().reset_index())
+                df1 = adapters.neu.get_dataframe()  # [selected_columns]
+                df2 = adapters.unm.get_dataframe()  # [selected_columns]
+                df3 = adapters.dar.get_dataframe()  # [selected_columns]
+                
+                df = analysis.getCountsReport(df1,df2,df3)
+                gr = df.reset_index().to_json(orient='records')
+
+            if (t == 'overview_report2_download'):
+                #print('check')
+                #print(df.describe().transpose().reset_index())
+                df1 = adapters.neu.get_dataframe()  # [selected_columns]
+                df2 = adapters.unm.get_dataframe()  # [selected_columns]
+                df3 = adapters.dar.get_dataframe()  # [selected_columns]
+                
+                df = analysis.getCountsReport(df1,df2,df3)
+                gr = df.to_json(orient='records')
 
         response = HttpResponse(gr)
     

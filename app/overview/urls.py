@@ -7,6 +7,9 @@ from .views import GraphsHAROverviewpagesView
 urlpatterns = [
     path('',GraphsHAROverviewpagesView.as_view(), name = 'haroverview' ),
     path('overviewplot/',GraphsHAROverviewpagesView.getOverviewPlot, name = 'overviewplot' ),
+    path('overviewdownload/',GraphsHAROverviewpagesView.getOverviewDownload, name = 'overviewdownload' ),
+
+    
     #path('graphs/', GraphsHARPagesView.as_view(), name='graphs'),
     #path('about/', AboutPageView.as_view(), name='about'),
     path('', HomePageView.as_view(), name='home'),
