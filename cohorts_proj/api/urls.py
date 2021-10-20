@@ -9,6 +9,7 @@ urlpatterns = [
     path('dataset-upload/', DatasetUploadView.as_view(), name='dataset-upload'),
     path('get-plot/', GraphRequestView.as_view(), name='get-plot'),
     path('get-info/', InfoRequestView.as_view(), name='get-info'),
+    path('get-overview/', GraphRequestView.as_view(), name='get-info'),
 
 
 ]

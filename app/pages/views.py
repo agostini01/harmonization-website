@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 
 from .forms import FlowersForm, UNMForm, NEUForm, DARForm, HARForm
+#from .forms import HAROverviewForm
 from .forms import UNMNEUForm, NEUDARForm, DARUNMForm
 from .validation import checkFormRequest, getErrorImage
 
@@ -115,7 +116,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
             status=requests_response.status_code,
             content_type=requests_response.headers['Content-Type']
         )
-
+        
         print(django_response)
         return django_response
 
@@ -157,4 +158,7 @@ class GraphsDARUNMPagesView(GraphsPageView):
 
 
 class GraphsHARPagesView(GraphsPageView):
+    form_class = HARForm
+
+class GraphsHAROverviewpagesView(GraphsPageView):
     form_class = HARForm

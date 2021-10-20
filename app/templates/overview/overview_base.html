@@ -1,0 +1,65 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/base_graphs.css' %}">
+
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/@dmester/sffjs@1.16.1/dist/stringformat.min.js"></script>
+<script src="{% static 'js/base_graphs.js' %}"></script>
+
+<div class="row flex-xl-nowrap">
+
+  <!-- SIDEBAR -->
+  <div class="col-12 col-md-3 col-xl-2">
+    <p>Hello User,</p>
+
+    <p>Please select the type of overview that you would like to see for the page.</p>
+
+    <form action="/graphs/request_graph/" method="GET" id="get_form">
+      {% csrf_token %}
+      {{ form | crispy }}
+    </form>
+
+    <div style="text-align:center">
+      <button type="button" class="btn btn-primary btn-lg" onclick="getPlot()">Generate Graph</button>
+      <p></p>
+      <p style="font-size:x-small">*Note, graph generation may take a couple of seconds.</p>
+    </div>
+  </div>
+
+
+  <!-- MAIN CONTENT -->
+  <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
+  <!-- <div class="welcome_image">
+    <img src="{% static 'images/harmonization.jpg' %}" width=450 center>
+  </div> -->
+
+  <!-- PLOTS -->
+  <div class="graph-detail">
+    <div class="reviews-detail">
+      <h2>Overview  </h2>
+      <p>Requested graphs / reports will be displayed below.</p>
+    </div>
+    <br> 
+
+    <!-- https://realpython.com/django-and-ajax-form-submissions/ -->
+
+
+    <div id="graphs-div">
+      <!-- <img src=/getsbdata/ width="1000"> -->
+    </div>
+  </div>
+  </main>
+  
+  <!-- TODO: Reference Bar -->
+  <div class="d-none d-xl-block col-xl-2 bd-toc">
+  
+    <ul class="section-nav">
+    </ul>
+  
+  </div>
+</div>
+{% endblock content %}

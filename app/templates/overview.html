@@ -1,0 +1,47 @@
+{% extends '_base.html' %}
+  
+{% block title %}Overview Page{% endblock title %}
+
+{% block content %}
+<h1>Overview</h1>
+
+<p>This provides an overview of the current harmonization status.</p>
+<p>This heatmap shows which urniary metal analytes are available (green) / not available (red) per cohort.  </p>
+<img src='{% url "overviewplot" %}' /> 
+<br>
+<br>
+<br>
+</br>
+
+<p>This table provides an overview of all the data counts for all cohorts:  </p>
+<table style="width:100px", class="table table-dark table-striped">
+    <thead>
+    <tr>
+        <th>index</th>
+        <th>Neu</th>
+        <th>Unm</th>
+        <th>Dar</th>
+        <th>Total</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- jinja2 Technique -->
+    {% if d %}
+    {% for i in d %}
+    <tr>
+
+        <th>{{i.index}}</th>
+        <th>{{i.NEU}}</th>
+        <th>{{i.UNM}}</th>
+        <th>{{i.DAR}}</th>
+        <th>{{i.Total}}</th>
+
+    </tr>
+    {% endfor %}
+    {% endif %}
+    </tbody>
+</table>
+
+<p>Report Download</p>
+<a href="overviewdownload">Download </a>
+{% endblock content %}

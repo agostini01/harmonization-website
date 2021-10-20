@@ -16,9 +16,218 @@ import sklearn
 from datasets.models import RawFlower, RawUNM, RawDAR
 from django.contrib.auth.models import User
 
-from api.dilutionproc import predict_dilution
+#from api.dilutionproc import predict_dilution
 
 from api import adapters
+
+CAT_NEU_ANALYTES = [('Analytes', (
+    ('USB', 'Antimony - Urine'),
+    ('UTAS', 'Arsenic Total - Urine'), #modified just for poster - change back later/check if it's actually total 
+    ('UBA', 'Barium - Urine'),
+    ('UBE', 'Beryllium - Urine'),
+    ('UCD', 'Cadmium - Urine'),
+    ('UCS', 'Cesium - Urine'),
+    ('UCR', 'Chromium - Urine'),
+    ('UCO', 'Cobalt - Urine'),
+    ('UCU', 'Copper - Urine'),
+    ('UPB', 'Lead - Urine'),
+    ('UMN', 'Manganese - Urine'),
+    ('UHG', 'Mercury - Urine'),
+    ('UMO', 'Molybdenum - Urine'),
+    ('UNI', 'Nickel - Urine'),
+    ('UPT', 'Platinum - Urine'),
+    ('USE', 'Selenium - Urine'),
+    ('UTL', 'Thallium - Urine'),
+    ('USN', 'Tin - Urine'),
+    ('UTU', 'Tungsten - Urine'),
+    ('UUR', 'Uranium - Urine'),
+    ('UVA', 'Vanadium - Urine'),
+    ('UZN', 'Zinc - Urine')
+    # Blood
+    # ('BSB', 'Antimony - Blood'   ),
+    # ('BTAS','Arsenic - Blood'    ),
+    # ('BAL', 'Aluminum - Blood'   ),
+    # ('BBE', 'Beryllium - Blood'  ),
+    # ('BBA', 'Barium - Blood'     ),
+    # ('BCD', 'Cadmium - Blood'    ),
+    # ('BCS', 'Cesium - Blood'     ),
+    # ('BCO', 'Cobalt - Blood'     ),
+    # ('BCU', 'Copper - Blood'     ),
+    # ('BCR', 'Chromium - Blood'   ),
+    # ('BFE', 'Iron - Blood'       ),
+    # ('BPB', 'Lead - Blood'       ),
+    # ('BPB208','Lead (208) - Blood'),
+    # ('BMB', 'Manganese - Blood'  ),
+    # ('BHG', 'Mercury - Blood'    ),
+    # ('BMO', 'Molybdenum - Blood' ),
+    # ('BNI', 'Nickel - Blood'     ),
+    # ('BPT', 'Platinum - Blood'   ),
+    # ('BTL', 'Thallium - Blood'   ),
+    # ('BTU', 'Tungsten - Blood'   ),
+    # ('BUR', 'Uranium - Blood'    ),
+    # ('BVA', 'Vanadium - Blood'   ),
+    # ('BSE', 'Selenium - Blood'),
+    # ('BSEG1124', 'Selenium+G1124 - Blood'),
+    # ('BSN', 'Tin - Blood'        ),
+    # ('BZN', 'Zinc - Blood'       ),
+))]
+
+
+CAT_DAR_ANALYTES = [('Analytes', (
+    # Analyate acronym and name,                    Mapping in the dar DB
+    ('UAG', ' Silver - Urine'),                     # Ag in ug/L
+    ('UAL', ' Aluminium - Urine'),                  # Al in ug/L
+    ('UCR',  'Chromium - Urine'),                   # Cr in ug/L
+    ('UCU',  'Copper - Urine'),                     # Cu in ug/L
+    ('UFE',  'Iron - Urine'),                       # Fe in ug/L
+    ('UNI',  'Niquel - Urine'),                     # Ni in ug/L
+    ('UVA',  'Vanadium - Urine'),                   # V in ug/L
+    ('UZN',  'Zinc - Urine'),                       # Zn in ug/L
+    # ('BCD',  'Cadmium - Blood'),
+    # ('BHGE', 'Ethyl Mercury - Blood'),
+    # ('BHGM', 'Methyl Mercury - Blood'),
+    # ('BMN',  'Manganese - Blood'),
+    # ('BPB',  'Lead - Blood'),
+    # ('BSE',  'Selenium - Blood'),
+    # ('IHG',  'Inorganic Mercury - Blood'),
+    # ('THG',  'Mercury Total - Blood'),
+    # ('SCU',  'Copper - Serum'),
+    # ('SSE',  'Selenium - Serum'),
+    # ('SZN',  'Zinc - Serum'),
+    ('UAS3', 'Arsenous (III) acid - Urine'),        # As in ug/L
+    # ('UAS5', 'Arsenic (V) acid - Urine'),
+    ('UASB', 'Arsenobetaine - Urine'),              # AsB in ug/L
+    # ('UASC', 'Arsenocholine - Urine'),
+    ('UBA',  'Barium - Urine'),                     # Ba in ug/L
+    ('UBE',  'Beryllium - Urine'),                  # Be in ug/L
+    ('UCD',  'Cadmium - Urine'),                    # Cd in ug/L
+    ('UCO',  'Cobalt - Urine'),                     # Co in ug/L
+    ('UCS',  'Cesium - Urine'),                     # Cs in ug/L
+    ('UDMA', 'Dimethylarsinic Acid - Urine'),       # DMA in ug/L
+    ('UHG',  'Mercury - Urine'),                    # Hg in ug/L
+    # ('UIO',  'Iodine - Urine'),
+    ('UMMA', 'Monomethylarsinic Acid - Urine'),     # MMA in ug/L
+    ('UMN',  'Manganese - Urine'),                  # Mn in ug/L
+    ('UMO',  'Molybdenum - Urine'),                 # Mo in ug/L
+    ('UPB',  'Lead - Urine'),                       # PB in ug/L
+    # ('UPT',  'Platinum - Urine'),
+    ('USB',  'Antimony - Urine'),                   # Sb in ug/L
+    ('USN',  'Tin - Urine'),                        # Sn in ug/L
+    ('USR',  'Strontium - Urine'),                  # Sr in ug/L
+    ('UTAS', 'Arsenic Total - Urine'),              # iAs in ug/L
+    ('UTL',  'Thallium - Urine'),                   # Tl in ug/L
+    # ('UTMO', 'Trimethylarsine - Urine')
+    ('UTU',  'Tungsten - Urine'),                   # W in ug/L
+    ('UUR',  'Uranium - Urine'),                    # U in ug/L
+
+))]
+
+CAT_UNM_ANALYTES = [('Analytes', (
+    ('BCD',  'Cadmium - Blood'),
+    ('BHGE', 'Ethyl Mercury - Blood'),
+    ('BHGM', 'Methyl Mercury - Blood'),
+    ('BMN',  'Manganese - Blood'),
+    ('BPB',  'Lead - Blood'),
+    ('BSE',  'Selenium - Blood'),
+    ('IHG',  'Inorganic Mercury - Blood'),
+    ('THG',  'Mercury Total - Blood'),
+    ('SCU',  'Copper - Serum'),
+    ('SSE',  'Selenium - Serum'),
+    ('SZN',  'Zinc - Serum'),
+    ('UAS3', 'Arsenous (III) acid - Urine'),
+    ('UAS5', 'Arsenic (V) acid - Urine'),
+    ('UASB', 'Arsenobetaine - Urine'),
+    ('UASC', 'Arsenocholine - Urine'),
+    ('UBA',  'Barium - Urine'),
+    ('UBE',  'Beryllium - Urine'),
+    ('UCD',  'Cadmium - Urine'),
+    ('UCO',  'Cobalt - Urine'),
+    ('UCS',  'Cesium - Urine'),
+    ('UDMA', 'Dimethylarsinic Acid - Urine'),
+    ('UHG',  'Mercury - Urine'),
+    ('UIO',  'Iodine - Urine'),
+    ('UMMA', 'Monomethylarsinic Acid - Urine'),
+    ('UMN',  'Manganese - Urine'),
+    ('UMO',  'Molybdenum - Urine'),
+    ('UPB',  'Lead - Urine'),
+    ('UPT',  'Platinum - Urine'),
+    ('USB',  'Antimony - Urine'),
+    ('USN',  'Tin - Urine'),
+    ('USR',  'Strontium - Urine'),
+    ('UTAS', 'Arsenic Total - Urine'),
+    ('UTL',  'Thallium - Urine'),
+    ('UTMO', 'Trimethylarsine - Urine'),
+    ('UTU',  'Tungsten -  Urine'),
+    ('UUR',  'Uranium - Urine'),
+
+
+))]
+
+
+
+def getOverviewPlot(df_neu, df_unm, df_dar):
+    
+    unm = [x[0] for x in CAT_UNM_ANALYTES[0][1]]
+    neu = [x[0] for x in CAT_NEU_ANALYTES[0][1]]
+    dar = [x[0] for x in CAT_NEU_ANALYTES[0][1]]
+
+    for analyte in unm:
+        if analyte not in df_unm.columns:
+            df_unm[analyte] = 0
+
+    main_idx = set(unm + neu + dar)
+
+    unm_har = []
+    neu_har = []
+    dar_har = []
+
+    for x in main_idx:
+        if x in unm: 
+            unm_har.append(1)
+        elif x not in unm:
+            unm_har.append(0)
+        if x in neu: 
+            neu_har.append(1)
+        elif x not in neu:
+            neu_har.append(0)
+        if x in dar: 
+            dar_har.append(1)
+        elif x not in dar:
+            dar_har.append(0)
+            
+    df = pd.DataFrame({'UNM':unm_har, 'NEU':neu_har, 'DAR':dar_har }, index = main_idx)
+    df['sum'] = df.sum(axis = 1)
+
+    df_2 = df.sort_values(by = 'sum')[['UNM','NEU','DAR']]
+
+    #melted = pd.melt(df2, id_vars=['index'], value_vars=['unm','neu','dar'])
+    dff = pd.concat([df_neu,df_unm,df_dar])
+
+    dff = dff[['CohortType']+ list(main_idx)]
+    dff_counts = dff.groupby(['CohortType']).count().transpose()
+    
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    sns.set_theme()
+
+    # Draw a heatmap with the numeric values in each cell
+    f, ax = plt.subplots(figsize=(20, 6))
+
+    df_counts = dff_counts.transpose()
+    #masks = df2.transpose().drop(['CohortType'], axis = 0)
+
+    res = sns.heatmap(df_counts, 
+                annot=True, 
+                cbar =True,
+                fmt="d", 
+                linewidths=1,
+                annot_kws={'rotation':90},
+                ax=ax,cmap="PuBuGn")
+
+    res.set_xticklabels(res.get_xmajorticklabels(), fontsize = 10)
+    res.set_yticklabels(res.get_ymajorticklabels(), fontsize = 20)
+
+    return res.figure
 
 def getCorrelationPerVisit(data, x_cols, y_cols, corr_method):
     'returnn correlationns for sets of features per time period / visit'
@@ -51,6 +260,32 @@ def getCorrelationPerVisit(data, x_cols, y_cols, corr_method):
                             print('err')  
                             
     return pd.DataFrame(rez, columns = ['x','y','N','visit','corr','pval']).sort_values(by = 'pval') 
+
+##Male/female infants
+##Birth weight (g)
+##Gestational age (weeks)
+##SGA
+##Preterm
+##Birth length
+##Smoke during pregnancy
+##Specific gravity
+##Creatinine
+##Maternal BMI
+##Parity
+##Maternal level of education
+## Total urinary arsenic (µg/L)
+## Summation iAs + MMA + DMA (µg/L)
+## Inorganic arsenic (µg/L)
+## Monomethylarsonic acid (µg/L)
+## Dimethylarsinic acid (µg/L)
+
+def getCountsReport(df_neu,df_unm,df_dar):
+
+    dff = pd.concat([df_neu,df_unm,df_dar])
+    dff2 = dff.groupby(['CohortType']).count().transpose().reset_index()
+    dff2['Total'] = dff2['NEU'] + dff2['DAR'] + dff2['UNM']
+
+    return dff2
 
 
 def getCorrelation(data, x_cols, y_cols, corr_method):

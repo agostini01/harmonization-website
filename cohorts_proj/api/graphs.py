@@ -231,7 +231,8 @@ def getRegPlot(data, x_feature, y_feature, color_by):
 
     data = data[(~data[x_feature].isna()) & (~data[y_feature].isna()) ]
 
-    data['log' + x_feature] = np.log(data[x_feature] )
+    #data['log' + x_feature] = np.log(data[x_feature] )
+    data['log' + x_feature] = data[x_feature]
 
     gr = sns.regplot(data=data, x='log' + x_feature,
                      y=y_feature)
@@ -252,7 +253,6 @@ def getRegPlot(data, x_feature, y_feature, color_by):
     
 
     return gr.figure
-
 
 
 

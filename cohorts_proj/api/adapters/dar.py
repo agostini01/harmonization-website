@@ -24,6 +24,7 @@ def get_dataframe_pred():
         values()
     )
 
+    # TODO: URgent - Replace this renaming with proper rename mapper. If model changes, this becomes problematic.
     df.columns = ['id', 'PIN_Patient', 'assay',
                   'Member_c', 'TimePeriod', 
                   'sample_gestage_days', 'Outcome', 

@@ -53,6 +53,20 @@ def add_confound(df_merged, x_feature, y_feature, conf):
     return df_nonan
 
 #dilution prediction procedure
+
+
+#Jordan's instructions are:
+
+#1) calculated specific gravity (or creatinine) Z-scores, 
+#2) ran regression models in which the specific gravity (or creatinine) Z-score is the outcome and predictors are 
+#variables that are associated with the urinary dilution proxy as well as exposure and outcome of interest, 
+#3) predicted the specific gravity or creatinine Z-scores from these regression models, 
+#4) back-transformed the Z-scores into the original units, 
+##5) calculated dilution ratios for each person by taking their predicted specific gravity (or creatinine) value and dividing it by their observed value, 
+#6) multiplied the person’s observed phthalate concentration by their dilution ratio, 
+#7) in final regression models utilizing this dilution-corrected biomarker you also include an indicator variable for whether specific gravity 
+#or creatinine was used.
+
 def predict_dilution(df_merged, cohort):
     'calculate predicted dilutions per cohort (UNM - Predcreatinine, DAR/NEU - PredSG)'
 
