@@ -968,7 +968,7 @@ class InfoRequestView(views.APIView):
                 #print('check')
                 #print(df.describe().transpose().reset_index())
                 df1 = adapters.neu.get_dataframe()  # [selected_columns]
-                df2 = adapters.unm.get_dataframe()  # [selected_columns]
+                df2 = adapters.unm.get_dataframe_orig()  # [selected_columns]
                 df3 = adapters.dar.get_dataframe()  # [selected_columns]
                 
                 df = analysis.getCountsReport(df1,df2,df3)
