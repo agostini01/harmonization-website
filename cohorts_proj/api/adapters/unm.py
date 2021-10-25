@@ -32,7 +32,7 @@ def get_dataframe():
        'preg_complications', 'folic_acid_supp', 'fish', 'babySex',
        'birthWt', 'headCirc',
        'birthLen','WeightCentile',
-       'LGA','SGA','ga_collection','creatininemgdl','birth_year']
+       'LGA','SGA','ga_collection','birth_year']
 
     df['ga_collection'] = df['gestAge_collection']
 
@@ -124,7 +124,7 @@ def get_dataframe_orig():
        'preg_complications', 'folic_acid_supp', 'fish', 'babySex',
        'birthWt', 'headCirc',
        'birthLen','WeightCentile',
-       'LGA','SGA','ga_collection','creatininemgdl','birth_year']
+       'LGA','SGA','ga_collection','birth_year']
 
     df['ga_collection'] = df['gestAge_collection']
 
