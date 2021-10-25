@@ -174,7 +174,7 @@ class RawUNM(models.Model):
     
     folic_acid_supp	= models.CharField(max_length=4, choices=CAT_UNM_FOLIC, blank=True, default = '-9')
     
-    fish = models.CharField(max_length=4, choices=CAT_UNM_FISH, blank=True, default = '-9')
+    fish = models.CharField(max_length=4, blank=True, default = '-9')
     
     babySex	= models.CharField(max_length=4, choices=CAT_UNM_SEX, blank=True, default = '-9')
     
