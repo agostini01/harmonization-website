@@ -142,12 +142,12 @@ class RawUNM(models.Model):
     Analyte = models.CharField(max_length=4, choices=CAT_UNM_ANALYTES)
 
     # Result: value, corrected for detection levels, in ug/L
-    Result = models.FloatField()
+    Result = models.FloatField(blank = True, default = -9.0)
 
     # Creat_Corr_Result: value, corrected for creatinine (urine only), ug/L
-    Creat_Corr_Result = models.FloatField()
+    Creat_Corr_Result = models.FloatField(blank = True, default = -9.0)
 
-    creatininemgdl = models.FloatField()
+    creatininemgdl =models.FloatField(blank = True, default = -9.0)
     
     # Outcome – categorical variable: 1 = preterm birth; 0 = term
     Outcome = models.CharField(max_length=1, choices=CAT_UNM_OUTCOME, blank=True)
@@ -174,7 +174,7 @@ class RawUNM(models.Model):
     
     folic_acid_supp	= models.CharField(max_length=4, choices=CAT_UNM_FOLIC, blank=True, default = '-9')
     
-    fish = models.CharField(max_length=4, blank=True, default = '-9')
+    fish = models.FloatField(blank = True, default = -9.0)	
     
     babySex	= models.CharField(max_length=4, choices=CAT_UNM_SEX, blank=True, default = '-9')
     
