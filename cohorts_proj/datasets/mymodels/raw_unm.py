@@ -174,25 +174,25 @@ class RawUNM(models.Model):
     
     folic_acid_supp	= models.CharField(max_length=4, choices=CAT_UNM_FOLIC, blank=True, default = '-9')
     
-    fish = models.FloatField(blank = True, default = -9.0)	
+    fish = models.FloatField(blank = True, null = True, default = -9.0)	
     
     babySex	= models.CharField(max_length=4, choices=CAT_UNM_SEX, blank=True, default = '-9')
     
-    birthWt = models.FloatField(blank = True, default = -9.0)
+    birthWt = models.FloatField(blank = True, null = True, default = -9.0)
     
-    birthLen = models.FloatField(blank = True, default = -9.0)
+    birthLen = models.FloatField(blank = True, null = True, default = -9.0)
 
-    WeightZScore = models.FloatField(blank = True, default = -9.0)
+    WeightZScore = models.FloatField(blank = True,null = True,  default = -9.0)
     
-    WeightCentile = models.FloatField(blank = True, default = -9.0)	
+    WeightCentile = models.FloatField(blank = True,null = True, default = -9.0)	
     
-    LGA	= models.FloatField(blank = True, default = -9.0)
+    LGA	= models.FloatField(blank = True, null = True, default = -9.0)
     
-    SGA= models.FloatField(blank = True, default = -9.0)
+    SGA= models.FloatField(blank = True,null = True, default = -9.0)
 
-    headCirc = models.FloatField(blank = True, default = -9.0)
+    headCirc = models.FloatField(blank = True,null = True, default = -9.0)
 
-    gestAge_collection = models.FloatField(blank = True, default = -9.0)
+    gestAge_collection = models.FloatField(blank = True,null = True, default = -9.0)
 
     birth_year = models.IntegerField(blank=True, default = -9)
     
