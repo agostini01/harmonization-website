@@ -23,6 +23,7 @@ def saveFlowersToDB(csv_file):
     df = pd.read_csv(csv_file,
                      skip_blank_lines=True,
                      header=0)
+
     df['PIN_ID'] = range(len(df))
 
     # Delete database
@@ -46,6 +47,7 @@ def saveFlowersToDB(csv_file):
 def saveUNMToDB(csv_file):
     df = pd.read_csv(csv_file,
                      skip_blank_lines=True,
+                     keep_default_na=False,
                      header=0)
 
     # TODO droping if no outcome was provided
@@ -54,7 +56,6 @@ def saveUNMToDB(csv_file):
     df['Member_c'] = df['Member_c'].astype(int)
     df['TimePeriod'] = df['TimePeriod'].astype(int)
 
-    #df = df.replace(np.nan, None, regex=True)
 
     # Delete database
     RawUNM.objects.all().delete()
@@ -104,7 +105,6 @@ def saveNEUToDB(csv_file):
     df['PretermBirth'] = df['PretermBirth'].astype(int)
     df['Member_c'] = df['Member_c'].astype(int)
     df['TimePeriod'] = df['TimePeriod'].astype(int)
-    df = df.replace(np.nan, None, regex=True)
     # Delete database
     RawNEU.objects.all().delete()
 
@@ -155,8 +155,6 @@ def saveDARToDB(csv_file):
     df = pd.read_csv(csv_file,
                      skip_blank_lines=True,
                      header=0)
-
-    df = df.replace(np.nan, None, regex=True)
 
     # Delete database
     RawDAR.objects.all().delete()
