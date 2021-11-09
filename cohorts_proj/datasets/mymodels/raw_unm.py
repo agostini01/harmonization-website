@@ -154,7 +154,7 @@ class RawUNM(models.Model):
 
     Outcome_weeks = models.FloatField(blank = True, default = -9.0)
 
-    age = models.IntegerField(blank=True, default = -9)	
+    age = models.FloatField(blank=True, null = True, default = -9)	
     
     ethnicity = models.CharField(max_length=4, choices=CAT_UNM_ETHNICITY, blank=True, default = '-9')
     
