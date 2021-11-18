@@ -197,65 +197,65 @@ class RawNEU(models.Model):
     Outcome = models.CharField(
         max_length=1, choices=CAT_NEU_OUTCOME, blank=True)
 
-    Outcome_weeks = models.FloatField(blank = True, default = -9.0)
+    Outcome_weeks = models.FloatField(null=True, blank = True, default = -9.0)
 
-    age = models.IntegerField(blank=True, default = -9)	
+    age = models.IntegerField(null=True,blank=True, default = -9)	
     
-    ethnicity = models.CharField(max_length=50, choices=CAT_NEU_ETHNICITY, blank=True, default = '-9')
+    ethnicity = models.CharField(max_length=50, choices=CAT_NEU_ETHNICITY, blank=True, null=True,default = '-9')
     
-    race = models.CharField(max_length=50, choices=CAT_NEU_RACE, blank=True, default = '-9')
+    race = models.CharField(max_length=50, choices=CAT_NEU_RACE, blank=True, null=True,default = '-9')
     
-    ed = models.CharField(max_length=50,  blank=True, default = '-9')
+    ed = models.CharField(max_length=50,  blank=True, null=True,default = '-9')
     
-    BMI = models.FloatField(blank = True, default = -9.0)	
+    BMI = models.FloatField(blank = True,null=True, default = -9.0)	
     
-    fvinc = models.CharField(max_length=50, blank=True, default = '-9')
+    fvinc = models.CharField(max_length=50, blank=True, null=True,default = '-9')
     
-    smoking = models.CharField(max_length=50, choices=CAT_NEU_SMOKING, blank=True, default = '-9')
+    smoking = models.CharField(max_length=50, choices=CAT_NEU_SMOKING, blank=True,null=True, default = '-9')
     
-    pregnum = models.IntegerField(max_length=50, blank=True, default = -9)
+    pregnum = models.IntegerField(max_length=50, blank=True, null=True,default = -9)
     
-    preg_complications	= models.CharField(max_length=50, choices=CAT_NEU_COMPLICATIONS, blank=True, default = '-9')
+    preg_complications	= models.CharField(max_length=50, choices=CAT_NEU_COMPLICATIONS, blank=True, null=True,default = '-9')
     
-    folic_acid_supp	= models.CharField(max_length=50, choices=CAT_NEU_FOLIC, blank=True, default = '-9')
+    folic_acid_supp	= models.CharField(max_length=50, choices=CAT_NEU_FOLIC, blank=True, null=True,default = '-9')
     
-    fish = models.FloatField(blank = True, default = -9.0)
+    fish = models.FloatField(blank = True, null=True,default = -9.0)
     
-    babySex	= models.CharField(max_length=50, choices=CAT_NEU_SEX, blank=True, default = '-9')
+    babySex	= models.CharField(max_length=50, choices=CAT_NEU_SEX, blank=True, null=True,default = '-9')
     
-    birthWt = models.FloatField(blank = True, default = -9.0)
+    birthWt = models.FloatField(blank = True, null=True,default = -9.0)
     
-    birthLen = models.FloatField(blank = True, default = -9.0)
+    birthLen = models.FloatField(blank = True, null=True,default = -9.0)
 
-    headCirc = models.FloatField(blank = True, default = -9.0)
+    headCirc = models.FloatField(blank = True, null=True,default = -9.0)
 
-    fvdate = models.CharField(max_length=50, blank=True, default = '-9')
+    fvdate = models.CharField(max_length=50, blank=True, null=True,default = '-9')
 
-    svdate = models.CharField(max_length=50, blank=True, default = '-9')
+    svdate = models.CharField(max_length=50, blank=True, null=True,default = '-9')
 
-    tvdate = models.CharField(max_length=50, blank=True, default = '-9')
+    tvdate = models.CharField(max_length=50, blank=True,null=True, default = '-9')
 
-    SPECIFICGRAVITY_V1 = models.FloatField(blank = True, default = -9.0)
+    SPECIFICGRAVITY_V1 = models.FloatField(blank = True, null=True,default = -9.0)
 
-    SPECIFICGRAVITY_V2 = models.FloatField(blank = True, default = -9.0)
+    SPECIFICGRAVITY_V2 = models.FloatField(blank = True, null=True,default = -9.0)
 
-    SPECIFICGRAVITY_V3 = models.FloatField(blank = True, default = -9.0)
+    SPECIFICGRAVITY_V3 = models.FloatField(blank = True, null=True,default = -9.0)
 
-    WeightZScore = models.FloatField(blank = True, default = -9.0)
+    WeightZScore = models.FloatField(blank = True, null=True,default = -9.0)
     
-    WeightCentile = models.FloatField(blank = True, default = -9.0)	
+    WeightCentile = models.FloatField(blank = True, null=True,default = -9.0)	
     
-    LGA	= models.FloatField(blank = True, default = -9.0)
+    LGA	= models.FloatField(blank = True, null=True,default = -9.0)
     
-    SGA= models.FloatField(blank = True, default = -9.0)
+    SGA= models.FloatField(blank = True, null=True,default = -9.0)
 
-    PPDATEDEL = models.CharField(blank = True, max_length = 50, default = '-9.0')
+    PPDATEDEL = models.CharField(blank = True, null=True,max_length = 50, default = '-9.0')
 
-    ga_collection = models.FloatField(blank = True, default = -9.0)	
+    ga_collection = models.FloatField(blank = True, null=True,default = -9.0)	
 
-    fish_pu_v1 = models.FloatField(blank = True, default = -9.0)
-    fish_pu_v2 = models.FloatField(blank = True, default = -9.0)	
-    fish_pu_v3 = models.FloatField(blank = True, default = -9.0)	
+    fish_pu_v1 = models.FloatField(blank = True, null=True,default = -9.0)
+    fish_pu_v2 = models.FloatField(blank = True, null=True,default = -9.0)	
+    fish_pu_v3 = models.FloatField(blank = True,null=True, default = -9.0)	
  
     
 

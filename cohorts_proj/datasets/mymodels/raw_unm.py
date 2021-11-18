@@ -142,35 +142,35 @@ class RawUNM(models.Model):
     Analyte = models.CharField(max_length=4, choices=CAT_UNM_ANALYTES)
 
     # Result: value, corrected for detection levels, in ug/L
-    Result = models.FloatField(blank = True, default = -9.0)
+    Result = models.FloatField(blank = True, null=True,default = -9.0)
 
     # Creat_Corr_Result: value, corrected for creatinine (urine only), ug/L
-    Creat_Corr_Result = models.CharField(max_length=22, blank=True, default = '-9')
+    Creat_Corr_Result = models.CharField(max_length=22, blank=True, null=True,default = '-9')
 
-    creatininemgdl = models.CharField(max_length=22, blank=True, default = '-9')
+    creatininemgdl = models.CharField(max_length=22, blank=True, null=True,default = '-9')
     
     # Outcome – categorical variable: 1 = preterm birth; 0 = term
     Outcome = models.CharField(max_length=1, choices=CAT_UNM_OUTCOME, blank=True)
 
-    Outcome_weeks = models.FloatField(blank = True, default = -9.0)
+    Outcome_weeks = models.FloatField(blank = True, null=True,default = -9.0)
 
     age = models.FloatField(blank=True, null = True, default = -9)	
     
-    ethnicity = models.CharField(max_length=4, choices=CAT_UNM_ETHNICITY, blank=True, default = '-9')
+    ethnicity = models.CharField(max_length=4, choices=CAT_UNM_ETHNICITY, blank=True, null=True,default = '-9')
     
-    race = models.CharField(max_length=4, choices=CAT_UNM_RACE, blank=True, default = '-9')
+    race = models.CharField(max_length=4, choices=CAT_UNM_RACE, blank=True, null=True,default = '-9')
     
-    education = models.CharField(max_length=4, choices=CAT_UNM_EDUCATION, blank=True, default = '-9')
+    education = models.CharField(max_length=4, choices=CAT_UNM_EDUCATION, blank=True, null=True,default = '-9')
     
-    BMI = models.FloatField(blank = True, default = -9.0)	
+    BMI = models.FloatField(blank = True, null=True,default = -9.0)	
     
-    income = models.CharField(max_length=4, choices=CAT_UNM_INCOME, blank=True, default = '-9')
+    income = models.CharField(max_length=4, choices=CAT_UNM_INCOME, blank=True, null=True,default = '-9')
     
-    smoking = models.CharField(max_length=4, choices=CAT_UNM_SMOKING, blank=True, default = '-9')
+    smoking = models.CharField(max_length=4, choices=CAT_UNM_SMOKING, blank=True, null=True,default = '-9')
     
-    parity = models.IntegerField(max_length=4, blank=True, default = -9)
+    parity = models.IntegerField(max_length=4, blank=True, null=True,default = -9)
     
-    preg_complications	= models.CharField(max_length=4, choices=CAT_UNM_COMPLICATIONS, blank=True, default = '-9')
+    preg_complications	= models.CharField(max_length=4, choices=CAT_UNM_COMPLICATIONS, blank=True, null=True,default = '-9')
     
     folic_acid_supp	= models.CharField(max_length=4, choices=CAT_UNM_FOLIC, blank=True, default = '-9')
     
@@ -182,7 +182,7 @@ class RawUNM(models.Model):
     
     birthLen = models.FloatField(blank = True, null = True, default = -9.0)
 
-    WeightZScore = models.FloatField(blank = True,null = True,  default = -9.0)
+    WeightZScore = models.FloatField(blank = True, null = True,  default = -9.0)
     
     WeightCentile = models.FloatField(blank = True,null = True, default = -9.0)	
     
