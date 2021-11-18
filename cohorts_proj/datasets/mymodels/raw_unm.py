@@ -194,9 +194,9 @@ class RawUNM(models.Model):
 
     gestAge_collection = models.FloatField(blank = True,null = True, default = -9.0)
 
-    birth_year = models.IntegerField(blank=True, default = -9)
+    birth_year = models.IntegerField(blank=True, default = -9, null = True)
     
-    birth_month = models.IntegerField(blank=True, default = -9)
+    birth_month = models.IntegerField(blank=True, default = -9, null = True)
 
 
 
