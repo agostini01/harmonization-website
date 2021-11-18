@@ -133,10 +133,10 @@ class RawUNM(models.Model):
     PIN_Patient = models.CharField(max_length=100)
 
     # Member_c – categorical variable: 1 = mother; 2 = father; 3 = child
-    Member_c = models.CharField(max_length=1, choices=CAT_UNM_MEMBER_C)
+    Member_c = models.CharField(max_length=1, choices=CAT_UNM_MEMBER_C, null = True, blank = True)
 
     # TimePeriod – categorical: 1 = enrollment; 3 = week 36/delivery
-    TimePeriod = models.CharField(max_length=1, choices=CAT_UNM_TIME_PERIOD)
+    TimePeriod = models.CharField(max_length=1, choices=CAT_UNM_TIME_PERIOD, null = True, blank = True)
 
     # Analyte – categorical:
     Analyte = models.CharField(max_length=4, choices=CAT_UNM_ANALYTES)
@@ -145,12 +145,12 @@ class RawUNM(models.Model):
     Result = models.FloatField(blank = True, null=True,default = -9.0)
 
     # Creat_Corr_Result: value, corrected for creatinine (urine only), ug/L
-    Creat_Corr_Result = models.CharField(max_length=22, blank=True, null=True,default = '-9')
+    Creat_Corr_Result = models.CharField(max_length=22, blank=True, null=True, default = '-9')
 
-    creatininemgdl = models.CharField(max_length=22, blank=True, null=True,default = '-9')
+    creatininemgdl = models.CharField(max_length=22, blank=True, null=True, default = '-9')
     
     # Outcome – categorical variable: 1 = preterm birth; 0 = term
-    Outcome = models.CharField(max_length=1, choices=CAT_UNM_OUTCOME, blank=True)
+    Outcome = models.CharField(max_length=1, choices=CAT_UNM_OUTCOME, blank=True, null = True)
 
     Outcome_weeks = models.FloatField(blank = True, null=True,default = -9.0)
 
@@ -172,11 +172,11 @@ class RawUNM(models.Model):
     
     preg_complications	= models.CharField(max_length=4, choices=CAT_UNM_COMPLICATIONS, blank=True, null=True,default = '-9')
     
-    folic_acid_supp	= models.CharField(max_length=4, choices=CAT_UNM_FOLIC, blank=True, default = '-9')
+    folic_acid_supp	= models.CharField(max_length=4, choices=CAT_UNM_FOLIC, blank=True, null = True, default = '-9')
     
     fish = models.FloatField(blank = True, null = True, default = -9.0)	
     
-    babySex	= models.CharField(max_length=4, choices=CAT_UNM_SEX, blank=True, default = '-9')
+    babySex	= models.CharField(max_length=4, choices=CAT_UNM_SEX, blank=True, null = True, default = '-9')
     
     birthWt = models.FloatField(blank = True, null = True, default = -9.0)
     
