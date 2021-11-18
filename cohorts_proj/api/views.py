@@ -22,6 +22,7 @@ import pandas as pd
 def saveFlowersToDB(csv_file):
     df = pd.read_csv(csv_file,
                      skip_blank_lines=True,
+                     keep_default_na=False,
                      header=0)
 
     df['PIN_ID'] = range(len(df))
@@ -47,7 +48,6 @@ def saveFlowersToDB(csv_file):
 def saveUNMToDB(csv_file):
     df = pd.read_csv(csv_file,
                      skip_blank_lines=True,
-                     keep_default_na=False,
                      header=0)
 
     # TODO droping if no outcome was provided
@@ -55,7 +55,8 @@ def saveUNMToDB(csv_file):
     df['PretermBirth'] = df['PretermBirth'].astype(int)
     df['Member_c'] = df['Member_c'].astype(int)
     df['TimePeriod'] = df['TimePeriod'].astype(int)
-
+    #Required for SQL Constrainds - blank = None
+    df = df.where(pd.notnull(df), None)
 
     # Delete database
     RawUNM.objects.all().delete()
@@ -102,10 +103,17 @@ def saveNEUToDB(csv_file):
 
     # TODO droping if no outcome was provided
     df.dropna(subset=['PretermBirth'], inplace=True)
-    df['PretermBirth'] = df['PretermBirth'].astype(int)
-    df['Member_c'] = df['Member_c'].astype(int)
-    df['TimePeriod'] = df['TimePeriod'].astype(int)
+    df.dropna(subset=['Member_c'], inplace=True)
+  
+  
+    df['PretermBirth'] = df['PretermBirth'].astype(float).astype(int)
+    df['Member_c'] = df['Member_c'].astype(float).astype(int)
+    df['TimePeriod'] = df['TimePeriod'].astype(float).astype(int)
+    
+    #Required for SQL Constrainds - blank = None
+    df = df.where(pd.notnull(df), None)
     # Delete database
+    print(df.info())
     RawNEU.objects.all().delete()
 
     for entry in df.itertuples():
@@ -155,7 +163,8 @@ def saveDARToDB(csv_file):
     df = pd.read_csv(csv_file,
                      skip_blank_lines=True,
                      header=0)
-
+    #Required for SQL Constrainds - blank = None
+    df = df.where(pd.notnull(df), None)
     # Delete database
     RawDAR.objects.all().delete()
 
