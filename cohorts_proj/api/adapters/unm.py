@@ -139,7 +139,7 @@ def get_dataframe_orig():
     # TODO - Do we want to plot Result or Creat_Corr_Result
     numerical_values = 'Result'
 
-    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome'] + covars
+    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome'] 
     categorical_to_columns = ['Analyte']
     indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
 
@@ -148,7 +148,7 @@ def get_dataframe_orig():
                         index=columns_to_indexes,
                         columns=categorical_to_columns)
 
-    df = df.reset_index(level=indexes_to_columns)
+    df = df.reset_index()
 
     # TODO - Should we drop NaN here?
 
