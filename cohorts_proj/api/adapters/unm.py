@@ -52,7 +52,7 @@ def get_dataframe():
     categorical_to_columns = ['Analyte']
     indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
 
-    print(df)
+    
 
     df = pd.pivot_table(df, values=numerical_values,
                         index=columns_to_indexes,
@@ -117,7 +117,6 @@ def get_dataframe_orig():
         values()
     )
 
-    print(df.shape)
 
     covars = ['Outcome_weeks', 'age', 'ethnicity',
        'race', 'education', 'BMI', 'income', 'smoking', 'parity',
@@ -144,7 +143,6 @@ def get_dataframe_orig():
     categorical_to_columns = ['Analyte']
     indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
 
-    print(df)
 
     df = pd.pivot_table(df, values=numerical_values,
                         index=columns_to_indexes,
