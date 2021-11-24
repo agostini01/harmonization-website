@@ -8,6 +8,12 @@ h1 {
   width: auto;
 }
 
+div.formwidth {
+  width: 600px;
+  margin: auto;
+  border: 1px darkslategray;
+}
+
 h2 {
   color: black;
   font-size: 3rem;
