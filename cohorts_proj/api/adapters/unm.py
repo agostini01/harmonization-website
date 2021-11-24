@@ -28,11 +28,11 @@ def get_dataframe():
     print(df.shape)
 
     covars = ['Outcome_weeks', 'age', 'ethnicity',
-       'race', 'education', 'BMI', 'income', 'smoking', 'parity',
-       'preg_complications', 'folic_acid_supp', 'fish', 'babySex',
-       'birthWt', 'headCirc',
-       'birthLen','WeightCentile',
-       'LGA','SGA','ga_collection','birth_year']
+                'race', 'education', 'BMI', 'income', 'smoking', 'parity',
+                'preg_complications', 'folic_acid_supp', 'fish', 'babySex',
+                'birthWt', 'headCirc',
+                'birthLen','WeightCentile',
+                'LGA','SGA','ga_collection','birth_year']
 
     df['ga_collection'] = df['gestAge_collection']
 
@@ -145,8 +145,8 @@ def get_dataframe_orig():
 
 
     df = pd.pivot_table(df, values=numerical_values,
-                        index=columns_to_indexes,
-                        columns=categorical_to_columns)
+                            index=columns_to_indexes,
+                            columns=categorical_to_columns)
 
     df = df.reset_index()
 
