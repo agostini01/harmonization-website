@@ -179,7 +179,7 @@ def get_dataframe_orig():
     # Pivoting the table and reseting index
     numerical_values = 'Result'
 
-    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome']
+    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome', 'LOD']
     categorical_to_columns = ['Analyte']
     indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
 
