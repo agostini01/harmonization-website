@@ -9,7 +9,7 @@ services:
     volumes:
       - ./app/:/usr/src/app/
     ports:
-      - 81:8000
+      - 80:8000
     env_file:
       - ./config/.env.dev
     depends_on:
@@ -22,12 +22,12 @@ services:
       args: 
         DEV_USER_ID: ${DEV_UID}
         DEV_GROUP_ID: ${DEV_UID}
-    command: python manage.py runserver 0.0.0.0:8887
+    command: python manage.py runserver 0.0.0.0:8888
     volumes:
       - ./cohorts_proj/:/usr/src/app/
     ports:
-      - 8887:8887
-      - 7778:7778  # Jupyter notebook
+      - 8888:8888
+      - 7777:7777  # Jupyter notebook
     env_file:
       - ./config/.env-api.dev
     depends_on:
