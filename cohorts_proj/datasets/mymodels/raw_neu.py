@@ -190,6 +190,11 @@ class RawNEU(models.Model):
     # LOD : value, Limit of Detection
     LOD = models.FloatField()
 
+    # BLOD : value, Below Limit of Detection (1 = True, 0 = Flase)
+    #BLOD = models.FloatField(null=True, blank = True, default = -9.0)
+
+    BLOD2 = models.FloatField(null=True, blank = True, default = -9.0)
+
     # Creat_Corr_Result: value, corrected for creatinine (urine only), ug/L
     # Creat_Corr_Result = models.FloatField()
 
