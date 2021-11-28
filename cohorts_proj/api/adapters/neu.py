@@ -24,14 +24,12 @@ def get_dataframe():
         values()
     )
 
-
     ## birth weight and length
   
     df['birthWt'] = df['birthWt'] * 1000
     df['birthLen'] = df['birthLen'] * 2.54
 
     ## education connversion
-
     df['ed'] = df['ed'].astype(float)
 
     conditions = [
@@ -52,8 +50,6 @@ def get_dataframe():
 
     ## df.rename(columns = {'pregnum':'parity'}, inplace = True)
     #new covars
-
-
 
     covars = ['Outcome_weeks', 'age', 'ethnicity', 'race', 
     'BMI', 'smoking', 'parity', 'preg_complications',
@@ -79,9 +75,7 @@ def get_dataframe():
                         aggfunc=np.average)
                         
     df = df.reset_index(level=indexes_to_columns)
-    print("*************###***")
-    print(df.columns)
-    print(df.shape)
+ 
     # TODO - Should we drop NaN here?
 
     # After pivot
@@ -121,7 +115,7 @@ def get_dataframe_nofish():
 
     return df_nofish
 
-def get_dataframe_orig():
+def get_dataframe_BLOD():
     """Returns a pandas DataFrame"""
 
     # First is necessary to pivot the raw NEU dataset so it matches
@@ -136,6 +130,90 @@ def get_dataframe_orig():
         values()
     )
 
+    ## birth weight and length
+  
+    df['birthWt'] = df['birthWt'] * 1000
+    df['birthLen'] = df['birthLen'] * 2.54
+
+    ## education connversion
+
+    df['ed'] = df['ed'].astype(float)
+
+    conditions = [
+    (df['ed'] <= 8 ),
+    (df['ed'].isin([9,10,11,12])),
+    (df['ed'].isin([13,14])) ,
+    (df['ed'] == 15 ),
+    (df['ed'] > 15 ) &  (df['ed'] < 20) ,
+    ]
+    choices = [1,2,3,4,5]
+
+    df['education'] = np.select(conditions, choices, default=-9)
+    ## birth year
+    df['PPDATEDEL'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce')
+    df['birth_year'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce').dt.year
+    
+    ## new covariates
+
+    ## df.rename(columns = {'pregnum':'parity'}, inplace = True)
+    #new covars
+
+    covars = ['Outcome_weeks', 'age', 'ethnicity', 'race', 
+    'BMI', 'smoking', 'parity', 'preg_complications',
+    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen', 'headCirc',
+    'WeightCentile','LGA','SGA','ga_collection','education', 'birth_year', 
+    'SPECIFICGRAVITY_V2', 'fish_pu_v2']
+
+    #calculate extra variables
+    #parity
+    df['parity'] = df['pregnum']
+    #ga at collection
+
+    # Pivoting the table and reseting index
+    numerical_values = 'BLOD2'
+
+    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome']
+    categorical_to_columns = ['Analyte']
+    indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
+
+    df = pd.pivot_table(df, values=numerical_values,
+                        index=columns_to_indexes,
+                        columns=categorical_to_columns,
+                        aggfunc=np.average)
+                        
+    df = df.reset_index()
+   
+    # TODO - Should we drop NaN here?
+
+    # After pivot
+    # Analyte     TimePeriod Member_c       BCD  ...      UTMO       UTU       UUR
+    # PIN_Patient                                ...
+    # A0000M               1        1  1.877245  ...  0.315638  1.095520  0.424221
+    # A0000M               3        1  1.917757  ...  0.837639  4.549155  0.067877
+    # A0001M               1        1  1.458583  ...  0.514317  1.262910  1.554346
+    # A0001M               3        1  1.365789  ...  0.143302  1.692582  0.020716
+    # A0002M               1        1  1.547669  ...  0.387643  0.988567  1.081877
+
+    df['CohortType'] = 'NEU'
+    df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
+    
+    return df
+
+
+    def get_dataframe_orig():
+    """Returns a pandas DataFrame"""
+
+    # First is necessary to pivot the raw NEU dataset so it matches
+    # the requested features.
+
+    # This queries the RawNEU dataset and excludes some of the values
+    # TODO - Should we drop NaN here?
+    df = pd.DataFrame.from_records(
+        RawNEU.objects.
+        # exclude(Creat_Corr_Result__lt=-1000).
+        # exclude(Creat_Corr_Result__isnull=True).
+        values()
+    )
 
     ## birth weight and length
   
