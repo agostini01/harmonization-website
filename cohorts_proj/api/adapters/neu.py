@@ -170,7 +170,7 @@ def get_dataframe_BLOD():
     #ga at collection
 
     # Pivoting the table and reseting index
-    numerical_values = 'BLOD2'
+    numerical_values = 'BLOD'
 
     columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome']
     categorical_to_columns = ['Analyte']
@@ -200,7 +200,7 @@ def get_dataframe_BLOD():
     return df
 
 
-    def get_dataframe_orig():
+def get_dataframe_orig():
     """Returns a pandas DataFrame"""
 
     # First is necessary to pivot the raw NEU dataset so it matches
