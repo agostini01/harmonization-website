@@ -122,6 +122,7 @@ def saveNEUToDB(csv_file):
             Member_c=entry.Member_c,
             TimePeriod=entry.TimePeriod,
             LOD=entry.LOD,
+            BLOD = entry.BLOD,
             Analyte=entry.Analyte,
             Result=entry.Result,
             Outcome=entry.PretermBirth,
