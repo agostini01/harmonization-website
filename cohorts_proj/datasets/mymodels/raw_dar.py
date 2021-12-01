@@ -156,16 +156,16 @@ class RawDAR(models.Model):
         max_length=15, choices=CAT_DAR_MEMBER_C)
 
     # time_period – categorical: 12G, 24G, 6WP, 6MP, 1YP, 2YP, 3YP, 5YP
-    time_period = models.CharField(max_length=100, choices=CAT_DAR_TIME_PERIOD)
+    time_period = models.CharField(max_length=100, blank = true, null=True, choices=CAT_DAR_TIME_PERIOD, default = '-9')
 
     # squid - unique identifier: Sample identifier
     # squid = models.CharField(max_length=1000)
 
     # sample_gestage_days - numeric: days of gestation
-    sample_gestage_days = models.FloatField(blank = True, default = -9.0)
+    sample_gestage_days = models.FloatField(blank = True, null=True, default = -9.0)
 
     # Outcome – categorical variable: 1 = preterm birth; 0 = term
-    preterm = models.CharField(max_length=100, choices=CAT_DAR_OUTCOME, null = True, blank=True)
+    preterm = models.CharField(max_length=100, choices=CAT_DAR_OUTCOME, null = True, blank=True, default = '-9')
 
     #Outcome_weeks = models.FloatField(blank = True, default = -9.0)
 
