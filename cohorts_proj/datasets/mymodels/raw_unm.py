@@ -142,7 +142,7 @@ class RawUNM(models.Model):
     Analyte = models.CharField(max_length=4, choices=CAT_UNM_ANALYTES)
 
     # Result: value, corrected for detection levels, in ug/L
-    Result = models.FloatField(blank = True, null=True,default = -9.0)
+    Result = models.FloatField(blank = True, null=True, default = -9.0)
 
     # Creat_Corr_Result: value, corrected for creatinine (urine only), ug/L
     Creat_Corr_Result = models.CharField(max_length=22, blank=True, null=True, default = '-9')
@@ -165,6 +165,8 @@ class RawUNM(models.Model):
     BMI = models.FloatField(blank = True, null=True,default = -9.0)	
     
     income = models.CharField(max_length=4, choices=CAT_UNM_INCOME, blank=True, null=True,default = '-9')
+
+    imputed = models.IntegerField()
     
     smoking = models.CharField(max_length=4, choices=CAT_UNM_SMOKING, blank=True, null=True,default = '-9')
     

@@ -165,98 +165,98 @@ class RawDAR(models.Model):
     sample_gestage_days = models.FloatField(blank = True, default = -9.0)
 
     # Outcome – categorical variable: 1 = preterm birth; 0 = term
-    preterm = models.CharField(max_length=100, choices=CAT_DAR_OUTCOME, blank=True)
+    preterm = models.CharField(max_length=100, choices=CAT_DAR_OUTCOME, null = True, blank=True)
 
     #Outcome_weeks = models.FloatField(blank = True, default = -9.0)
 
     # List of analytes, Index of detection level, Above/Below IDL
     # Floating values unit: 1ppb = 1ug/L
 
-    age = models.IntegerField(blank=True, default = -9)	
+    age = models.IntegerField(blank=True, null = True,default = -9)	
     
-    ethnicity = models.CharField(max_length=100, choices=CAT_DAR_ETHNICITY, blank=True, default = '-9')
+    ethnicity = models.CharField(max_length=100, choices=CAT_DAR_ETHNICITY, blank=True, null = True,default = '-9')
     
-    race = models.CharField(max_length=100, choices=CAT_DAR_RACE, blank=True, default = '-9')
+    race = models.CharField(max_length=100, choices=CAT_DAR_RACE, blank=True, null = True,default = '-9')
     
-    education = models.CharField(max_length=100,  blank=True, default = '-9')
+    education = models.CharField(max_length=100,  blank=True, null = True,default = '-9')
     
-    BMI = models.FloatField(blank = True, default = -9.0)	
+    BMI = models.FloatField(blank = True, null = True,default = -9.0)	
     
-    smoking = models.CharField(max_length=100, choices=CAT_DAR_SMOKING, blank=True, default = '-9')
+    smoking = models.CharField(max_length=100, choices=CAT_DAR_SMOKING, blank=True,null = True, default = '-9')
     
-    parity = models.IntegerField(blank=True, default = -9)
+    parity = models.IntegerField(blank=True, null = True,default = -9)
     
-    preg_complications	= models.CharField(max_length=100, choices=CAT_DAR_COMPLICATIONS, blank=True, default = '-9')
+    preg_complications	= models.CharField(max_length=100, choices=CAT_DAR_COMPLICATIONS, blank=True, null = True,default = '-9')
     
-    folic_acid_supp	= models.CharField(max_length=100, choices=CAT_DAR_FOLIC, blank=True, default = '-9')
+    folic_acid_supp	= models.CharField(max_length=100, choices=CAT_DAR_FOLIC, blank=True, null = True,default = '-9')
     
-    babySex	= models.CharField(max_length=100, choices=CAT_DAR_SEX, blank=True, default = '-9')
+    babySex	= models.CharField(max_length=100, choices=CAT_DAR_SEX, blank=True, null = True,default = '-9')
 
-    birth_year = models.IntegerField(blank=True, default = -9)
+    birth_year = models.IntegerField(blank=True, null = True,default = -9)
     
-    birth_month = models.IntegerField(blank=True, default = -9)
+    birth_month = models.IntegerField(blank=True, null = True,default = -9)
 
-    birthWt = models.FloatField(blank = True, default = -9.0)
+    birthWt = models.FloatField(blank = True, null = True,default = -9.0)
     
-    birthLen = models.FloatField(blank = True, default = -9.0)
+    birthLen = models.FloatField(blank = True, null = True,default = -9.0)
 
-    headCirc = models.FloatField(blank = True, default = -9.0)
+    headCirc = models.FloatField(blank = True, null = True,default = -9.0)
 
-    ponderal = models.FloatField(blank = True, default = -9.0)
+    ponderal = models.FloatField(blank = True, null = True,default = -9.0)
 
-    PNFFQTUNA = models.CharField(max_length=100, blank=True, default = '-9')
+    PNFFQTUNA = models.CharField(max_length=100, blank=True, null = True,default = '-9')
 
-    PNFFQFR_FISH_KIDS = models.CharField(max_length=100, blank=True, default = '-9')
+    PNFFQFR_FISH_KIDS = models.CharField(max_length=100, blank=True, null = True,default = '-9')
 
-    PNFFQSHRIMP_CKD = models.CharField(max_length=100, blank=True, default = '-9')
+    PNFFQSHRIMP_CKD = models.CharField(max_length=100, blank=True, null = True,default = '-9')
 
-    PNFFQDK_FISH = models.CharField(max_length=100, blank=True, default = '-9')
+    PNFFQDK_FISH = models.CharField(max_length=100, blank=True, null = True,default = '-9')
 
-    PNFFQOTH_FISH = models.CharField(max_length=100, blank=True, default = '-9')
+    PNFFQOTH_FISH = models.CharField(max_length=100, blank=True, null = True,default = '-9')
 
-    mfsp_6 = models.CharField(max_length=100, blank=True, default = '-9')
+    mfsp_6 = models.CharField(max_length=100, blank=True, null = True,default = '-9')
 
-    fish = models.FloatField(blank = True, default = -9.0)
+    fish = models.FloatField(blank = True,null = True, default = -9.0)
     
-    TOTALFISH_SERV = models.FloatField(blank = True, default = -9.0)
+    TOTALFISH_SERV = models.FloatField(blank = True,null = True, default = -9.0)
 
-    folic_acid = models.FloatField(blank = True, default = -9.0)
+    folic_acid = models.FloatField(blank = True, null = True,default = -9.0)
 
-    income5y = models.CharField(max_length=100, blank=True, default = '-9')
+    income5y = models.CharField(max_length=100, blank=True, null = True,default = '-9')
 
-    urine_batchno_bulk = models.FloatField(blank = True, default = -9.0)
+    urine_batchno_bulk = models.FloatField(blank = True,null = True, default = -9.0)
 
-    urine_batchno_spec = models.FloatField(blank = True, default = -9.0)
+    urine_batchno_spec = models.FloatField(blank = True,null = True, default = -9.0)
 
-    collect_age_days = models.FloatField(blank = True, default = -9.0)
+    collect_age_days = models.FloatField(blank = True, null = True,default = -9.0)
 
-    collect_age_src = models.CharField(max_length=100, blank=True, default = '-9')
+    collect_age_src = models.CharField(max_length=100, blank=True, null = True,default = '-9')
 
-    collection_season = models.CharField(max_length=100, blank=True, default = '-9')
+    collection_season = models.CharField(max_length=100, blank=True, null = True,default = '-9')
 
-    pH = models.FloatField(blank = True, default = -9.0)
+    pH = models.FloatField(blank = True, null = True,default = -9.0)
 
-    TotAs_noAsB = models.FloatField(blank = True, default = -9.0)
+    TotAs_noAsB = models.FloatField(blank = True, null = True,default = -9.0)
 
-    PropMMAtoiAs = models.FloatField(blank = True, default = -9.0)
+    PropMMAtoiAs = models.FloatField(blank = True, null = True,default = -9.0)
     
-    PropDMAtoMMA = models.FloatField(blank = True, default = -9.0)
+    PropDMAtoMMA = models.FloatField(blank = True, null = True,default = -9.0)
 
     urine_specific_gravity = models.FloatField(blank=True, null=True, default = -9.0)
 
-    WeightZScore = models.FloatField(blank = True, default = -9.0)
+    WeightZScore = models.FloatField(blank = True,null = True, default = -9.0)
     
-    WeightCentile = models.FloatField(blank = True, default = -9.0)	
+    WeightCentile = models.FloatField(blank = True, null = True,default = -9.0)	
     
-    LGA	= models.FloatField(blank = True, default = -9.0)
+    LGA	= models.FloatField(blank = True, null = True,default = -9.0)
     
-    SGA= models.FloatField(blank = True, default = -9.0)
+    SGA= models.FloatField(blank = True, null = True,default = -9.0)
 
     # variables added for new outcome - gestational diabetes
-    GDMTest1Age = models.FloatField(blank = True, default = -9.0)
-    GDMTest2Age = models.FloatField(blank = True, default = -9.0)
-    GDMtest1 =  models.CharField(max_length=11, choices=CAT_DAR_GDM, blank=True, default = '-9')
-    GDMtest2 =  models.CharField(max_length=11, choices=CAT_DAR_GDM, blank=True, default = '-9')
+    GDMTest1Age = models.FloatField(blank = True, null = True,default = -9.0)
+    GDMTest2Age = models.FloatField(blank = True, null = True,default = -9.0)
+    GDMtest1 =  models.CharField(max_length=11, choices=CAT_DAR_GDM, blank=True,null = True, default = '-9')
+    GDMtest2 =  models.CharField(max_length=11, choices=CAT_DAR_GDM, blank=True, null = True,default = '-9')
     
     iAs = models.FloatField(blank=True, null=True, default = -9.0)
     iAs_IDL = models.FloatField(blank=True, null=True, default = -9.0)
