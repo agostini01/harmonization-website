@@ -75,6 +75,7 @@ def saveUNMToDB(csv_file):
             age = entry.age,
             ethnicity = entry.ethnicity,
             race = entry.race,
+            imputed = entry.imputed,
             education = entry.education,
             BMI = entry.BMI,
             income = entry.income,
