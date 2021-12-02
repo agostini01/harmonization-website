@@ -115,6 +115,58 @@ def get_dataframe_nofish():
 
     return df_nofish
 
+def get_dataframe_covars():
+     # TODO - Should we drop NaN here?
+    df = pd.DataFrame.from_records(
+        RawNEU.objects.
+        # exclude(Creat_Corr_Result__lt=-1000).
+        # exclude(Creat_Corr_Result__isnull=True).
+        values()
+    )
+
+    ## birth weight and length
+  
+    df['birthWt'] = df['birthWt'] * 1000
+    df['birthLen'] = df['birthLen'] * 2.54
+
+    ## education connversion
+    df['ed'] = df['ed'].astype(float)
+
+    conditions = [
+    (df['ed'] <= 8 ),
+    (df['ed'].isin([9,10,11,12])),
+    (df['ed'].isin([13,14])) ,
+    (df['ed'] == 15 ),
+    (df['ed'] > 15 ) &  (df['ed'] < 20) ,
+    ]
+    choices = [1,2,3,4,5]
+
+    df['education'] = np.select(conditions, choices, default=-9)
+    ## birth year
+    df['PPDATEDEL'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce')
+    df['birth_year'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce').dt.year
+    
+    ## new covariates
+
+    ## df.rename(columns = {'pregnum':'parity'}, inplace = True)
+    #new covars
+
+    covars = ['CohortType','TimePeriod','Outcome_weeks', 'age', 'ethnicity', 'race', 'Outcome',
+    'BMI', 'smoking', 'parity', 'preg_complications', 
+    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen', 'headCirc',
+    'WeightCentile','LGA','SGA','education', 'birth_year', 
+    'SPECIFICGRAVITY_V2', 'fish_pu_v2']
+
+    #calculate extra variables
+    #parity
+    df['parity'] = df['pregnum']
+    #ga at collection
+    df['CohortType'] = 'UNM'
+    df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
+
+    return df[['PIN_Patient'] + covars]
+
+
 def get_dataframe_BLOD():
     """Returns a pandas DataFrame"""
 

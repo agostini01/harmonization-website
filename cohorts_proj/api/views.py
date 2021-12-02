@@ -490,7 +490,7 @@ class GraphRequestView(views.APIView):
             #df3 = adapters.dar.get_dataframe()  # [selected_columns]
             #df = pd.concat([df1, df2, df3])
             #df = analysis.merge3CohortFrames(df1, df2, df3)
-            df = adapters.neu.get_dataframe()
+            df = adapters.neu.get_dataframe_orig()
             
         # Apply Filters
         #if time_period != 9:
@@ -588,8 +588,8 @@ class GraphRequestView(views.APIView):
             #if (t == 'logistic_regression'):
             #    gr = cls.getlogistcRegPlot(df, x_feature, y_feature, color_by)
             if (t == 'overview_plot'):
-                df_neu = adapters.neu.get_dataframe()  # [selected_columns]
-                df_unm = adapters.unm.get_dataframe()  # [selected_columns]
+                df_neu = adapters.neu.get_dataframe_orig()  # [selected_columns]
+                df_unm = adapters.unm.get_dataframe_orig()  # [selected_columns]
                 df_dar = adapters.dar.get_dataframe()  # [selected_columns]
                 
                 #df = analysis.getCountsReport(df1,df2,df3)
