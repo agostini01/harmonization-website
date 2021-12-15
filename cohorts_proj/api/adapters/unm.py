@@ -50,7 +50,6 @@ def get_dataframe():
     categorical_to_columns = ['Analyte']
     indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
 
-    
 
     df = pd.pivot_table(df, values=numerical_values,
                         index=columns_to_indexes,
@@ -72,21 +71,7 @@ def get_dataframe():
     df['CohortType'] = 'UNM'
     df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
 
-
-    dilution = predict_dilution(df, 'UNM')
-    dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(str)
-    df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
-    #remove missing creat
-    df_new = df_new[~df_new['creatininemgdl_x'].isna()]
-
-    print('Original shape')
-    print(df.shape)
-    print('Dilution shape')
-    print(dilution.shape)
-    print('Check the data seize')
-    print(df_new.shape)
-
-    return df_new
+    return df
 
 def get_dataframe_nofish():
     """Returns a pandas DataFrame with fish removed for cohort"""
@@ -116,7 +101,7 @@ def get_dataframe_orig():
     )
 
 
-    covars = ['Outcome_weeks', 'age', 'ethnicity',
+    covars = ['Outcome_weeks', 'age', 'ethnicity', 
        'race', 'education', 'BMI', 'income', 'smoking', 'parity',
        'preg_complications', 'folic_acid_supp', 'fish', 'babySex',
        'birthWt', 'headCirc',
@@ -137,9 +122,9 @@ def get_dataframe_orig():
     # TODO - Do we want to plot Result or Creat_Corr_Result
     numerical_values = 'Result'
 
-    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome'] 
+    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c'] 
     categorical_to_columns = ['Analyte']
-    indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
+    indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod'] 
 
 
     df = pd.pivot_table(df, values=numerical_values,
@@ -193,10 +178,10 @@ def get_dataframe_covars():
     df['CohortType'] = 'UNM'
     df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
 
-    covars = ['CohortType','TimePeriod','Outcome_weeks', 'age', 'ethnicity', 'Outcome',
+    covars = ['CohortType','TimePeriod','Outcome_weeks', 'age', 'ethnicity', 
        'race', 'education', 'BMI', 'income', 'smoking', 'parity', 'creatininemgdl',
        'preg_complications', 'folic_acid_supp', 'fish', 'babySex',
-       'birthWt', 'headCirc',
+       'birthWt', 'headCirc', 'Outcome',
        'birthLen','WeightCentile',
        'LGA','SGA','ga_collection','birth_year']
 

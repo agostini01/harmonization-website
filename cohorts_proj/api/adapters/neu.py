@@ -92,25 +92,13 @@ def get_dataframe():
     ## as discussed, visit 2 only
     df = df[df['TimePeriod'] == 2]
     ## as discussed, no fish in past 48hrs for v2
-    #df = df[df['fish_pu_v2'] == 0]
-    ## predict dilution for visit 2
-    dilution = predict_dilution(df, 'NEU')
-    
-    
-    dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(int).astype(str)
-    df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
-    
-    # remove any sg missing 
-    df_new = df_new[~df_new['SPECIFICGRAVITY_V2_x'].isna()]
-    return df_new
+
+    return df
 
 def get_dataframe_nofish():
     """Returns a pandas DataFrame with fish removed for cohort"""
-
     df = get_dataframe()
-
     neu_logic = (df['fish_pu_v2'] == 0) & (df['fish'] == 0)
-
     df_nofish = df[neu_logic]
 
     return df_nofish
@@ -125,7 +113,6 @@ def get_dataframe_covars():
     )
 
     ## birth weight and length
-  
     df['birthWt'] = df['birthWt'] * 1000
     df['birthLen'] = df['birthLen'] * 2.54
 
@@ -145,6 +132,9 @@ def get_dataframe_covars():
     ## birth year
     df['PPDATEDEL'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce')
     df['birth_year'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce').dt.year
+
+
+    df['Outcome'] = df['Outcome'].astype(float)
     
     ## new covariates
 
@@ -152,7 +142,7 @@ def get_dataframe_covars():
     #new covars
 
     covars = ['CohortType','TimePeriod','Outcome_weeks', 'age', 'ethnicity', 'race', 'Outcome',
-    'BMI', 'smoking', 'parity', 'preg_complications', 
+    'BMI', 'smoking', 'parity', 'preg_complications', 'ga_collection', 
     'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen', 'headCirc',
     'WeightCentile','LGA','SGA','education', 'birth_year', 
     'SPECIFICGRAVITY_V2', 'fish_pu_v2']
@@ -161,10 +151,10 @@ def get_dataframe_covars():
     #parity
     df['parity'] = df['pregnum']
     #ga at collection
-    df['CohortType'] = 'UNM'
+    df['CohortType'] = 'NEU'
     df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
-
-    return df[['PIN_Patient'] + covars]
+    #assert len(df['PIN_Patient'].unique()) == df[['PIN_Patient'] + covars].drop_duplicates().shape[0]
+    return df[['PIN_Patient'] + covars].drop_duplicates()
 
 
 def get_dataframe_BLOD():
@@ -210,11 +200,6 @@ def get_dataframe_BLOD():
     ## df.rename(columns = {'pregnum':'parity'}, inplace = True)
     #new covars
 
-    covars = ['Outcome_weeks', 'age', 'ethnicity', 'race', 
-    'BMI', 'smoking', 'parity', 'preg_complications',
-    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen', 'headCirc',
-    'WeightCentile','LGA','SGA','ga_collection','education', 'birth_year', 
-    'SPECIFICGRAVITY_V2', 'fish_pu_v2']
 
     #calculate extra variables
     #parity
@@ -226,12 +211,11 @@ def get_dataframe_BLOD():
 
     columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome']
     categorical_to_columns = ['Analyte']
-    indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
+   
 
     df = pd.pivot_table(df, values=numerical_values,
                         index=columns_to_indexes,
-                        columns=categorical_to_columns,
-                        aggfunc=np.average)
+                        columns=categorical_to_columns)
                         
     df = df.reset_index()
    
@@ -296,7 +280,7 @@ def get_dataframe_orig():
     #new covars
 
     covars = ['Outcome_weeks', 'age', 'ethnicity', 'race', 
-    'BMI', 'smoking', 'parity', 'preg_complications',
+    'BMI', 'smoking', 'parity', 'preg_complications', 'Outcome_weeks',
     'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen', 'headCirc',
     'WeightCentile','LGA','SGA','ga_collection','education', 'birth_year', 
     'SPECIFICGRAVITY_V2', 'fish_pu_v2']
@@ -309,14 +293,12 @@ def get_dataframe_orig():
     # Pivoting the table and reseting index
     numerical_values = 'Result'
 
-    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome', 'LOD']
+    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c' ]
     categorical_to_columns = ['Analyte']
-    indexes_to_columns = ['PIN_Patient','Member_c', 'TimePeriod', 'Outcome'] + covars
 
     df = pd.pivot_table(df, values=numerical_values,
                         index=columns_to_indexes,
-                        columns=categorical_to_columns,
-                        aggfunc=np.average)
+                        columns=categorical_to_columns)
                         
     df = df.reset_index()
    
