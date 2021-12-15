@@ -82,6 +82,10 @@ def get_dataframe_pred():
 
     df['ga_collection'] = df['collect_age_days'] /7 
 
+    df['Outcome'] = df['Outcome'].astype(float)
+    df['LGA'] = df['LGA'].astype(float)
+    df['SGA'] = df['SGA'].astype(float)
+
     # Read numeric columns as numeric
     numeric_columns =     ['UIAS', 
                   'UASB', 

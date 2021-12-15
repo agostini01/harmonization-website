@@ -178,6 +178,11 @@ def get_dataframe_covars():
     df['CohortType'] = 'UNM'
     df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
 
+    df['Outcome'] = df['Outcome'].astype(float)
+    df['LGA'] = df['LGA'].astype(float)
+    df['SGA'] = df['SGA'].astype(float)
+    
+
     covars = ['CohortType','TimePeriod','Outcome_weeks', 'age', 'ethnicity', 
        'race', 'education', 'BMI', 'income', 'smoking', 'parity', 'creatininemgdl',
        'preg_complications', 'folic_acid_supp', 'fish', 'babySex',
