@@ -144,13 +144,13 @@ def get_dataframe_pred():
     }
     df['TimePeriod'] = df['TimePeriod'].map(time_period_mapper)
 
-    dilution = predict_dilution(df, 'DAR')
-    dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(str)
-    df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
+    #dilution = predict_dilution(df, 'DAR')
+    #dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(str)
+    #df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
     
-    df_new = df_new[~df_new['urine_specific_gravity_x'].isna()]
+    #df_new = df_new[~df_new['urine_specific_gravity_x'].isna()]
 
-    return df_new
+    return df
 
 
 def get_dataframe_nofish():
@@ -308,9 +308,5 @@ def get_dataframe():
         '5YP': 8,
     }
     df['TimePeriod'] = df['TimePeriod'].map(time_period_mapper)
-
-    #dilution = predict_dilution(df, 'DAR')
-    #dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(str)
-    #df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
 
     return df
