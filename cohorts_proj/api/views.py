@@ -782,6 +782,7 @@ class InfoRequestView(views.APIView):
         print(covar_choices)
         
         t = plot_type
+        fish = covar_choices
         print('### Plot type ###')
         print(plot_type)
         gr = None   
@@ -962,8 +963,7 @@ class InfoRequestView(views.APIView):
                 df1 = adapters.neu.get_dataframe()  # [selected_columns]
                 df2 = adapters.unm.get_dataframe()  # [selected_columns]
                 df3 = adapters.dar.get_dataframe()  # [selected_columns]
-
-                
+                 
                 count1 = df1.describe().transpose()
                 count2 = df2.describe().transpose()
                 count3 = df3.describe().transpose()
@@ -974,24 +974,132 @@ class InfoRequestView(views.APIView):
                 gr = df.reset_index().to_json(orient='records')
 
             if (t == 'overview_report2'):
-                #print('check')
-                #print(df.describe().transpose().reset_index())
-                df1 = adapters.neu.get_dataframe()  # [selected_columns]
-                df2 = adapters.unm.get_dataframe_orig()  # [selected_columns]
-                df3 = adapters.dar.get_dataframe()  # [selected_columns]
-                
-                df = analysis.getCountsReport(df1,df2,df3)
-                gr = df.reset_index().to_json(orient='records')
 
-            if (t == 'overview_report2_download'):
-                #print('check')
-                #print(df.describe().transpose().reset_index())
-                df1 = adapters.neu.get_dataframe()  # [selected_columns]
-                df2 = adapters.unm.get_dataframe()  # [selected_columns]
-                df3 = adapters.dar.get_dataframe()  # [selected_columns]
+                df_NEU = adapters.neu.get_dataframe_covars()
+                df_NEU = df_NEU[df_NEU['TimePeriod'] == 2].drop_duplicates()
+                df_UNM = adapters.unm.get_dataframe_covars()
+                df_DAR = adapters.dar.get_dataframe()
+
+                if fish == 'nofishCategoricalCounts':
+                        df_NEU = df_NEU[(df_NEU['fish_pu_v2'] == 0) & (df_NEU['fish'] == 0)] #No fish consumption
+                        df_UNM = df_UNM[df_UNM['fish'] == 0]
+                        df_DAR = adapters.dar.get_dataframe_nofish()
+                        
+
+                neu = analysis.categoricalCounts(df_NEU)
+                neu['CohortType'] = 'NEU'
+                unm = analysis.categoricalCounts(df_UNM)
+                unm['CohortType'] = 'UNM'  
+                dar = analysis.categoricalCounts(df_DAR)
+                dar['CohortType'] = 'DAR'              
+
+                df_ALL = analysis.merge3CohortFrames(df_NEU,df_DAR, df_UNM)
+
+                alls = analysis.categoricalCounts(df_ALL)
+                alls['CohortType'] = 'ALL'   
+
+                rez = pd.concat([neu, dar, unm,alls]).sort_values(by = ['variable','CohortType']).reset_index()
+                ret_rez = rez[['CohortType','variable','cat','value']]
+
+                gr = ret_rez.reset_index().to_json(orient='records')
+
+            if (t == 'variablecounts'):
+
+                #covar data frames
+                df_neu_covars = adapters.neu.get_dataframe_covars().replace(-9, np.nan).replace('-9', np.nan)
+
+                df_neu_covars = df_neu_covars[df_neu_covars['TimePeriod']==2]
+            
+                df_unm_covars = adapters.unm.get_dataframe_covars().replace(-9, np.nan).replace('-9', np.nan)
+
+                #biological data frames
+                df_neu_bio = adapters.neu.get_dataframe_orig().replace(-9, np.nan).replace('-9', np.nan)
+                df_unm_bio = adapters.unm.get_dataframe_orig().replace(-9, np.nan).replace('-9', np.nan)
+                df_dar_bio = adapters.dar.get_dataframe().replace(-9, np.nan).replace('-9', np.nan)
+
+                df_neu_covars.drop_duplicates()
                 
-                df = analysis.getCountsReport(df1,df2,df3)
-                gr = df.to_json(orient='records')
+                if fish == 'nofishVariableCounts':
+                    df_neu_covars = df_neu_covars[(df_neu_covars['fish_pu_v2'] == 0) & (df_neu_covars['fish'] == 0)] #No fish consumption
+                    df_unm_covars = df_unm_covars[df_unm_covars['fish'] == 0]
+                    df_dar_bio = adapters.dar.get_dataframe_nofish()
+
+                df_neu_covars['urine_adjust_var'] = df_neu_covars['SPECIFICGRAVITY_V2']
+                df_unm_covars['urine_adjust_var'] = df_unm_covars['creatininemgdl']
+                df_dar_bio['urine_adjust_var'] = df_dar_bio['urine_specific_gravity']
+
+                df_neu_f = df_neu_bio.merge(df_neu_covars, on = ['PIN_Patient','CohortType','TimePeriod'])
+                df_unm_f = df_unm_bio.merge(df_unm_covars, on = ['PIN_Patient','CohortType','TimePeriod'])
+                df_dar_f = df_dar_bio
+
+                merge = analysis.merge3CohortFrames(df_neu_f, df_unm_f, df_dar_f)
+
+                df_merged = merge.groupby(['CohortType']).count().transpose().reset_index()
+
+                df_merged['Totals'] = df_merged[['DAR','NEU','UNM']].sum(axis = 1)
+
+                ret_rez = df_merged[['index','DAR','NEU','UNM','Totals']]
+
+                ret_rez.columns = ['variable','DAR','NEU','UNM','Totals']
+
+                gr = ret_rez.reset_index().to_json(orient='records')
+
+            if (t == 'continous'):
+
+                #covar data frames
+                df_neu_covars = adapters.neu.get_dataframe_covars().replace(-9, np.nan).replace('-9', np.nan)
+
+                df_neu_covars = df_neu_covars[df_neu_covars['TimePeriod']==2]
+            
+                df_unm_covars = adapters.unm.get_dataframe_covars().replace(-9, np.nan).replace('-9', np.nan)
+
+                #biological data frames
+                df_neu_bio = adapters.neu.get_dataframe_orig().replace(-9, np.nan).replace('-9', np.nan)
+                df_unm_bio = adapters.unm.get_dataframe_orig().replace(-9, np.nan).replace('-9', np.nan)
+                df_dar_bio = adapters.dar.get_dataframe().replace(-9, np.nan).replace('-9', np.nan)
+
+                df_neu_covars.drop_duplicates()
+                
+                if fish == 'nofishContinous':
+                    df_neu_covars = df_neu_covars[(df_neu_covars['fish_pu_v2'] == 0) & (df_neu_covars['fish'] == 0)] #No fish consumption
+                    df_unm_covars = df_unm_covars[df_unm_covars['fish'] == 0]
+                    df_dar_bio = adapters.dar.get_dataframe_nofish()
+                    
+                    
+
+                df_neu_covars['urine_adjust_var'] = df_neu_covars['SPECIFICGRAVITY_V2']
+                df_unm_covars['urine_adjust_var'] = df_unm_covars['creatininemgdl']
+                df_dar_bio['urine_adjust_var'] = df_dar_bio['urine_specific_gravity']
+
+                df_neu_f = df_neu_bio.merge(df_neu_covars, on = ['PIN_Patient','CohortType','TimePeriod'])
+                df_unm_f = df_unm_bio.merge(df_unm_covars, on = ['PIN_Patient','CohortType','TimePeriod'])
+                df_dar_f = df_dar_bio
+
+                merge = analysis.merge3CohortFrames(df_neu_f, df_unm_f, df_dar_f)
+
+
+                dfs = []
+                for cohort in ['NEU','UNM', 'DAR']:
+
+                    df1 = analysis.cohortdescriptive_all(merge[merge['CohortType'] == cohort]).round(4)
+                    df1['CohortType'] = cohort
+                    dfs.append(df1)
+
+                df_all  = analysis.cohortdescriptive_all(merge).round(4)
+
+                df_all['CohortType'] = 'All'
+                dfs.append(df_all)
+
+                df_fin  = pd.concat(dfs).reset_index()
+                df_fin
+                df_fin.columns = ['variable', 'count', 'mean', 'std', 'min', 'q1', 'median', 'q3', 'max',
+                    'CohortType']
+
+                df_fin = df_fin[['CohortType', 'variable', 'count', 'mean', 'std', 'min', 'q1', 'median', 'q3', 'max']]
+
+                gr = df_fin.reset_index().to_json(orient='records')
+
+                
 
         response = HttpResponse(gr)
     
