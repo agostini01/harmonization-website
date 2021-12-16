@@ -402,7 +402,7 @@ def cohortdescriptive_all(df_all):
 
     df_all = df_all.select_dtypes(include=['float64'])
 
-    categorical = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
+    categorical = ['CohortType','TimePeriod','Outcome','folic_acid_supp', 'PIN_Patient',
                 'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education']
 
     df_all = df_all.loc[:, ~df_all.columns.isin(categorical)]
@@ -464,8 +464,6 @@ def oneHotEncoding(df, toencode):
 
 def merge3CohortFrames(df1,df2,df3):
     'merge on feature intersections'
-    #only consider visit 2 for NEU
-    df2 = df2[df2['TimePeriod'] == 2]
 
     for as_feature in ['UASB', 'UDMA', 'UAS5', 'UIAS', 'UAS3', 'UMMA']:
         if as_feature not in df1.columns:
@@ -481,13 +479,10 @@ def merge3CohortFrames(df1,df2,df3):
 
     cc = set.intersection(s1, s2, s3)
 
+    print(cc)
     df_all = pd.concat([df1[cc],df2[cc],df3[cc]])
 
-    for x in df_all:
-        try:
-            df_all[x] = df_all[x].astype(float)
-        except:
-            pass
+
 
     return df_all
 
@@ -520,29 +515,20 @@ def categoricalCounts(df):
     #each participant should only have 1 measurment per fvariable
 
     cohort = df['CohortType'].unique()
-    categorical1 = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
+    categorical1 = ['CohortType','TimePeriod','Outcome','folic_acid_supp', 'PIN_Patient',
                 'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education']
 
-    categorical2 = ['CohortType','TimePeriod','Member_c','Outcome','folic_acid_supp', 'PIN_Patient',
-                'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education','GDMtest1','GDMtest2']
     
-    #TODO: fix this should detect the dataset type
-    try:
-        df22 = df[categorical1].drop_duplicates(['PIN_Patient'])
-        categorical1.remove('PIN_Patient')
-        df22 = df22[categorical1]
-        melted = pd.melt(df22,id_vars=['CohortType'])    
-        df33 = melted.groupby(['variable','value'])['value'].count()
-        df33.index.names = ['variable', 'cat']
-    except:
-        df22 = df[categorical2].drop_duplicates(['PIN_Patient'])
-        categorical2.remove('PIN_Patient')
-        df22 = df22[categorical2]
-        melted = pd.melt(df22,id_vars=['CohortType'])
-        df33 = melted.groupby(['variable','value'])['value'].count()
-        df33.index.names = ['variable', 'cat']
    
+    df22 = df[categorical1].drop_duplicates(['PIN_Patient'])
+    categorical1.remove('PIN_Patient')
+    df22 = df22[categorical1]
+    melted = pd.melt(df22,id_vars=['CohortType'])    
+    df33 = melted.groupby(['variable','value'])['value'].count()
+    df33.index.names = ['variable', 'cat']
+    
     return df33.reset_index()
+    
 def turntofloat(df):
 
     for col in df.columns:
