@@ -518,7 +518,11 @@ def categoricalCounts(df):
     categorical1 = ['CohortType','TimePeriod','Outcome','folic_acid_supp', 'PIN_Patient',
                 'ethnicity','race','smoking','preg_complications','babySex','LGA','SGA','education']
 
-    
+    for var in categorical1:
+        try:
+            df[var] = df[var].astype(float)
+        except:
+            pass
    
     df22 = df[categorical1].drop_duplicates(['PIN_Patient'])
     categorical1.remove('PIN_Patient')
