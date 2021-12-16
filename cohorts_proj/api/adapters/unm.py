@@ -162,8 +162,9 @@ def get_dataframe_covars():
         values()
     )
 
-
+    df['creatininemgdl'] = df['creatininemgdl'].astype(float)
     
+    df = df[~df['creatininemgdl'].isna()]    
 
     df['ga_collection'] = df['gestAge_collection']
 
@@ -190,7 +191,8 @@ def get_dataframe_covars():
        'birthLen','WeightCentile',
        'LGA','SGA','ga_collection','birth_year']
 
-    df = df[~df['creatininemgdl'].isna()]
+
+    
 
     return df[['PIN_Patient'] + covars]
 
