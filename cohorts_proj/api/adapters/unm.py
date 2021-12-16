@@ -25,6 +25,10 @@ def get_dataframe():
         values()
     )
 
+    df['creatininemgdl'] = df['creatininemgdl'].astype(float)
+    
+    df = df[~df['creatininemgdl'].isna()]    
+
     covars = ['Outcome_weeks', 'age', 'ethnicity',
                 'race', 'education', 'BMI', 'income', 'smoking', 'parity',
                 'preg_complications', 'folic_acid_supp', 'fish', 'babySex',
@@ -100,6 +104,9 @@ def get_dataframe_orig():
         values()
     )
 
+    df['creatininemgdl'] = df['creatininemgdl'].astype(float)
+    
+    df = df[~df['creatininemgdl'].isna()]    
 
     covars = ['Outcome_weeks', 'age', 'ethnicity', 
        'race', 'education', 'BMI', 'income', 'smoking', 'parity',
