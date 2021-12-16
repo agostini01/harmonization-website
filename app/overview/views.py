@@ -136,9 +136,14 @@ class GraphsHAROverviewpagesView(LoginRequiredMixin, TemplateView):
         return super(GraphsPageView, self).form_valid(form)
 
     @classmethod
-    def getOverviewDownload(self, request):
+    def getOverviewDownload(self, request, id1, id2):
         """This function requets graphs through the API container."""
-        plot_type = 'overview_report2'
+
+        
+        plot_type = id1
+        covar_choices = id2
+
+        #this is not really used here
         x_feature = 'USB'
         y_feature = 'UTAS'
         color_by = 'Outcome'
@@ -196,11 +201,29 @@ class GraphsHAROverviewpagesView(LoginRequiredMixin, TemplateView):
         )
 
         writer = csv.writer(response)
-        writer.writerow(['index', 'UNM', 'NEU', 'DAR', 'Total'])
-        print(type(s))
-        print(type(data))
-        for obj in data:
-            print(obj)
-            writer.writerow([obj['index'], obj['UNM'], obj['NEU'], obj['DAR'], obj['Total']])
+
+        if id1 == 'overview_report2':
+
+            writer.writerow(['CohortType', 'variable', 'cat', 'value'])
         
+            for obj in data:
+                print(obj)
+                writer.writerow([obj['CohortType'], obj['variable'], obj['cat'], obj['value']])
+
+        if id1 == 'variablecounts':
+            writer.writerow(['variable', 'NEU', 'UNM', 'DAR','Totals'])
+        
+
+            for obj in data:
+                print(obj)
+                writer.writerow([obj['variable'], obj['NEU'], obj['UNM'], obj['DAR'], obj['Totals']])
+        if id1 == 'continous':
+            writer.writerow(['CohortType', 'variable', 'count', 'mean', 'std', 'min', 'q1', 'median', 'q3', 'max'])
+        
+
+            for obj in data:
+                print(obj)
+                writer.writerow([obj['CohortType'], obj['variable'], obj['count'], obj['mean'], obj['std'], obj['min'], obj['q1'], obj['median'], obj['q3'], obj['max']])
+
+     
         return response

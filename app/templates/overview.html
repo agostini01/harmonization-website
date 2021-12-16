@@ -5,7 +5,44 @@
 {% block content %}
 <h1>Overview</h1>
 
-<p>This provides an overview of the current harmonization status.</p>
+<p>This provides an overview of the current harmonization status and updates on summaries related to models</p>
+
+
+
+<h2>Data summaries used in Models 1 - nofish </h2>
+<br>
+<p> Data counts: </p>
+<a href="overviewdownload/variablecounts/nofishVariableCounts">Download </a>
+<br>
+<br>
+<p>Continous Variables: </p>
+<a href="overviewdownload/continous/nofishContinous">Download </a>
+<br>
+<br>
+<p>Categorical Variables: </p>
+<a href="overviewdownload/overview_report2/nofishCategoricalCounts">Download </a>
+
+
+<h2>Data summaries used in Models 4 - with fish consumption / sensitivity </h2>
+<br>
+<p> Data counts: </p>
+<a href="overviewdownload/variablecounts/withfishVariableCounts">Download </a>
+<br>
+<br>
+<p>Continous Variables: </p>
+<a href="overviewdownload/continous/withfishContinous">Download </a>
+<br>
+<br>
+<p>Categorical Variables: </p>
+<a href="overviewdownload/overview_report2/withfishCategoricalCounts">Download </a>
+
+
+
+
+<br>
+<br>
+<br>
+<h2> Harmonized urinary variables by cohort: </h2>
 <p>This heatmap shows which urniary metal analytes are available (green) / not available (red) per cohort.  </p>
 <img src='{% url "overviewplot" %}' /> 
 <br>
@@ -13,35 +50,36 @@
 <br>
 </br>
 
+
+
+<!--
 <p>This table provides an overview of all the data counts for all cohorts:  </p>
 <table style="width:100px", class="table table-dark table-striped">
     <thead>
     <tr>
-        <th>index</th>
-        <th>Neu</th>
-        <th>Unm</th>
-        <th>Dar</th>
-        <th>Total</th>
+        <th>CohortType</th>
+        <th>variable</th>
+        <th>cat</th>
+        <th>value</th>
+        
+    
     </tr>
     </thead>
     <tbody>
-    <!-- jinja2 Technique -->
-    {% if d %}
-    {% for i in d %}
+    
+    {% if b %}
+    {% for i in b %}
     <tr>
-
-        <th>{{i.index}}</th>
-        <th>{{i.NEU}}</th>
-        <th>{{i.UNM}}</th>
-        <th>{{i.DAR}}</th>
-        <th>{{i.Total}}</th>
+      
+        <th>{{i.CohortType}}</th>
+        <th>{{i.variable}}</th>
+        <th>{{i.cat}}</th>
+        <th>{{i.value}}</th>
+    
 
     </tr>
     {% endfor %}
     {% endif %}
     </tbody>
-</table>
-
-<p>Report Download</p>
-<a href="overviewdownload">Download </a>
+</table> -->
 {% endblock content %}
