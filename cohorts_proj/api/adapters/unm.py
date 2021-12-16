@@ -199,9 +199,9 @@ def get_dataframe_covars():
        'LGA','SGA','ga_collection','birth_year']
 
 
-    
+    ##drop duplicates required because it was initially in long foramt per analyte/visit/participant
 
-    return df[['PIN_Patient'] + covars]
+    return df[['PIN_Patient'] + covars].drop_duplicates()
 
 
 def get_dataframe_imputed():
