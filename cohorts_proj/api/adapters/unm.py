@@ -190,6 +190,8 @@ def get_dataframe_covars():
        'birthLen','WeightCentile',
        'LGA','SGA','ga_collection','birth_year']
 
+    df = df[~df['creatininemgdl'].isna()]
+
     return df[['PIN_Patient'] + covars]
 
 
