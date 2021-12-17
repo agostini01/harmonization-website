@@ -134,8 +134,7 @@ def get_dataframe_covars():
     df['birth_year'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce').dt.year
 
 
-    df['Outcome'] = df['Outcome'].astype(float)
-    
+
     ## new covariates
 
     ## df.rename(columns = {'pregnum':'parity'}, inplace = True)
@@ -150,6 +149,22 @@ def get_dataframe_covars():
     #calculate extra variables
     #parity
     df['parity'] = df['pregnum']
+
+    adjust_types = ['age', 'ethnicity', 
+       'race', 'education', 'BMI', 'income', 'smoking', 'parity', 'creatininemgdl',
+       'preg_complications', 'folic_acid_supp', 'fish', 'babySex']
+    
+    for var in adjust_types:
+        try:
+            df[var] = df[var].astype(float)
+        except:
+            pass
+
+    df['Outcome'] = df['Outcome'].astype(float)
+    df['LGA'] = df['LGA'].astype(float)
+    df['SGA'] = df['SGA'].astype(float)
+    
+
     #ga at collection
     df['CohortType'] = 'NEU'
     df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
