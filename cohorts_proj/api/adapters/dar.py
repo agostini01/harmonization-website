@@ -148,11 +148,7 @@ def get_dataframe_pred():
     }
     df['TimePeriod'] = df['TimePeriod'].map(time_period_mapper)
 
-    #dilution = predict_dilution(df, 'DAR')
-    #dilution['PIN_Patient'] = dilution['PIN_Patient'].astype(str)
-    #df_new = df.merge(dilution, on = 'PIN_Patient', how = 'left')
-    
-    #df_new = df_new[~df_new['urine_specific_gravity_x'].isna()]
+ 
 
     return df
 
@@ -311,6 +307,24 @@ def get_dataframe():
         '3YP': 8,
         '5YP': 8,
     }
+
+    # adjust some types
+
+    df['Outcome'] = df['Outcome'].astype(float)
+    df['LGA'] = df['LGA'].astype(float)
+    df['SGA'] = df['SGA'].astype(float)
+
+    adjust_types = ['age', 'ethnicity', 
+       'race', 'education', 'BMI', 'income', 'smoking', 'parity', 'creatininemgdl',
+       'preg_complications', 'folic_acid_supp', 'fish', 'babySex']
+    
+    for var in adjust_types:
+        try:
+            df[var] = df[var].astype(float)
+        except:
+            pass
+    
+
     df['TimePeriod'] = df['TimePeriod'].map(time_period_mapper)
 
     return df

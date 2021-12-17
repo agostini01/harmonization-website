@@ -173,6 +173,8 @@ def get_dataframe_covars():
     
     df = df[~df['creatininemgdl'].isna()]    
 
+    
+
     df['ga_collection'] = df['gestAge_collection']
 
     # RAW SAMPLE
@@ -197,6 +199,16 @@ def get_dataframe_covars():
        'birthWt', 'headCirc', 'Outcome',
        'birthLen','WeightCentile',
        'LGA','SGA','ga_collection','birth_year']
+
+    adjust_types = ['age', 'ethnicity', 
+       'race', 'education', 'BMI', 'income', 'smoking', 'parity', 'creatininemgdl',
+       'preg_complications', 'folic_acid_supp', 'fish', 'babySex']
+    
+    for var in adjust_types:
+        try:
+            df[var] = df[var].astype(float)
+        except:
+            pass
 
 
     ##drop duplicates required because it was initially in long foramt per analyte/visit/participant
