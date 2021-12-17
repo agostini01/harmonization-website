@@ -156,7 +156,7 @@ def get_dataframe_pred():
 def get_dataframe_nofish():
     """Returns a pandas DataFrame with fish removed for cohort"""
     ## fix later
-    df_new = get_dataframe_pred()
+    df_new = get_dataframe()
 
     fishvars = ['PNFFQFR_FISH_KIDS',
                 'PNFFQDK_FISH',
