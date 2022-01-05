@@ -211,7 +211,7 @@ def getOverviewPlot(df_neu, df_unm, df_dar):
     sns.set_theme()
 
     # Draw a heatmap with the numeric values in each cell
-    f, ax = plt.subplots(figsize=(20, 6))
+    f, ax = plt.subplots(figsize=(15, 6))
 
     df_counts = dff_counts.transpose()
     #masks = df2.transpose().drop(['CohortType'], axis = 0)

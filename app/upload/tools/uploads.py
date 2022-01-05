@@ -2,7 +2,7 @@ import requests
 
 
 def upload_file(uploader_name, uploader_email, dataset_type, f):
-    url = "http://api:8888/query/dataset-upload/"
+    url = "http://api:8887/query/dataset-upload/"
 
     payload = {'uploader_name': uploader_name,
                'uploader_email': uploader_email,
@@ -49,6 +49,34 @@ def handle_neu_file(uploader_name, uploader_email, dataset_type, f):
 
 
 def handle_dartmouth_file(uploader_name, uploader_email, dataset_type, f):
+    # default_storage.save('datasets/dartmouth/dartmouth.csv', f)
+
+    # TODO - Validate csv header and then upload
+
+    # Upload to api
+    response = upload_file(uploader_name, uploader_email, dataset_type, f)
+    return response
+
+##JAG how do I change default storage.save ??
+def handle_nhanes_bio_file(uploader_name, uploader_email, dataset_type, f):
+    # default_storage.save('datasets/dartmouth/dartmouth.csv', f)
+
+    # TODO - Validate csv header and then upload
+
+    # Upload to api
+    response = upload_file(uploader_name, uploader_email, dataset_type, f)
+    return response
+
+def handle_nhanes_llod_file(uploader_name, uploader_email, dataset_type, f):
+    # default_storage.save('datasets/dartmouth/dartmouth.csv', f)
+
+    # TODO - Validate csv header and then upload
+
+    # Upload to api
+    response = upload_file(uploader_name, uploader_email, dataset_type, f)
+    return response
+
+def handle_nhanes_dd_file(uploader_name, uploader_email, dataset_type, f):
     # default_storage.save('datasets/dartmouth/dartmouth.csv', f)
 
     # TODO - Validate csv header and then upload

@@ -1,0 +1,15 @@
+<optgroup label="Analytes">
+    {% for opt in analytes %}
+    <option value="{{ opt.short }}">{{ opt.long }}</option>
+    {% endfor %}
+</optgroup>
+<optgroup label="Categorical">
+    {% for opt in categorical %}
+    <option value="{{ opt.short }}">{{ opt.long }}</option>
+    {% endfor %}
+</optgroup>
+    <optgroup label="Outcomes">
+    {% for opt in outcomes %}
+    <option value="{{ opt.short }}">{{ opt.long }}</option>
+    {% endfor %}
+</optgroup>
