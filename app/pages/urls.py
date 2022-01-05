@@ -11,6 +11,7 @@ from .views import GraphsNEUDARPagesView
 from .views import GraphsDARUNMPagesView
 from .views import GraphsHARPagesView
 from .views import GraphsHAROverviewpagesView
+from .views import DictionariesAllPagesView
 
 from .views import load_dataset
 
@@ -27,6 +28,7 @@ urlpatterns = [
     path('overview/haroverview/',GraphsHAROverviewpagesView.as_view(), name = 'graphs-haroverview' ),
     path('graphs/', GraphsHARPagesView.as_view(), name='graphs'),
     path('about/', AboutPageView.as_view(), name='about'),
+    path('dictionaries/', DictionariesAllPagesView.as_view(), name='dictionaries'),
     path('', HomePageView.as_view(), name='home'),
     path('load-datasets', load_dataset, name='ajax_load_datasets'),
 

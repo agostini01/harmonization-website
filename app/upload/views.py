@@ -58,6 +58,20 @@ class UploadPageView(LoginRequiredMixin, FormView):
                     # print('Got Dartmouth Dataset')
                     response = handle_dartmouth_file(
                         uploader_name, uploader_email, dataset_type, f)
+                if (dataset_type == 'NHANES_bio'):
+                    # print('CSV Only Upload')
+                    response = handle_nhanes_bio_file(
+                        uploader_name, uploader_email, dataset_type, f)
+
+                if (dataset_type == 'NHANES_llod'):
+                    # print('CSV Only Upload')
+                    response = handle_nhanes_llod_file(
+                        uploader_name, uploader_email, dataset_type, f)
+                
+                if (dataset_type == 'NHANES_dd'):
+                    # print('CSV Only Upload')
+                    response = handle_nhanes_dd_file(
+                        uploader_name, uploader_email, dataset_type, f)
 
                 if response.status_code == 201:
                     return HttpResponseRedirect('/upload/success/')

@@ -62,6 +62,9 @@ DATASET_CHOICES = (
     ("neudar_dataset", "unmdar_dataset"),
     ("darunm_dataset", "darunm_dataset"),
     ("har_dataset", "har_dataset"),
+    ("nhanes_dataset", "nhanes_dataset"),
+    ("dictionary", "dictionary"),
+
 )
 
 

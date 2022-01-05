@@ -1,0 +1,14 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/base_graphs.css' %}">
+
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/@dmester/sffjs@1.16.1/dist/stringformat.min.js"></script>
+<script src="{% static 'js/base_graphs.js' %}"></script>
+
+
+{% endblock content %}

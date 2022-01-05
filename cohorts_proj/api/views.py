@@ -6,7 +6,7 @@ from .models import DatasetUploadModel
 
 from .serializers import GraphRequestSerializer
 
-from datasets.models import RawFlower, RawUNM, RawNEU, RawDAR
+from datasets.models import RawFlower, RawUNM, RawNEU, RawDAR, RawNHANES_BIO, RawNHANES_LLOD
 
 from api import adapters
 from api import graphs
@@ -367,6 +367,84 @@ def saveDARToDB(csv_file):
             Zn_N=entry.urine_m24G_Zn_n
         )
 
+def saveNHANES_LLODToDB(csv_file):
+    df = pd.read_csv(csv_file,
+                     skip_blank_lines=True,
+                     header=0)
+
+    #Required for SQL Constrainds - blank = None
+    df = df.where(pd.notnull(df), None)
+    # Delete database
+    RawNHANES_LLOD.objects.all().delete()
+
+    for entry in df.itertuples():
+        entry = RawNHANES_LLOD.objects.create(
+            Analyte = entry.Analyte,
+            Value = entry.Value,
+            Units = entry.Units
+           
+        )
+def saveNHANES_BIOToDB(csv_file):
+    df = pd.read_csv(csv_file,
+                     skip_blank_lines=True,
+                     header=0)
+    #Required for SQL Constrainds - blank = None
+    df = df.where(pd.notnull(df), None)
+    # Delete database
+    RawNHANES_BIO.objects.all().delete()
+
+    for entry in df.itertuples():
+        entry = RawNHANES_BIO.objects.create(
+            Participant =entry.Participant,
+            Age = entry.Age,
+            Time_Period = entry.Time_Period,
+            Pregnant = entry.Pregnant,
+            UTAS = entry.UTAS,
+            UTAS_wt = entry.UTAS_wt,
+            UTAS_Blod = entry.UTAS_Blod,
+            Alb = entry.Alb,
+            Alb_Blod = entry.Alb_Blod,
+            Cr_mg = entry.Cr_mg,
+            Cr_umol = entry.Cr_umol,
+            Cr_Blod = entry.Cr_Blod,
+            Alb_to_Cr = entry.Alb_to_Cr,
+            Crm = entry.Crm,
+            Crm_wt = entry.Crm_wt,
+            Crm_Blod = entry.Crm_Blod,
+            I = entry.I,
+            I_wt = entry.I_wt,
+            I_Blod = entry.I_Blod,
+            Hg = entry.Hg,
+            Hg_wt = entry.Hg_wt,
+            Hg_Blod = entry.Hg_Blod,
+            Ni  = entry.Ni,
+            Ni_wt = entry.Ni_wt,
+            Ni_Blod = entry.Ni_Blod,
+            Metals_wt = entry.Metals_wt,
+            Ba = entry.Ba,
+            Ba_Blod = entry.Ba_Blod,
+            Cd = entry.Cd,
+            Cd_Blod = entry.Cd_Blod,
+            Co = entry.Co,
+            Co_Blod = entry.Co_Blod,
+            Cs = entry.Cs,
+            Cs_Blod = entry.Cs_Blod,
+            Mo = entry.Mo,
+            Mo_Blod = entry.Mo_Blod,
+            Mn = entry.Mn,
+            Mn_Blod = entry.Mn_Blod,
+            Pb = entry.Pb,
+            Pb_Blod = entry.Pb_Blod,
+            Sb = entry.Sb,
+            Sb_Blod = entry.Sb_Blod,
+            Sn = entry.Sn,
+            Sn_Blod = entry.Sn_Blod,
+            TI = entry.TI,
+            TI_Blod = entry.TI_Blod,
+            W = entry.W,
+            W_Blod = entry.W_Blod           
+         
+        )
 
 
 
@@ -395,6 +473,15 @@ class DatasetUploadView(generics.CreateAPIView):
             if request.data['dataset_type'] == 'Dartmouth_dataset':
                 csv_file = request.data['dataset_file']
                 saveDARToDB(csv_file)
+
+            if request.data['dataset_type'] == 'NHANES_bio':
+                csv_file = request.data['dataset_file']
+                saveNHANES_BIOToDB(csv_file)
+            
+            if request.data['dataset_type'] == 'NHANES_llod':
+                csv_file = request.data['dataset_file']
+                #saveNEUToDB(csv_file)
+                saveNHANES_LLODToDB(csv_file)
 
         # Commit model upload of the regular dataset
         try:
@@ -529,8 +616,6 @@ class GraphRequestView(views.APIView):
             if (t == 'clustermap'):
                 gr = cls.getClusterMap(
                     df, color_by)
-
-
 
             if (t == 'analysis'):
                 print(os.listdir())

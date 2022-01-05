@@ -8,6 +8,9 @@ DATASET_CHOICES = (
     ("UNM_dataset", "UNM_dataset"),
     ("NEU_dataset", "NEU_dataset"),
     ("Dartmouth_dataset", "Dartmouth_dataset"),
+    ("NHANES_bio", "NHANES_bio"),
+    ("NHANES_llod", "NHANES_llod"),
+    ("dictionary", "dictionary"),
     ("csv_only", "csv_only")
 )
 
@@ -27,6 +30,7 @@ class UploadFileForm(forms.Form):
     uploader_email = forms.EmailField(max_length=100,
                                       help_text='A valid email address, please.')
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES)
+    #dataset_type = forms.CharFeild(max_length=100)
     dataset_file = CSVFileField(
         help_text="Only csv files are accepted. "
         "The csv file MUST have the correct header.")
