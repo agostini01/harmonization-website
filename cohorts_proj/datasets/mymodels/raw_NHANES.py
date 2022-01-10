@@ -2,24 +2,25 @@ from django.db import models
 
 CAT_NHANES_ANALYTES = (
     ("UTAS", "Urinary Total Arsenic"),
-    ("Alb", "Urinary Albumin in mg/L"),
-    ("Cr_mg", "Urinary Creatinine in mg/dL"),
-    ("Cr_umol", "Urinary Creatinine in umol/L"),
-    ("Chrom", "Urinary Chromium in ug/L"),
+    ("UALB_mg", "Urinary Albumin in mg/L"),
+    ("UALB_ug ", "Urinary Albumin in ug/L"),
+    ("UCRT_mg", "Urinary Creatinine in mg/dL"),
+    ("UCRT_umol", "Urinary Creatinine in umol/L"),
+    ("UCR", "Urinary Chromium in ug/L"),
     ("I", "Urinary Iodine in ug/L"),
-    ("Hg", "Urinary Mercury in ug/L"),
-    ("Ba", "Urinary Barium in ug/L"),
-    ("Cd", "Urinary Cadmium in ug/L"),
-    ("Co", "Urinary Cobalt in ug/L"),
-    ("Cs", "Urianry Cesium in ug/L"),
-    ("Mo","Urinary Molybdenum in ug/L"),
-    ("Mn","Urinary Manganese in ug/L"),
-    ("Pb","Urinary Lead in ug/L"),
-    ("Sb", "Urianry Antimony in ug/L"),
-    ("Sn","Urinary Tin in ug/L"),
-    ("TI", "Urinary Thallium in ug/L"),
-    ("W", "Urinary Tungsten in ug/L"),
-    ("Ni", "Urinary Nickel in ug/L"))
+    ("UHG", "Urinary Mercury in ug/L"),
+    ("UBA", "Urinary Barium in ug/L"),
+    ("UCD", "Urinary Cadmium in ug/L"),
+    ("UCO", "Urinary Cobalt in ug/L"),
+    ("UCS", "Urianry Cesium in ug/L"),
+    ("UMO","Urinary Molybdenum in ug/L"),
+    ("UMN","Urinary Manganese in ug/L"),
+    ("UPB","Urinary Lead in ug/L"),
+    ("USB", "Urianry Antimony in ug/L"),
+    ("USN","Urinary Tin in ug/L"),
+    ("UTL", "Urinary Thallium in ug/L"),
+    ("UTU", "Urinary Tungsten in ug/L"),
+    ("UNI", "Urinary Nickel in ug/L"))
 
    
 CAT_NHANES_PREGNANT = (
@@ -40,14 +41,14 @@ CAT_NHANES_MARITAL = (
 )
 
 ##Number of kids in the household 5 years old or less
-CAT_NHANES_YNG_KIDS = (
+CAT_NHANES_CHILD_A = (
     (1, '1 kid'),
     (2, '2 kids'),
     (3, '3 or more kids')
 )
 
 ##Number of kids in the household 6-17 years old 
-CAT_NHANES_OLD_KIDS = (
+CAT_NHANES_CHILD_B = (
     (1, '1 kid'),
     (2, '2 kids'),
     (3, '3 or more kids')
@@ -124,56 +125,17 @@ class RawNHANES_BIO(models.Model):
     ##1 means pregnant, 2 means not pregant, 3 means not determined
     Pregnant = models.IntegerField(max_length=1, choices=CAT_NHANES_PREGNANT, null=True)
     Marital = models.IntegerField(max_length=3, choices=CAT_NHANES_MARITAL, null=True)
-    Yng_Kids = models.IntegerField(max_length=3, choices=CAT_NHANES_YNG_KIDS, null=True)
-    Old_Kids = models.IntegerField(max_length=3, choices=CAT_NHANES_OLD_KIDS, null=True)
+    Child_A = models.IntegerField(max_length=3, choices=CAT_NHANES_CHILD_A, null=True)
+    Child_B = models.IntegerField(max_length=3, choices=CAT_NHANES_CHILD_B, null=True)
     H_Inc = models.IntegerField(max_length=3, choices=CAT_NHANES_H_INC, null=True)
     F_Inc = models.IntegerField(max_length=3, choices=CAT_NHANES_F_INC, null=True)
     Edu = models.IntegerField(max_length=3, choices=CAT_NHANES_EDU, null=True)
     Rac = models.IntegerField(max_length=3, choices=CAT_NHANES_RAC, null=True)
-    UTAS = models.FloatField(max_length=20, null=True)
-    UTAS_wt = models.FloatField(max_length=20, null=True)
-    UTAS_Blod = models.FloatField(max_length=20, null=True)
-    Alb = models.FloatField(max_length=20, null=True)
-    Alb_Blod = models.FloatField(max_length=20, null=True)
-    Cr_mg = models.FloatField(max_length=20, null=True)
-    Cr_umol = models.FloatField(max_length=20, null=True)
-    Cr_Blod = models.FloatField(max_length=20, null=True)
-    Alb_to_Cr = models.FloatField(max_length=20, null=True)
-    Chrom = models.FloatField(max_length=20, null=True)
-    Chrom_wt = models.FloatField(max_length=20, null=True)
-    Chrom_Blod = models.FloatField(max_length=20, null=True)
-    I = models.FloatField(max_length=20, null=True)
-    I_wt = models.FloatField(max_length=20, null=True)
-    I_Blod = models.FloatField(max_length=20, null=True)
-    Hg = models.FloatField(max_length=20, null=True)
-    Hg_wt = models.FloatField(max_length=20, null=True)
-    Hg_Blod = models.FloatField(max_length=20, null=True)
-    Ni  = models.FloatField(max_length=20, null=True)
-    Ni_wt = models.FloatField(max_length=20, null=True)
-    Ni_Blod = models.FloatField(max_length=20, null=True)
-    Metals_wt = models.FloatField(max_length=20, null=True)
-    Ba = models.FloatField(max_length=20, null=True)
-    Ba_Blod = models.FloatField(max_length=20, null=True)
-    Cd = models.FloatField(max_length=20, null=True)
-    Cd_Blod = models.FloatField(max_length=20, null=True)
-    Co = models.FloatField(max_length=20, null=True)
-    Co_Blod = models.FloatField(max_length=20, null=True)
-    Cs = models.FloatField(max_length=20, null=True)
-    Cs_Blod = models.FloatField(max_length=20, null=True)
-    Mo = models.FloatField(max_length=20, null=True)
-    Mo_Blod = models.FloatField(max_length=20, null=True)
-    Mn = models.FloatField(max_length=20, null=True)
-    Mn_Blod = models.FloatField(max_length=20, null=True)
-    Pb = models.FloatField(max_length=20, null=True)
-    Pb_Blod = models.FloatField(max_length=20, null=True)
-    Sb = models.FloatField(max_length=20, null=True)
-    Sb_Blod = models.FloatField(max_length=20, null=True)
-    Sn = models.FloatField(max_length=20, null=True)
-    Sn_Blod = models.FloatField(max_length=20, null=True)
-    TI = models.FloatField(max_length=20, null=True)
-    TI_Blod = models.FloatField(max_length=20, null=True)
-    W = models.FloatField(max_length=20, null=True)
-    W_Blod = models.FloatField(max_length=20, null=True)
+    Blod = models.FloatField(max_length=20, null=True)
+    Analyte_Value = models.FloatField(max_length=15, null=True) 
+    Analyte = models.CharField(max_length=10, choices=CAT_NHANES_ANALYTES, null=True) 
+    
+
 
 NHANES_DD_COL_NAME = (
     ("UTAS", "Urinary Total Arsenic"),
@@ -204,13 +166,8 @@ NHANES_DD_COL_NAME = (
     ('Alb_to_Cr', ),
     ('Chrom_wt', 'Chromium Sample Weight'),
     ('Chrom_Blod', 'Chromium Below Limit of Detection Value'),
-    ('I_wt',  'Iodine Sample Weight'),
     ('I_Blod', 'Iodine  Below Limit of Detection Value'),
-    ('Hg_wt', 'Mercury Weight'),
     ('Hg_Blod', 'Mercury Below Limit of Detection Value'),
-    
-    ('Metals_wt', 'Weight for Metals: Barium, Cadium, Cobalt, Molybdenum,'),
-    ('Manganese, Lead, Antimony, Tin, Thallium, Tungesten'),
     ('Ba_Blod', 'Barium Below Limit of Detection Value'),
     ('Cd_Blod', 'Cadmium Below Limit of Detection Value'),
     ('Co_Blod',  'Cobalt Below Limit of Detection Value'),
@@ -222,7 +179,6 @@ NHANES_DD_COL_NAME = (
     ('Sn_Blod',  'Tin Below Limit of Detection Value'),
     ('TI_Blod', 'Thallium'),
     ('W_Blod', 'Tungsten Below Limit of Detection Value'),
-    ('Ni_wt', 'Nickel Sample Weight'),
     ('Ni_Blod', 'Nickel Below Limit of Detection Value'),
     ('Pregnant', 'Pregnancy Status'),
     ('Age', 'Age in Years'),
@@ -241,7 +197,20 @@ NHANES_DD_TYPE= (
     ('str', 'string'))
 
 
-#class RawNHANES_DD(models.Model):
+class RawNHANES_DD(models.Model):
+
+    cohort = models.CharField(max_length=1000)
+    var_name = models.CharField(max_length=1000)
+    ##Whatis from name
+    form_name = models.CharField(max_length=1000, null = True, blank=True)
+    ##what is section name
+    section_name = models.CharField(max_length=1000, null = True, blank=True)
+    ##what
+    field_type = models.CharField(max_length=1000, null = True, blank=True)
+    field_label = models.CharField(max_length =1000, null = True, blank=True)
+    field_choices = models.CharField(max_length= 1000, null = True, blank=True)
+    field_min = models.CharField(max_length= 1000, null = True, blank=True)
+    field_max = models.CharField(max_length= 1000, null = True, blank=True)
 
 #    Col = models.CharField(max_length=40, choices=NHANES_DD_COL, null=True)
 #    Type = models.CharField(max_length=30, choices=NHANES_DD_TYPE, null=True)
@@ -250,24 +219,24 @@ NHANES_DD_TYPE= (
 
 
 NHANES_LLOD_ANALYTE = (
-    ('UTAS', 'Urinaary Total Arsenic'),
-    ('Alb', 'Albumin'), 
-    ('Cr', 'Creatinine'),
-    ('Chrom ', 'Chromium'),
-    ('I ',  'Iodine'),
-    ('Hg', 'Mercury'),
-    ('Ba', 'Barium'),
-    ('Cd', 'Cadmium'),
-    ('Cs', 'Cesium'),
-    ('Co', 'Cobalt'),
-    ('Mn', 'Manganese'),
-    ('Mo', 'Molbdenum'),
-    ('Pb', 'Lead'),
-    ('Sb', 'Antimony'),
-    ('TI', 'Thallium'),
-    ('Sn', 'Tin'),
-    ('W', 'Tungsten'),
-    ('Ni', 'Nickel')
+    ('UTAS', 'Urinary Total Arsenic'),
+    ('UALB', 'Albumin'), 
+    ('UCRT', 'Creatinine'),
+    ('UCR ', 'Chromium'),
+    ('UI',  'Iodine'),
+    ('UHG', 'Mercury'),
+    ('UBA', 'Barium'),
+    ('UCD', 'Cadmium'),
+    ('UCS', 'Cesium'),
+    ('UCO', 'Cobalt'),
+    ('UMN', 'Manganese'),
+    ('UMO', 'Molbdenum'),
+    ('UPB', 'Lead'),
+    ('USB', 'Antimony'),
+    ('UTL', 'Thallium'),
+    ('USN', 'Tin'),
+    ('UTU', 'Tungsten'),
+    ('UNI', 'Nickel')
 )
 
 NHANES_LLOD_UNITS = (
@@ -279,3 +248,4 @@ class RawNHANES_LLOD(models.Model):
     Analyte = models.CharField(max_length=100, choices=NHANES_LLOD_ANALYTE, null=True)
     Value = models.FloatField(max_length=6, null=True)
     Units = models.CharField(max_length=30, choices=NHANES_LLOD_UNITS, null=True)
+    Time_Period = models.CharField(max_length=30, null=True)

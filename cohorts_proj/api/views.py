@@ -381,10 +381,12 @@ def saveNHANES_LLODToDB(csv_file):
         entry = RawNHANES_LLOD.objects.create(
             Analyte = entry.Analyte,
             Value = entry.Value,
-            Units = entry.Units
+            Units = entry.Units,
+            Time_Period = entry.Time_Period
            
         )
 def saveNHANES_BIOToDB(csv_file):
+    
     df = pd.read_csv(csv_file,
                      skip_blank_lines=True,
                      header=0)
@@ -392,57 +394,25 @@ def saveNHANES_BIOToDB(csv_file):
     df = df.where(pd.notnull(df), None)
     # Delete database
     RawNHANES_BIO.objects.all().delete()
+    print('Printing columns:')
+    print(df.columns)
 
     for entry in df.itertuples():
         entry = RawNHANES_BIO.objects.create(
-            Participant =entry.Participant,
+            Participant = entry.Participant,
             Age = entry.Age,
             Time_Period = entry.Time_Period,
             Pregnant = entry.Pregnant,
-            UTAS = entry.UTAS,
-            UTAS_wt = entry.UTAS_wt,
-            UTAS_Blod = entry.UTAS_Blod,
-            Alb = entry.Alb,
-            Alb_Blod = entry.Alb_Blod,
-            Cr_mg = entry.Cr_mg,
-            Cr_umol = entry.Cr_umol,
-            Cr_Blod = entry.Cr_Blod,
-            Alb_to_Cr = entry.Alb_to_Cr,
-            Crm = entry.Crm,
-            Crm_wt = entry.Crm_wt,
-            Crm_Blod = entry.Crm_Blod,
-            I = entry.I,
-            I_wt = entry.I_wt,
-            I_Blod = entry.I_Blod,
-            Hg = entry.Hg,
-            Hg_wt = entry.Hg_wt,
-            Hg_Blod = entry.Hg_Blod,
-            Ni  = entry.Ni,
-            Ni_wt = entry.Ni_wt,
-            Ni_Blod = entry.Ni_Blod,
-            Metals_wt = entry.Metals_wt,
-            Ba = entry.Ba,
-            Ba_Blod = entry.Ba_Blod,
-            Cd = entry.Cd,
-            Cd_Blod = entry.Cd_Blod,
-            Co = entry.Co,
-            Co_Blod = entry.Co_Blod,
-            Cs = entry.Cs,
-            Cs_Blod = entry.Cs_Blod,
-            Mo = entry.Mo,
-            Mo_Blod = entry.Mo_Blod,
-            Mn = entry.Mn,
-            Mn_Blod = entry.Mn_Blod,
-            Pb = entry.Pb,
-            Pb_Blod = entry.Pb_Blod,
-            Sb = entry.Sb,
-            Sb_Blod = entry.Sb_Blod,
-            Sn = entry.Sn,
-            Sn_Blod = entry.Sn_Blod,
-            TI = entry.TI,
-            TI_Blod = entry.TI_Blod,
-            W = entry.W,
-            W_Blod = entry.W_Blod           
+            Analyte_Value = entry.Analyte_Value,
+            Analyte = entry.Analyte,      
+            Blod = entry.Blod,
+            Child_A = entry.Child_A,
+            Child_B = entry.Child_B,
+            Marital = entry.Marital,
+            H_Inc = entry.H_Inc,
+            F_Inc = entry.F_Inc,
+            Edu = entry.Edu,
+            Rac = entry.Rac
          
         )
 
