@@ -8,7 +8,122 @@
 {% block content %}
 
 <script src="https://cdn.jsdelivr.net/npm/@dmester/sffjs@1.16.1/dist/stringformat.min.js"></script>
-<script src="{% static 'js/base_graphs.js' %}"></script>
+<script src="{% static 'js/base_dicts.js' %}"></script>
+
+<div class="row flex-xl-nowrap">
+
+  <!-- SIDEBAR -->
+  <div class="col-12 col-md-3 col-xl-2 bd-sidebar">
+    <p>Hello User,</p>
+
+    <p>Please select the type of graph and features to plot from the dropdown menus below.</p>
+
+   <!-- <form action="/graphs/request_graph/" method="GET" id="get_form">
+      {% csrf_token %}
+      {{ form | crispy }}
+    </form>
+
+   <div style="text-align:center">
+      <button type="button" class="btn btn-primary btn-lg" onclick="getPlot()">Generate Graph</button>
+      <p></p>
+      <p style="font-size:x-small">*Note, graph generation may take a couple of seconds.</p>
+    </div>
+  </div> -->
 
 
+  <form action="" method="GET">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Submit">
+</form>
+ 
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script>
+    $("#id_dataset_type").change(function () {
+      
+      var url = "{% url 'ajax_load_datasets' %}"
+      
+      console.log(url);
+      var dataset = $(this).val();  // get the selected country ID from the HTML input
+
+      console.log(dataset);
+      $.ajax({                       // initialize an AJAX request
+        url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+        data: {
+          'dataset': dataset       // add the country id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `load_cities` view function
+          $("#id_x_feature").html(data);
+          $("#id_y_feature").html(data); // replace the contents of the city input with the data that came from the server
+          console.log(data);
+        }
+      });
+
+    });
+  </script>
+
+
+  <!-- MAIN CONTENT -->
+  <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
+  <!-- <div class="welcome_image">
+    <img src="{% static 'images/harmonization.jpg' %}" width=450 center>
+  </div> -->
+
+  <!-- PLOTS -->
+  <div class="graph-detail">
+    <div class="reviews-detail">
+      <h2>Harmonization Graphs / Analysis Reports </h2>
+      <p>Requested graphs / reports will be displayed below.</p>
+
+      <!--
+      <p>This table provides an overview of all the data counts for all cohorts:  </p>
+      <table style="width:100px", class="table table-dark table-striped">
+          <thead>
+          <tr>
+              <th>CohortType</th>
+              <th>variable</th>
+              <th>cat</th>
+              <th>value</th>
+              
+          
+          </tr>
+          </thead>
+          <tbody>
+          
+          {% if b %}
+          {% for i in b %}
+          <tr>
+            
+              <th>{{i.CohortType}}</th>
+              <th>{{i.variable}}</th>
+              <th>{{i.cat}}</th>
+              <th>{{i.value}}</th>
+          
+
+          </tr>
+          {% endfor %}
+          {% endif %}
+          </tbody>
+      </table> -->
+    </div>
+    <br>
+
+    <!-- https://realpython.com/django-and-ajax-form-submissions/ -->
+
+
+    <div id="graphs-div">
+      <!-- <img src=/getsbdata/ width="1000"> -->
+    </div>
+  </div>
+  </main>
+  
+  <!-- TODO: Reference Bar -->
+  <div class="d-none d-xl-block col-xl-2 bd-toc">
+  
+    <ul class="section-nav">
+    </ul>
+  
+  </div>
+</div>
 {% endblock content %}

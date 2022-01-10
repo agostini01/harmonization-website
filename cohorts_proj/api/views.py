@@ -1,12 +1,14 @@
 from rest_framework import generics, views
-from django.http import HttpResponse
+from django.http import HttpResponse, response
+
+from django.shortcuts import redirect
 
 from .serializers import DatasetUploadSerializer
 from .models import DatasetUploadModel
 
 from .serializers import GraphRequestSerializer
 
-from datasets.models import RawFlower, RawUNM, RawNEU, RawDAR, RawNHANES_BIO, RawNHANES_LLOD
+from datasets.models import RawFlower, RawUNM, RawNEU, RawDAR, RawNHANES_BIO, RawNHANES_LLOD, RawDictionary
 
 from api import adapters
 from api import graphs
@@ -385,6 +387,7 @@ def saveNHANES_LLODToDB(csv_file):
             Time_Period = entry.Time_Period
            
         )
+
 def saveNHANES_BIOToDB(csv_file):
     
     df = pd.read_csv(csv_file,
@@ -416,7 +419,29 @@ def saveNHANES_BIOToDB(csv_file):
          
         )
 
+def saveDictionaryToDB(csv_file):
+    df = pd.read_csv(csv_file,
+                     skip_blank_lines=True,
+                     header=0)
 
+    #Required for SQL Constrainds - blank = None
+    df = df.where(pd.notnull(df), None)
+    # Delete database???
+    RawDictionary.objects.all().delete()
+
+    for entry in df.itertuples():
+        entry = RawDictionary.objects.create(
+            cohort = entry.cohort,
+            var_name = entry.var_name,
+            form_name = entry.form_name,
+            section_name = entry.section_name,
+            field_type = entry.field_type,
+            field_label = entry.field_label,
+            field_choices = entry.field_choices,
+            field_min = entry.field_min,
+            field_max = entry.field_max
+           
+        )
 
 class DatasetUploadView(generics.CreateAPIView):
     """Handles only POST methods."""
@@ -450,8 +475,10 @@ class DatasetUploadView(generics.CreateAPIView):
             
             if request.data['dataset_type'] == 'NHANES_llod':
                 csv_file = request.data['dataset_file']
-                #saveNEUToDB(csv_file)
                 saveNHANES_LLODToDB(csv_file)
+            if request.data['dataset_type'] == 'dictionary':
+                csv_file = request.data['dataset_file']
+                saveDictionaryToDB(csv_file)
 
         # Commit model upload of the regular dataset
         try:
@@ -1029,6 +1056,7 @@ class InfoRequestView(views.APIView):
                 gr = df.reset_index().to_json(orient='records')
 
             if (t == 'overview_report2'):
+                
 
                 df_NEU = adapters.neu.get_dataframe_covars()
                 df_NEU = df_NEU[df_NEU['TimePeriod'] == 2].drop_duplicates()
@@ -1059,15 +1087,18 @@ class InfoRequestView(views.APIView):
                 gr = ret_rez.reset_index().to_json(orient='records')
 
             if (t == 'variablecounts'):
+                #report to count categorical variables for all datasets and the recombined ones.
 
-                #covar data frames
+                #covar data frames - here we replace the -9 (missing) values with np.nan becasue we don't want to count it as a valid entry
+
                 df_neu_covars = adapters.neu.get_dataframe_covars().replace(-9, np.nan).replace('-9', np.nan)
 
                 df_neu_covars = df_neu_covars[df_neu_covars['TimePeriod']==2]
             
                 df_unm_covars = adapters.unm.get_dataframe_covars().replace(-9, np.nan).replace('-9', np.nan)
 
-                #biological data frames
+                #biological data frames - here we replace the -9 (missing) values with np.nan becasue we don't want to count it as a valid entry
+
                 df_neu_bio = adapters.neu.get_dataframe_orig().replace(-9, np.nan).replace('-9', np.nan)
                 df_unm_bio = adapters.unm.get_dataframe_orig().replace(-9, np.nan).replace('-9', np.nan)
                 df_dar_bio = adapters.dar.get_dataframe().replace(-9, np.nan).replace('-9', np.nan)
@@ -1075,6 +1106,7 @@ class InfoRequestView(views.APIView):
                 df_neu_covars.drop_duplicates()
                 
                 if fish == 'nofishVariableCounts':
+
                     df_neu_covars = df_neu_covars[(df_neu_covars['fish_pu_v2'] == 0) & (df_neu_covars['fish'] == 0)] #No fish consumption
                     df_unm_covars = df_unm_covars[df_unm_covars['fish'] == 0]
                     df_dar_bio = adapters.dar.get_dataframe_nofish()
@@ -1100,8 +1132,9 @@ class InfoRequestView(views.APIView):
                 gr = ret_rez.reset_index().to_json(orient='records')
 
             if (t == 'continous'):
+                #here we replace the -9 (missing) values with np.nan becasue we don't want to average them in the continuous report
 
-                #covar data frames
+                #covar data frames 
                 df_neu_covars = adapters.neu.get_dataframe_covars().replace(-9, np.nan).replace('-9', np.nan)
 
                 df_neu_covars = df_neu_covars[df_neu_covars['TimePeriod']==2]
@@ -1302,4 +1335,48 @@ class InfoRequestView(views.APIView):
     def getlogistcRegPlot(cls, data, x_feature, y_feature, color_by):
         return graphs.getlogistcRegPlot(data, x_feature, y_feature, color_by)
 
+class DictRequestView(views.APIView):
+    """Handles only POST methods."""
+    serializer_class = GraphRequestSerializer
+    # queryset = ()
 
+    """
+    Concrete view for listing a queryset or creating a model instance.
+    """
+ 
+    def get(self, request, *args, **kwargs):
+
+        req = self.getPlot(request)
+        
+        return req
+
+    @classmethod
+    def getPlot(cls, request):
+        """Called during get request to generate plots."""
+
+        print(request.data)
+
+        plot_type = request.data['plot_name']
+        x_feature = request.data['x_feature']
+        y_feature = request.data['y_feature']
+        color_by = request.data['color_by']
+        time_period = int(request.data['time_period'])
+        fig_dpi = int(request.data['fig_dpi'])
+        dataset_type = request.data['dataset_type']
+        covar_choices = request.data['covar_choices']
+        adjust_dilution = request.data['adjust_dilution']
+
+        print('### covar choices ###')
+        print(covar_choices)
+        
+        t = plot_type
+        fish = covar_choices
+        print('### Plot type ###')
+        print(plot_type)
+        gr = None   
+
+        
+        
+        gr = 'test'
+        response = HttpResponse(gr)
+        return response

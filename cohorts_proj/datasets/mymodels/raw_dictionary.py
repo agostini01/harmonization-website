@@ -15,15 +15,15 @@ class FlowerTypeField(models.CharField):
 
 class RawDictionary(models.Model):
 
-    cohort = models.CharField(max_length=100)
-    var_name = models.CharField(max_length=100)
-    form_name = models.CharField(max_length=100)
-    section_name = models.CharField(max_length=100)
-    field_type = models.CharField(max_length=100)
-    field_label = models.CharField(max_length =100)
-    field_choices = models.CharField(max_length= 100)
-    field_min = models.CharField(max_length= 100)
-    field_max = models.CharField(max_length= 100)
+    cohort = models.CharField(max_length=1000)
+    var_name = models.CharField(max_length=1000)
+    form_name = models.CharField(max_length=1000, null = True, blank=True)
+    section_name = models.CharField(max_length=1000, null = True, blank=True)
+    field_type = models.CharField(max_length=1000, null = True, blank=True)
+    field_label = models.CharField(max_length =1000, null = True, blank=True)
+    field_choices = models.CharField(max_length= 1000, null = True, blank=True)
+    field_min = models.CharField(max_length= 1000, null = True, blank=True)
+    field_max = models.CharField(max_length= 1000, null = True, blank=True)
 
     # The type of flower
     #flower_type = FlowerTypeField(max_length=100, choices=CAT_FLO_TYPE)

@@ -9,6 +9,7 @@ DATASET_CHOICES = (
     ("Dartmouth_dataset", "Dartmouth_dataset"),
     ("NHANES_llod","NHANES_llod"),
     ("NHANES_bio","NHANES_bio"),
+    ("dictionary","dictionary"),
 )
 
 
