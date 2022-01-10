@@ -93,7 +93,7 @@ class GraphsHAROverviewpagesView(LoginRequiredMixin, TemplateView):
         dataset_type = 'neu_dataset'
         covar_choices = ''
 
-        url = "http://api:8/query/get-plot/"
+        url = "http://api:8888/query/get-plot/"
                 
         files = []
         headers = {}
@@ -144,13 +144,12 @@ class GraphsHAROverviewpagesView(LoginRequiredMixin, TemplateView):
         covar_choices = id2
 
         #this is not really used here
-        x_feature = 'USB'
-        y_feature = 'UTAS'
-        color_by = 'Outcome'
+        x_feature = ''
+        y_feature = ''
+        color_by = ''
         time_period = '93'
         fig_dpi = '100'
         dataset_type = 'neu_dataset'
-        covar_choices = ''
         adjust_dilution = 'False'
 
         url = "http://api:8888/query/get-info/"
@@ -177,12 +176,6 @@ class GraphsHAROverviewpagesView(LoginRequiredMixin, TemplateView):
         requests_response = requests.request(
             "GET", url, headers=headers, data=payload, files=files)
 
-        #django_response = HttpResponse(
-        #    content=requests_response.content,
-        #    status=requests_response.status_code,
-        #    content_type=requests_response.headers['Content-Type']
-       # )
-
 
         bytes_val = requests_response.content
         
@@ -196,7 +189,6 @@ class GraphsHAROverviewpagesView(LoginRequiredMixin, TemplateView):
 
         response = HttpResponse(
             content_type='text/csv',
-         
             #headers={'Content-Disposition': 'attachment; filename="somefilename.csv"'},
         )
 
@@ -213,17 +205,16 @@ class GraphsHAROverviewpagesView(LoginRequiredMixin, TemplateView):
         if id1 == 'variablecounts':
             writer.writerow(['variable', 'NEU', 'UNM', 'DAR','Totals'])
         
-
             for obj in data:
                 print(obj)
                 writer.writerow([obj['variable'], obj['NEU'], obj['UNM'], obj['DAR'], obj['Totals']])
         if id1 == 'continous':
             writer.writerow(['CohortType', 'variable', 'count', 'mean', 'std', 'min', 'q1', 'median', 'q3', 'max'])
         
-
             for obj in data:
                 print(obj)
                 writer.writerow([obj['CohortType'], obj['variable'], obj['count'], obj['mean'], obj['std'], obj['min'], obj['q1'], obj['median'], obj['q3'], obj['max']])
 
      
         return response
+

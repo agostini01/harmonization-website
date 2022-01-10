@@ -464,3 +464,20 @@ class HARForm(forms.Form):
     dataset_type = forms.ChoiceField(choices=DATASET_CHOICES,
                                      widget=forms.HiddenInput())
 
+
+
+class DictionaryForm(forms.Form):
+    """Form to select what features from the harmonized dataset to plot"""
+
+    def __init__(self, *args, **kwargs):
+        super(DictionaryForm, self).__init__(*args, **kwargs)
+        #self.initial['plot_type'] = PLOT_TYPES[0][0]
+        #self.initial['x_feature'] = HAR_FEATURE_CHOICES[0][1][0][0]
+        
+    search_field = forms.CharField(max_length=1000,
+                                help_text="Type the name of your next plot.")
+    
+    #plot_type = forms.ChoiceField(choices=PLOT_TYPES, label = 'Plot type / analysis')
+    #x_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
+    #y_feature = forms.ChoiceField(choices=HAR_FEATURE_CHOICES)
+   

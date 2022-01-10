@@ -12,6 +12,8 @@ from .views import GraphsDARUNMPagesView
 from .views import GraphsHARPagesView
 from .views import GraphsHAROverviewpagesView
 from .views import DictionariesAllPagesView
+from .views import DictionariesPageView
+from .views import DictionarytestPagesView
 
 from .views import load_dataset
 
@@ -28,12 +30,15 @@ urlpatterns = [
     path('overview/haroverview/',GraphsHAROverviewpagesView.as_view(), name = 'graphs-haroverview' ),
     path('graphs/', GraphsHARPagesView.as_view(), name='graphs'),
     path('about/', AboutPageView.as_view(), name='about'),
-    path('dictionaries/', DictionariesAllPagesView.as_view(), name='dictionaries'),
+    path('dictionaries/', DictionarytestPagesView.as_view(), name='dictionaries'),
+    #path('dictionaries/overview/', GraphsHAROverviewpagesView.getOverviewPlot),
     path('', HomePageView.as_view(), name='home'),
     path('load-datasets', load_dataset, name='ajax_load_datasets'),
 
     # TODO - Remove once all graph logic gets ported
     #path('graphs/getplot/', GraphsPageView.getPlot),
+    #path('graphs/api/getdict/', )
+    path('graphs/api/getDictInfo', GraphsPageView.getDictInfo),
     path('graphs/api/getplot/', GraphsPageView.getApiPlot),
     path('graphs/api/getinfo/', GraphsPageView.getApiInfo),
 ]

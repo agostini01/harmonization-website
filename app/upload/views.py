@@ -72,6 +72,11 @@ class UploadPageView(LoginRequiredMixin, FormView):
                     # print('CSV Only Upload')
                     response = handle_nhanes_dd_file(
                         uploader_name, uploader_email, dataset_type, f)
+        
+                if (dataset_type == 'dictionary'):
+                    # print('CSV Only Upload')
+                    response = handle_dictionary_file(
+                        uploader_name, uploader_email, dataset_type, f)
 
                 if response.status_code == 201:
                     return HttpResponseRedirect('/upload/success/')
