@@ -33,6 +33,7 @@ urlpatterns = [
     path('dictionaries/', DictionarytestPagesView.as_view(), name='dictionaries'),
     #path('dictionaries/overview/', GraphsHAROverviewpagesView.getOverviewPlot),
     path('', HomePageView.as_view(), name='home'),
+    #path('dictresults', DictionarytestPagesView.GET, name = 'testdict'),
     path('load-datasets', load_dataset, name='ajax_load_datasets'),
 
     # TODO - Remove once all graph logic gets ported

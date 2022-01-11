@@ -1,7 +1,7 @@
 from django.views.generic import TemplateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
-
+from django.core import serializers
 
 from .forms import DictionaryForm, FlowersForm, UNMForm, NEUForm, DARForm, HARForm
 from .forms import NEUForm_test
@@ -105,7 +105,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
         covar_choices = request.GET.get('covar_choices')
         adjust_dilution = request.GET.get('adjust_dilution')
 
-        url = "http://api:8888/query/get-info/"
+        url = "http://api:8887/query/get-info/"
 
         payload = {'plot_type': plot_type,
                    'x_feature': x_feature,
@@ -157,7 +157,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
 
         print(plot_type)
 
-        url = "http://api:8888/query/get-dict/"
+        url = "http://api:8887/query/get-dict/"
 
         payload = {'plot_type': plot_type,
                    'x_feature': x_feature,
@@ -204,7 +204,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
         fig_dpi = int(request.GET.get('fig_dpi'))
         dataset_type = request.GET.get('dataset_type')
 
-        url = "http://api:8888/query/get-plot/"
+        url = "http://api:8887/query/get-plot/"
 
         payload = {'plot_type': plot_type,
                    'x_feature': x_feature,
@@ -243,10 +243,12 @@ class DictionariesPageView(LoginRequiredMixin, FormView):
     login_url = '/accounts/login/'
     redirect_field_name = 'redirect'
 
-    form_class = FlowersForm
+    form_class = DictionaryForm
 
-    @classmethod
+    #@classmethod
     def get(cls, request):
+        
+        print('request-->', request)
 
         """This function requets graphs through the API container."""
         print(request)
@@ -265,7 +267,7 @@ class DictionariesPageView(LoginRequiredMixin, FormView):
         covar_choices = ''
         adjust_dilution = ''
 
-        url = "http://api:8888/query/get-dict/"
+        url = "http://api:8887/query/get-dict/"
 
         payload = {'plot_type': plot_type,
                    'x_feature': x_feature,
@@ -284,23 +286,26 @@ class DictionariesPageView(LoginRequiredMixin, FormView):
         requests_response = requests.request(
             "GET", url, headers=headers, data=payload, files=files)
 
-        django_response = HttpResponse(
-            content=requests_response.content,
-            status=requests_response.status_code,
-            content_type=requests_response.headers['Content-Type']
-        )
+    
+        #print(requests_response.content)
+        my_json = requests_response.content.decode('utf8').replace("'", '"').replace("None", "212")
 
-        print(django_response)
-        return django_response
+        # Decode UTF-8 bytes to Unicode, and convert single quotes 
+        # to double quotes to make it valid JSON
+        #my_json = my_bytes_value.decode('utf8').replace("'", '"')
+        print(my_json)
+        print('- ' * 20)
+
+        # Load the JSON to a Python list & dump it back out as formatted JSON
+        data = json.loads(my_json)
+    
+        context = dict({'items': data})
+
+        return render(request, 'dictionaries/dictionaries_base.html',context)
+
+        #return HttpResponse(template.render(context, request))
 
 
-    def get_context_data(self, **kwargs):
-        context = super(DictionariesPageView, self).get_context_data(**kwargs)
-        return context
-
-    def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        return super(DictionariesPageView, self).form_valid(form)
 
 
 class DictionariesAllPagesView(DictionariesPageView):
