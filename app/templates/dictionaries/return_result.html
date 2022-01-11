@@ -1,0 +1,7 @@
+
+<div> Hello, test!</div>
+<optgroup label="Analytes">
+    {% for opt in analytes %}
+    <option value="{{ opt.short }}">{{ opt.long }}</option>
+    {% endfor %}
+</optgroup>

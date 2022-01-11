@@ -8,7 +8,7 @@
 {% block content %}
 
 <script src="https://cdn.jsdelivr.net/npm/@dmester/sffjs@1.16.1/dist/stringformat.min.js"></script>
-<script src="{% static 'js/base_dicts.js' %}"></script>
+
 
 <div class="row flex-xl-nowrap">
 
@@ -16,7 +16,7 @@
   <div class="col-12 col-md-3 col-xl-2 bd-sidebar">
     <p>Hello User,</p>
 
-    <p>Please select the type of graph and features to plot from the dropdown menus below.</p>
+    <p>Please enter the search string you would like to look for in the dictionaries.</p>
 
    <!-- <form action="/graphs/request_graph/" method="GET" id="get_form">
       {% csrf_token %}
@@ -31,41 +31,21 @@
   </div> -->
 
 
-  <form action="" method="GET">
+  <!--<form action="" method="GET">
     {% csrf_token %}
     {{ form }}
     <input type="submit" value="Submit">
-</form>
+</form> -->
  
-
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-  <script>
-    $("#id_dataset_type").change(function () {
-      
-      var url = "{% url 'ajax_load_datasets' %}"
-      
-      console.log(url);
-      var dataset = $(this).val();  // get the selected country ID from the HTML input
-
-      console.log(dataset);
-      $.ajax({                       // initialize an AJAX request
-        url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
-        data: {
-          'dataset': dataset       // add the country id to the GET parameters
-        },
-        success: function (data) {   // `data` is the return of the `load_cities` view function
-          $("#id_x_feature").html(data);
-          $("#id_y_feature").html(data); // replace the contents of the city input with the data that came from the server
-          console.log(data);
-        }
-      });
-
-    });
-  </script>
+<form method="GET" id="get_form">
+  Question: <input type="text" name="plot_name"><br/>
+  <input type="submit" value="Submit" />
+</form><br/><br/>
+</div>
 
 
   <!-- MAIN CONTENT -->
-  <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
+  <!-- <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main"> -->
   <!-- <div class="welcome_image">
     <img src="{% static 'images/harmonization.jpg' %}" width=450 center>
   </div> -->
@@ -73,46 +53,53 @@
   <!-- PLOTS -->
   <div class="graph-detail">
     <div class="reviews-detail">
-      <h2>Harmonization Graphs / Analysis Reports </h2>
-      <p>Requested graphs / reports will be displayed below.</p>
 
-      <!--
-      <p>This table provides an overview of all the data counts for all cohorts:  </p>
-      <table style="width:100px", class="table table-dark table-striped">
+      <div id="graphs-div">
+      <p>Dictionary Table  </p>
+      <table style="width:220px", class="table table-striped">
           <thead>
           <tr>
-              <th>CohortType</th>
-              <th>variable</th>
-              <th>cat</th>
-              <th>value</th>
-              
-          
+              <th>cohort</th>
+              <th>var_name</th>
+              <th>form_name</th>
+              <th>section_name</th>
+              <th>field_type</th>
+              <th>field_label</th>
+              <th>field_choices</th>
+              <th>field_min</th>
+              <th>field_max</th>
+
           </tr>
           </thead>
           <tbody>
           
-          {% if b %}
-          {% for i in b %}
+          {% if items %}
+          {% for i in items %}
           <tr>
             
-              <th>{{i.CohortType}}</th>
-              <th>{{i.variable}}</th>
-              <th>{{i.cat}}</th>
-              <th>{{i.value}}</th>
+              <th>{{i.cohort}}</th>
+              <th>{{i.var_name}}</th>
+              <th>{{i.form_name}}</th>
+              <th>{{i.section_name}}</th>
+              <th>{{i.field_type}}</th>
+              <th>{{i.field_label}}</th>
+              <th>{{i.field_choices}}</th>
+              <th>{{i.field_min}}</th>
+              <th>{{i.field_max}}</th>
           
 
           </tr>
           {% endfor %}
           {% endif %}
           </tbody>
-      </table> -->
+      </table> 
     </div>
     <br>
 
     <!-- https://realpython.com/django-and-ajax-form-submissions/ -->
 
 
-    <div id="graphs-div">
+   
       <!-- <img src=/getsbdata/ width="1000"> -->
     </div>
   </div>

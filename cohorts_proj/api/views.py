@@ -1,7 +1,8 @@
 from rest_framework import generics, views
-from django.http import HttpResponse, response
-
+from django.http import HttpResponse, response, JsonResponse
+from django.core import serializers
 from django.shortcuts import redirect
+import json
 
 from .serializers import DatasetUploadSerializer
 from .models import DatasetUploadModel
@@ -1346,12 +1347,12 @@ class DictRequestView(views.APIView):
  
     def get(self, request, *args, **kwargs):
 
-        req = self.getPlot(request)
+        req = self.getDict(request)
         
         return req
 
     @classmethod
-    def getPlot(cls, request):
+    def getDict(cls, request):
         """Called during get request to generate plots."""
 
         print(request.data)
@@ -1375,8 +1376,18 @@ class DictRequestView(views.APIView):
         print(plot_type)
         gr = None   
 
-        
+    
+        df = pd.DataFrame.from_records(
+            RawDictionary.objects.values()
+        )
         
         gr = 'test'
-        response = HttpResponse(gr)
+        data = list(RawDictionary.objects.values())
+        data = data[0:8]
+        print(type(data))
+        print(str(data))
+        #data = df.transpose().to_json()
+
+        
+        response = HttpResponse(str(data), content_type="text/plain")
         return response
