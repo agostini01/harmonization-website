@@ -678,6 +678,7 @@ class GraphRequestView(views.APIView):
                 
                 #df = analysis.getCountsReport(df1,df2,df3)
                 gr = analysis.getOverviewPlot(df_neu,df_unm,df_dar, df_nhanes)
+                fig_dpi = 100
 
 
             if (t not in graph_options):

@@ -241,7 +241,7 @@ def getOverviewPlot(df_neu, df_unm, df_dar, df_nhanes):
     sns.set_theme()
 
     # Draw a heatmap with the numeric values in each cell
-    f, ax = plt.subplots(figsize=(8, 15))
+    f, ax = plt.subplots(figsize=(8, 13))
 
     df_counts = dff_counts.transpose()
     #masks = df2.transpose().drop(['CohortType'], axis = 0)
@@ -258,6 +258,8 @@ def getOverviewPlot(df_neu, df_unm, df_dar, df_nhanes):
     res.set_yticklabels(res.get_ymajorticklabels(), fontsize = 12)
     plt.tick_params(axis='both', which='major', labelsize=15, 
                     labelbottom = False, bottom=False, top = False, labeltop=True)
+
+    plt.tight_layout()
 
 
     return res.figure

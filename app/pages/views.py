@@ -271,7 +271,7 @@ class DictionariesPageView(LoginRequiredMixin, FormView):
             plot_type = 'test'
         
 
-        url = "http://api:8887/query/get-dict/"
+        url = "http://api:8888/query/get-dict/"
 
         payload = {'plot_type': plot_type,
                    'x_feature': x_feature,
