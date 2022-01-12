@@ -267,7 +267,11 @@ class DictionariesPageView(LoginRequiredMixin, FormView):
         covar_choices = ''
         adjust_dilution = ''
 
-        url = "http://api:8887/query/get-dict/"
+        if plot_type is None:
+            plot_type = 'test'
+        
+
+        url = "http://api:8888/query/get-dict/"
 
         payload = {'plot_type': plot_type,
                    'x_feature': x_feature,
@@ -275,7 +279,7 @@ class DictionariesPageView(LoginRequiredMixin, FormView):
                    'color_by': color_by,
                    'time_period': time_period,
                    'fig_dpi': fig_dpi,
-                   'plot_name': 'test',
+                   'plot_name': plot_type,
                    'dataset_type': dataset_type,
                    'adjust_dilution': adjust_dilution,
                    'covar_choices': covar_choices}
@@ -299,6 +303,8 @@ class DictionariesPageView(LoginRequiredMixin, FormView):
         # Load the JSON to a Python list & dump it back out as formatted JSON
         data = json.loads(my_json)
     
+
+        
         context = dict({'items': data})
 
         return render(request, 'dictionaries/dictionaries_base.html',context)

@@ -31,53 +31,15 @@
     </tr>
   </table>
 
-
-
-
-
-
-
 <br>
 <br>
 <br>
-<h2> Harmonized urinary variables by cohort: </h2>
-<p>This heatmap shows which urniary metal analytes are available (green) / not available (red) per cohort.  </p>
+<h2> Harmonized biological variables by cohort: </h2>
+<p>This heatmap shows how many data points there for each analyte per cohort. Please note this plot may also include multiple time periods  </p>
 <img src='{% url "overviewplot" %}' /> 
 <br>
 <br>
 <br>
 </br>
 
-
-
-<!--
-<p>This table provides an overview of all the data counts for all cohorts:  </p>
-<table style="width:100px", class="table table-dark table-striped">
-    <thead>
-    <tr>
-        <th>CohortType</th>
-        <th>variable</th>
-        <th>cat</th>
-        <th>value</th>
-        
-    
-    </tr>
-    </thead>
-    <tbody>
-    
-    {% if b %}
-    {% for i in b %}
-    <tr>
-      
-        <th>{{i.CohortType}}</th>
-        <th>{{i.variable}}</th>
-        <th>{{i.cat}}</th>
-        <th>{{i.value}}</th>
-    
-
-    </tr>
-    {% endfor %}
-    {% endif %}
-    </tbody>
-</table> -->
 {% endblock content %}
