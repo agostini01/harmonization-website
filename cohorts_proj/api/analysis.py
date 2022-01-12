@@ -20,6 +20,28 @@ from django.contrib.auth.models import User
 
 from api import adapters
 
+CAT_NHANES_ANALYTES = (
+    ("UTAS", "Urinary Total Arsenic"),
+    ("UALB_mg", "Urinary Albumin in mg/L"),
+   # ("UALB_ug ", "Urinary Albumin in ug/L"),
+    ("UCRT_mg", "Urinary Creatinine in mg/dL"),
+    ("UCRT_umol", "Urinary Creatinine in umol/L"),
+    ("UCR", "Urinary Chromium in ug/L"),
+    #("I", "Urinary Iodine in ug/L"),
+    ("UHG", "Urinary Mercury in ug/L"),
+    ("UBA", "Urinary Barium in ug/L"),
+    ("UCD", "Urinary Cadmium in ug/L"),
+    ("UCO", "Urinary Cobalt in ug/L"),
+    ("UCS", "Urianry Cesium in ug/L"),
+    ("UMO","Urinary Molybdenum in ug/L"),
+    ("UMN","Urinary Manganese in ug/L"),
+    ("UPB","Urinary Lead in ug/L"),
+    ("USB", "Urianry Antimony in ug/L"),
+    ("USN","Urinary Tin in ug/L"),
+    ("UTL", "Urinary Thallium in ug/L"),
+    ("UTU", "Urinary Tungsten in ug/L"),
+    ("UNI", "Urinary Nickel in ug/L"))
+
 CAT_NEU_ANALYTES = [('Analytes', (
     ('USB', 'Antimony - Urine'),
     ('UTAS', 'Arsenic Total - Urine'), #modified just for poster - change back later/check if it's actually total 
@@ -165,21 +187,25 @@ CAT_UNM_ANALYTES = [('Analytes', (
 
 
 
-def getOverviewPlot(df_neu, df_unm, df_dar):
+def getOverviewPlot(df_neu, df_unm, df_dar, df_nhanes):
     
     unm = [x[0] for x in CAT_UNM_ANALYTES[0][1]]
     neu = [x[0] for x in CAT_NEU_ANALYTES[0][1]]
     dar = [x[0] for x in CAT_NEU_ANALYTES[0][1]]
+    nhanes = [x[0] for x in CAT_NHANES_ANALYTES]
+    print(nhanes)
+    print(unm)
 
     for analyte in unm:
         if analyte not in df_unm.columns:
             df_unm[analyte] = 0
 
-    main_idx = set(unm + neu + dar)
+    main_idx = set(unm + neu + dar + nhanes)
 
     unm_har = []
     neu_har = []
     dar_har = []
+    nhanes_har = []
 
     for x in main_idx:
         if x in unm: 
@@ -194,14 +220,18 @@ def getOverviewPlot(df_neu, df_unm, df_dar):
             dar_har.append(1)
         elif x not in dar:
             dar_har.append(0)
+        if x in nhanes: 
+            nhanes_har.append(1)
+        elif x not in nhanes:
+            nhanes_har.append(0)
             
-    df = pd.DataFrame({'UNM':unm_har, 'NEU':neu_har, 'DAR':dar_har }, index = main_idx)
+    df = pd.DataFrame({'UNM':unm_har, 'NEU':neu_har, 'DAR':dar_har ,'NHANES':nhanes_har}, index = main_idx)
     df['sum'] = df.sum(axis = 1)
 
-    df_2 = df.sort_values(by = 'sum')[['UNM','NEU','DAR']]
+    df_2 = df.sort_values(by = 'sum')[['UNM','NEU','DAR','NHANES']]
 
     #melted = pd.melt(df2, id_vars=['index'], value_vars=['unm','neu','dar'])
-    dff = pd.concat([df_neu,df_unm,df_dar])
+    dff = pd.concat([df_neu,df_unm,df_dar,df_nhanes])
 
     dff = dff[['CohortType']+ list(main_idx)]
     dff_counts = dff.groupby(['CohortType']).count().transpose()
@@ -211,21 +241,24 @@ def getOverviewPlot(df_neu, df_unm, df_dar):
     sns.set_theme()
 
     # Draw a heatmap with the numeric values in each cell
-    f, ax = plt.subplots(figsize=(15, 6))
+    f, ax = plt.subplots(figsize=(8, 15))
 
     df_counts = dff_counts.transpose()
     #masks = df2.transpose().drop(['CohortType'], axis = 0)
 
-    res = sns.heatmap(df_counts, 
+    res = sns.heatmap(df_counts.transpose(), 
                 annot=True, 
                 cbar =True,
                 fmt="d", 
                 linewidths=1,
-                annot_kws={'rotation':90},
+                annot_kws={'rotation':0},
                 ax=ax,cmap="PuBuGn")
 
-    res.set_xticklabels(res.get_xmajorticklabels(), fontsize = 10)
-    res.set_yticklabels(res.get_ymajorticklabels(), fontsize = 20)
+    res.set_xticklabels(res.get_xmajorticklabels(), fontsize = 12)
+    res.set_yticklabels(res.get_ymajorticklabels(), fontsize = 12)
+    plt.tick_params(axis='both', which='major', labelsize=15, 
+                    labelbottom = False, bottom=False, top = False, labeltop=True)
+
 
     return res.figure
 

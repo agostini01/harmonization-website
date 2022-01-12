@@ -674,9 +674,10 @@ class GraphRequestView(views.APIView):
                 df_neu = adapters.neu.get_dataframe_orig()  # [selected_columns]
                 df_unm = adapters.unm.get_dataframe_orig()  # [selected_columns]
                 df_dar = adapters.dar.get_dataframe()  # [selected_columns]
+                df_nhanes = adapters.nhanes.get_dataframe_orig()
                 
                 #df = analysis.getCountsReport(df1,df2,df3)
-                gr = analysis.getOverviewPlot(df_neu,df_unm,df_dar)
+                gr = analysis.getOverviewPlot(df_neu,df_unm,df_dar, df_nhanes)
 
 
             if (t not in graph_options):
@@ -1376,16 +1377,14 @@ class DictRequestView(views.APIView):
         print(plot_type)
         gr = None   
 
-    
-        df = pd.DataFrame.from_records(
-            RawDictionary.objects.values()
-        )
         
-        gr = 'test'
-        data = list(RawDictionary.objects.values())
+        if len(plot_type) > 2:
+            data = list(RawDictionary.objects.filter(var_name__startswith=str(plot_type)).values())
+        else:
+            data = list(RawDictionary.objects.values())
         data = data[0:8]
         print(type(data))
-        print(str(data))
+        
         #data = df.transpose().to_json()
 
         
