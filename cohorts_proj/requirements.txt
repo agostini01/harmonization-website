@@ -14,9 +14,12 @@ pillow==6.2.2
 jupyter==1.0.0
 ipython==7.28.0
 django-extensions==3.0.3
-statsmodels==0.11.0
+statsmodels
+numpy==1.18.3
 tornado==6.1.0
 sklearn
 bambi
 arviz
 imbalanced-learn
+pymer4
+rpy2

@@ -10,7 +10,16 @@ ENV PYTHONUNBUFFERED 1
 
 # install psycopg2 and pillow dependencies
 RUN apt update \
-    && apt install postgresql gcc python3-dev musl-dev netcat -y
+    && apt install postgresql gcc libnlopt-dev cmake python3-dev musl-dev netcat -y
+
+RUN apt install software-properties-common -y
+#RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B8F25A8A73EACF41
+RUN add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian buster-cran40/'
+RUN apt update
+RUN apt install r-base r-base-core -y
+
+
 
 
 # install dependencies
