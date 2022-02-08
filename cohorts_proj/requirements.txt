@@ -12,7 +12,7 @@ pandas==1.0.3
 seaborn
 pillow==6.2.2
 jupyter==1.0.0
-ipython==7.28.0
+ipython==7.31.1
 django-extensions==3.0.3
 statsmodels
 numpy==1.18.3
