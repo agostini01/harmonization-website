@@ -6,7 +6,7 @@ sqlparse==0.3.1
 django-rest-auth==0.9.5
 requests==2.23.0
 psycopg2-binary==2.8.4
-numpy==1.18.3
+numpy==1.21.0
 matplotlib
 pandas==1.0.3
 seaborn
@@ -15,7 +15,7 @@ jupyter==1.0.0
 ipython==7.28.0
 django-extensions==3.0.3
 statsmodels
-numpy==1.18.3
+numpy==1.21.0
 tornado==6.1.0
 sklearn
 bambi
