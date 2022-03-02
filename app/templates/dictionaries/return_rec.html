@@ -61,16 +61,16 @@
       <!-- <table style="width:220px", class="table table-striped", id = "data"> -->
           <thead class = 'thead-dark'>
           <tr>
-              <th>cohort</th>
-              <th>var_name</th>
-              <th>form_name</th>
-              <th>section_name</th>
-              <th>field_type</th>
-              <th>field_label</th>
-              <th>field_choices</th>
-              <th>field_min</th>
-              <th>field_max</th>
-              <th> Recommendation</th>
+              <th>id</th>
+              <th>variable 1</th>
+              <th>variable 2 </th>
+              <th>Description 1</th>
+              <th>Description 2</th>
+              <th>distnace 1</th>
+              <th>distnace 2</th>
+              <th>distnace 3</th>
+              <th>Save</th>
+              
 
           </tr>
           </thead>
@@ -80,18 +80,20 @@
           {% for i in items %}
           <tr>
             
-              <th>{{i.cohort}}</th>
-              <th>{{i.var_name}}</th>
-              <th>{{i.form_name}}</th>
-              <th>{{i.section_name}}</th>
-              <th>{{i.field_type}}</th>
-              <th>{{i.field_label}}</th>
-              <th>{{i.field_choices}}</th>
-              <th>{{i.field_min}}</th>
-              <th>{{i.field_max}}</th>
-              <th><input type='checkbox', name={{i.var_name}}, onclick='handleClick2(this);'>Add</label></th>
-              
-          
+              <th>{{i.id}}</th>
+              <th>{{i.var1}}</th>
+              <th>{{i.var2}}</th>
+              <th>{{i.desc1}}</th>
+              <th>{{i.desc2}}</th>
+              <th>{{i.dist1}}</th>
+              <th>{{i.dist2}}</th>
+              <th>{{i.dist3}}</th>
+
+              <th> 
+                  <form action="postrec" method="post">
+                <button type="submit" name="rec" value={{i.id}}|{{i.var1}}|{{i.var2}}>Save</button>
+            </form>
+            </th>
 
           </tr>
           {% endfor %}
@@ -101,18 +103,35 @@
       </table> 
     </div>
 
-   
+<!-- EXAMPLE CODE TO POST ROW DATA
+    <html>
+      <head>
+          <title>An example</title>
+          <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+          <script>
+              function call_counter(url, pk) {
+                  window.open(url);
+                  $.get('YOUR_VIEW_HERE/'+pk+'/', function (data) {
+                      alert("counter updated!");
+                  });
+              }
+          </script>
+      </head>
+      <body>
+          <button onclick="call_counter('http://www.google.com', 12345);">
+              I update object 12345
+          </button>
+          <button onclick="call_counter('http://www.yahoo.com', 999);">
+              I update object 999
+          </button>
+      </body>
+  </html>
+    -->
 
-    <form name="form" method="get" action = "getrec" onsubmit="javascript: return process();" > 
-      <input type="hidden" id="hidden" name="shoppingBasket" vlaue="">
-      <div contenteditable="true" id="shoppingBasket">
-      </div>
-    <input type="submit" value="Submit">
-    
-    <br>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script>
 
+
+      <script>
 
 function process() {
   document.getElementById("hidden").value = document.getElementById("shoppingBasket").innerHTML;
@@ -170,22 +189,5 @@ $('table.paginated').each(function() {
     $pager.insertBefore($table).find('span.page-number:first').addClass('active');
 });
     </script>
-
-    <!-- https://realpython.com/django-and-ajax-form-submissions/ -->
-
-
-   
-      <!-- <img src=/getsbdata/ width="1000"> -->
-    </div>
-  </div>
-  </main>
-
-  <!-- TODO: Reference Bar -->
-  <div class="d-none d-xl-block col-xl-2 bd-toc">
-  
-    <ul class="section-nav">
-    </ul>
-  
-  </div>
-</div>
-{% endblock content %}
+      </script>
+    {% endblock %}
