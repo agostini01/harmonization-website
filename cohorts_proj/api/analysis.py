@@ -514,10 +514,7 @@ def merge3CohortFrames(df1,df2,df3):
 
     cc = set.intersection(s1, s2, s3)
 
-    print(cc)
     df_all = pd.concat([df1[cc],df2[cc],df3[cc]])
-
-
 
     return df_all
 

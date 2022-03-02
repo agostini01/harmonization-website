@@ -112,9 +112,10 @@ def get_dataframe_covars():
         values()
     )
 
-    ## birth weight and length
+    ## birth weight, length, headcirc conversions
     df['birthWt'] = df['birthWt'] * 1000
     df['birthLen'] = df['birthLen'] * 2.54
+    df['headCirc'] = df['headCirc'] * 2.54
 
     ## education connversion
     df['ed'] = df['ed'].astype(float)
@@ -132,8 +133,6 @@ def get_dataframe_covars():
     ## birth year
     df['PPDATEDEL'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce')
     df['birth_year'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce').dt.year
-
-
 
     ## new covariates
 

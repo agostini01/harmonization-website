@@ -2,6 +2,7 @@ from rest_framework import generics, views
 from django.http import HttpResponse, response, JsonResponse
 from django.core import serializers
 from django.shortcuts import redirect
+from django.db.models import Q
 import json
 
 from .serializers import DatasetUploadSerializer
@@ -9,7 +10,7 @@ from .models import DatasetUploadModel
 
 from .serializers import GraphRequestSerializer
 
-from datasets.models import RawFlower, RawUNM, RawNEU, RawDAR, RawNHANES_BIO, RawNHANES_LLOD, RawDictionary
+from datasets.models import RawFlower, RawUNM, RawNEU, RawDAR, RawNHANES_BIO, RawNHANES_LLOD, RawDictionary, recommendationsSaved, recommendations
 
 from api import adapters
 from api import graphs
@@ -428,7 +429,7 @@ def saveDictionaryToDB(csv_file):
     #Required for SQL Constrainds - blank = None
     df = df.where(pd.notnull(df), None)
     # Delete database???
-    RawDictionary.objects.all().delete()
+    #RawDictionary.objects.all().delete()
 
     for entry in df.itertuples():
         entry = RawDictionary.objects.create(
@@ -444,6 +445,15 @@ def saveDictionaryToDB(csv_file):
            
         )
 
+
+def saveRecToDB(ids, var11, var22):
+    
+    recommendationsSaved.objects.create(
+            id = ids,
+            var1 = var11,
+            var2 = var22,
+        )
+
 class DatasetUploadView(generics.CreateAPIView):
     """Handles only POST methods."""
     serializer_class = DatasetUploadSerializer
@@ -453,6 +463,14 @@ class DatasetUploadView(generics.CreateAPIView):
         """Saves CSV to DatasetModel database and populate raw databases."""
         
         if request.data['dataset_type'] != 'csv_only':
+
+            if request.data['dataset_type'] == 'harm_save':
+                
+                id = request.data['id']
+                var1 = request.data['var1']
+                var2 = request.data['var2']
+
+                saveRecToDB(id, var1, var2)
 
             if request.data['dataset_type'] == 'flowers_dataset':
                 csv_file = request.data['dataset_file']
@@ -1037,9 +1055,6 @@ class InfoRequestView(views.APIView):
                 #analysis2.run_crude_reg_analysis()
                 #checkdilution.generatedilutionstats()
                 gr = graphs.noDataMessage()
-            if (t == 'check_dilution'):
-                checkdilution.generatedilutionstats()
-                gr = graphs.noDataMessage()
 
             if (t == 'overview_report'):
                 #print('check')
@@ -1190,8 +1205,10 @@ class InfoRequestView(views.APIView):
 
                 gr = df_fin.reset_index().to_json(orient='records')
 
-                
-
+            if (t == 'recrequest'):
+                print('im requesting nothin')
+                print('x_feature')  
+           
         response = HttpResponse(gr)
     
     
@@ -1378,16 +1395,33 @@ class DictRequestView(views.APIView):
         print(plot_type)
         gr = None   
 
+        if (plot_type == 'recrequest'):
+            print(x_feature)
+
+            search = x_feature.split(',')[:-1]
+
+            data = list(recommendations.objects.filter(var1__in=search).values()
+            )
+
         
-        if len(plot_type) > 2:
-            data = list(RawDictionary.objects.filter(var_name__startswith=str(plot_type)).values())
+        elif len(plot_type) > 2 and plot_type != 'reqrequest':
+            #data = list(RawDictionary.objects.filter(var_name__startswith=str(plot_type)).values())
+            #data = list(RawDictionary.objects.filter(var_name__contains=str(plot_type)).filter(
+            #        RawDictionary.objects.filter(field_label__contains=str(plot_type)).values()))
+
+            data = list(RawDictionary.objects.filter(Q(field_label__contains=str(plot_type)) 
+                                     | Q(var_name__contains=str(plot_type))
+                                     | Q(form_name__contains=str(plot_type))
+                                    | Q(field_choices__contains=str(plot_type))).values())
+    
+
         else:
             data = list(RawDictionary.objects.values())
-        data = data[0:8]
+        #problem at index 9
+        data = data
         print(type(data))
         
         #data = df.transpose().to_json()
 
-        
         response = HttpResponse(str(data), content_type="text/plain")
         return response

@@ -23,10 +23,75 @@ from .choices.har import HAR_FEATURE_CHOICES, HAR_CATEGORICAL_CHOICES, CAT_HAR_T
 
 import requests
 import json
+from django.views.decorators.csrf import csrf_exempt
+
+
 
 def load_dict(request):
     feature_id = request.GET.get('dataset')
 
+@csrf_exempt
+def postrec(request):
+    url = "http://api:8887/query/dataset-upload/"
+
+    data = request.POST.get('rec').split('|')
+  
+    payload = {'id': data[0],
+               'var1': data[1],
+               'var2': data[2],
+               'uploader_email': data[1],
+               'dataset_type': 'harm_save'}
+
+    headers = {}
+
+    response = requests.request(
+        "POST", url, headers=headers, data=payload)
+
+    
+    #return response
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+def getrec(request):
+    
+    context = {'rec':1}
+    plot_type = 'recrequest'
+    x_feature = request.GET.get('shoppingBasket')
+    y_feature = ''
+    color_by = ''
+    time_period = 1
+    fig_dpi = 20
+    dataset_type = ''
+    covar_choices = ''
+    adjust_dilution = ''
+
+    url = "http://api:8887/query/get-dict/"
+
+    payload = {'plot_type': plot_type,
+                   'x_feature': x_feature,
+                   'y_feature': y_feature,
+                   'color_by': color_by,
+                   'time_period': time_period,
+                   'fig_dpi': fig_dpi,
+                   'plot_name': 'recrequest',
+                   'dataset_type': dataset_type,
+                   'adjust_dilution': adjust_dilution,
+                   'covar_choices': covar_choices}
+                
+    files = []
+    headers = {}
+
+    requests_response = requests.request(
+            "GET", url, headers=headers, data=payload, files=files)
+    
+    print(type(requests_response.content))
+    my_json = requests_response.content.decode('utf8').replace("'", '"').replace("None", "212").replace('nan','0').replace('["','').replace('"]','')
+
+    # Load the JSON to a Python list & dump it back out as formatted JSON
+    data = json.loads(my_json)
+
+    context = dict({'items': data})
+
+    return render(request, 'dictionaries/return_rec.html',context)
 def code_analytes(feature_choices):
 
     analytes =[{'short': x, 'long': y} for x, y in feature_choices[0][1]]

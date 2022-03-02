@@ -184,7 +184,7 @@ class RawNEU(models.Model):
     # Analyte – categorical:
     Analyte = models.CharField(max_length=50, choices=CAT_NEU_ANALYTES)
 
-    # Result: value, corrected for detection levels, in ug/L
+    # Result: value, corrected for detection levels, in ug/L. (TODO: Verify units)
     Result = models.FloatField()
 
     # LOD : value, Limit of Detection
@@ -263,5 +263,19 @@ class RawNEU(models.Model):
     fish_pu_v3 = models.FloatField(blank = True,null=True, default = -9.0)	
  
     
+class recommendations(models.Model):
 
+    var1 = models.CharField(blank = True, null=True,max_length = 50, default = '-9.0')
+    var2 = models.CharField(blank = True, null=True,max_length = 50, default = '-9.0')
+    desc1 = models.CharField(blank = True, null=True,max_length = 5000, default = '-9.0')
+    desc2 = models.CharField(blank = True, null=True,max_length = 5000, default = '-9.0')
+    dist1 = models.FloatField(blank = True, null=True,default = -9.0)
+    dist2 = models.FloatField(blank = True, null=True,default = -9.0)
+    dist3 = models.FloatField(blank = True, null=True,default = -9.0)
+    dist4 = models.FloatField(blank = True, null=True,default = -9.0)
 
+class recommendationsSaved(models.Model):
+
+    id1 = models.CharField(blank = True, null=True,max_length = 50, default = '-9.0')
+    var1 = models.CharField(blank = True, null=True,max_length = 50, default = '-9.0')
+    var2 = models.CharField(blank = True, null=True,max_length = 50, default = '-9.0')

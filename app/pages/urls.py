@@ -15,7 +15,7 @@ from .views import DictionariesAllPagesView
 from .views import DictionariesPageView
 from .views import DictionarytestPagesView
 
-from .views import load_dataset
+from .views import load_dataset, getrec, postrec
 
 urlpatterns = [
     #path('graphs/flowers/', GraphsFlowersPagesView.as_view(), name='graphs-flowers'),
@@ -39,6 +39,8 @@ urlpatterns = [
     # TODO - Remove once all graph logic gets ported
     #path('graphs/getplot/', GraphsPageView.getPlot),
     #path('graphs/api/getdict/', )
+    path('dictionaries/getrec', getrec, name = 'getrec'),
+    path('dictionaries/postrec', postrec, name = 'postrec'),
     path('graphs/api/getDictInfo', GraphsPageView.getDictInfo),
     path('graphs/api/getplot/', GraphsPageView.getApiPlot),
     path('graphs/api/getinfo/', GraphsPageView.getApiInfo),
