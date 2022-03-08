@@ -8,8 +8,9 @@ import statsmodels.formula.api as smf
 import statsmodels
 
 
+
 def get_dataframe_orig():
-    """Returns a pandas DataFrame"""
+   
 
     # First is necessary to pivot the raw NEU dataset so it matches
     # the requested features.
@@ -21,21 +22,20 @@ def get_dataframe_orig():
         # exclude(Creat_Corr_Result__isnull=True).
         values()
     )
+
     
     ##only including pregnant participants
     df_preg=df[df['Pregnant']==1.0]
 
-    ##Only including participants ages 18-40
-    #df_preg=df_preg[df_preg['Age'] >=18]
-    #df_preg=df_preg[df_preg['Age'] <=40]
 
     ## new covariates
-    df_preg['Member_c'] = 1
-    df_preg.columns = ['PIN_Patient', 'BLOD','Result', 'Analyte', 'Pregnant' , 'Age', 'Marital',
-                  'Child_A', 'Child_B','H_Inc', 'F_Inc', 'Edu', 'Rac', 'TimePeriod', 'Member_c']
+    
+    df_preg.columns=['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
+       'Child_A', 'Child_B', 'H_Inc', 'F_Inc', 'Edu', 'Rac', 'BLOD',
+       'Result', 'Analyte']
     numerical_values = 'Result'
 
-    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c' ]
+    columns_to_indexes = ['PIN_Patient', 'TimePeriod' ]
     categorical_to_columns = ['Analyte']
 
     df_preg = pd.pivot_table(df_preg, values=numerical_values,
@@ -58,6 +58,7 @@ def get_dataframe_orig():
     df_preg['CohortType'] = 'NHANES'
     
     return df_preg
+
 
 
 def get_dataframe_orig_blod():
@@ -85,16 +86,16 @@ def get_dataframe_orig_blod():
     ##df_preg=df_preg[df_preg['Age'] <=40]
 
     ## new covariates
-    df_preg['Member_c'] = 1
-    df_preg.columns = ['PIN_Patient', 'BLOD','Result', 'Analyte', 'Pregnant' , 'Age', 'Marital',
-                  'Child_A', 'Child_B','H_Inc', 'F_Inc', 'Edu', 'Rac', 'TimePeriod', 'Member_c']
+    df_preg.columns=['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
+       'Child_A', 'Child_B', 'H_Inc', 'F_Inc', 'Edu', 'Rac', 'BLOD',
+       'Result', 'Analyte']
 
     #ga at collection
 
     # Pivoting the table and reseting index
     numerical_values = 'BLOD'
 
-    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c' ]
+    columns_to_indexes = ['PIN_Patient', 'TimePeriod' ]
     categorical_to_columns = ['Analyte']
 
     df_preg = pd.pivot_table(df_preg, values=numerical_values,
