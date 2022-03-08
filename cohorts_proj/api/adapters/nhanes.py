@@ -26,8 +26,8 @@ def get_dataframe_orig():
     df_preg=df[df['Pregnant']==1.0]
 
     ##Only including participants ages 18-40
-    df_preg=df_preg[df_preg['Age'] >=18]
-    df_preg=df_preg[df_preg['Age'] <=40]
+    #df_preg=df_preg[df_preg['Age'] >=18]
+    #df_preg=df_preg[df_preg['Age'] <=40]
 
     ## new covariates
     df_preg['Member_c'] = 1
@@ -60,7 +60,7 @@ def get_dataframe_orig():
     return df_preg
 
 
- def get_dataframe_orig_blod():
+def get_dataframe_orig_blod():
     """Returns a pandas DataFrame"""
 
     # First is necessary to pivot the raw NEU dataset so it matches
@@ -81,8 +81,8 @@ def get_dataframe_orig():
     df_preg=df[df['Pregnant']==1.0]
 
     ##Only including participants ages 18-40
-    df_preg=df_preg[df_preg['Age'] >=18]
-    df_preg=df_preg[df_preg['Age'] <=40]
+    ##df_preg=df_preg[df_preg['Age'] >=18]
+    ##df_preg=df_preg[df_preg['Age'] <=40]
 
     ## new covariates
     df_preg['Member_c'] = 1
