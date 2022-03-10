@@ -8,6 +8,38 @@ import statsmodels.formula.api as smf
 import statsmodels
 
 
+def get_dataframe_covars():
+
+    # First is necessary to pivot the raw NEU dataset so it matches
+    # the requested features.
+
+    # This queries the RawNEU dataset and excludes some of the values
+    df = pd.DataFrame.from_records(
+        RawNHANES_BIO.objects.
+        # exclude(Creat_Corr_Result__lt=-1000).
+        # exclude(Creat_Corr_Result__isnull=True).
+        values()
+    )
+
+    
+    ##only including pregnant participants
+    df_preg=df[df['Pregnant']==1.0]
+
+    ## new covariates
+    
+    df_preg.columns=['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
+       'Child_A', 'Child_B', 'H_Inc', 'F_Inc', 'Edu', 'Rac', 'BLOD',
+       'Result', 'Analyte']
+
+    numerical_values = 'Result'
+
+    covars = ['PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
+       'Child_A', 'Child_B', 'H_Inc', 'F_Inc', 'Edu', 'Rac']
+
+    
+
+    return df_preg[covars].drop_duplicates()
+
 
 def get_dataframe_orig():
    
@@ -27,12 +59,12 @@ def get_dataframe_orig():
     ##only including pregnant participants
     df_preg=df[df['Pregnant']==1.0]
 
-
     ## new covariates
     
     df_preg.columns=['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
        'Child_A', 'Child_B', 'H_Inc', 'F_Inc', 'Edu', 'Rac', 'BLOD',
        'Result', 'Analyte']
+
     numerical_values = 'Result'
 
     columns_to_indexes = ['PIN_Patient', 'TimePeriod' ]
