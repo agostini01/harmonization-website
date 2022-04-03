@@ -110,11 +110,11 @@ def get_dataframe_orig_blod():
     
 
     ##Only including participants ages 18-40
-    df_preg = df[df['Age'] >=18]
-    df_preg = df_preg[df_preg['Age'] <=40]
+    df_age = df[df['Age'] >=18]
+    df_age = df_age[df_age['Age'] <=40]
 
     ## new covariates
-    df_preg.columns = ['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
+    df_age.columns = ['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
        'Child_A', 'Child_B', 'H_Inc', 'F_Inc', 'Edu', 'Rac', 'BLOD',
        'Result', 'Analyte']
 
@@ -127,16 +127,16 @@ def get_dataframe_orig_blod():
     categorical_to_columns = ['Analyte']
 
 
-    df_preg = pd.pivot_table(df_preg, values=numerical_values,
+    df_age = pd.pivot_table(df_age, values=numerical_values,
                         index=columns_to_indexes,
                         columns=categorical_to_columns)
                         
-    df_preg = df_preg.reset_index()
+    df_age = df_age.reset_index()
     
     ##turning 9999.0 values into NaN
-    for col in df_preg: 
+    for col in df_age: 
         if col not in ['PIN_Patient', 'TimePeriod', 'Member_c', 'CohortType', 'Analyte']:
-            df_preg[col]= df_preg[col].replace(9999.0, np.NaN)
+            df_age[col]= df_age[col].replace(9999.0, np.NaN)
    
 
     # After pivot
@@ -145,7 +145,7 @@ def get_dataframe_orig_blod():
     #             A0000M           1             2017-18          0      0       ... 
     #             A0000M           1             2017-18          0      NaN       ... 
 
-    df_preg['CohortType'] = 'NHANES'
+    df_age['CohortType'] = 'NHANES'
     #df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
     
-    return df_preg
+    return df_age
