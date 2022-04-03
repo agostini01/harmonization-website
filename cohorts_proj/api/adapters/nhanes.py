@@ -108,11 +108,6 @@ def get_dataframe_orig_blod():
         values()
     )
     
-    
-    
-    
-    ##only including pregnant participants
-    ##df_preg=df[df['Pregnant']==1.0]
 
     ##Only including participants ages 18-40
     df_preg = df[df['Age'] >=18]
