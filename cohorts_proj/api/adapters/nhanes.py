@@ -23,12 +23,12 @@ def get_dataframe_covars():
 
     
     ##Only including participants ages 18-40
-    df_preg = df[df['Age'] >=18]
-    df_preg = df_preg[df_preg['Age'] <=40]
+    df_age = df[df['Age'] >=18]
+    df_age = df_age[df_age['Age'] <=40]
 
     ## new covariates
     
-    df_preg.columns=['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
+    df_age.columns=['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
        'Child_A', 'Child_B', 'H_Inc', 'F_Inc', 'Edu', 'Rac', 'BLOD',
        'Result', 'Analyte']
 
@@ -39,7 +39,7 @@ def get_dataframe_covars():
 
     
 
-    return df_preg[covars].drop_duplicates()
+    return df_age[covars].drop_duplicates()
 
 
 def get_dataframe_orig():
@@ -58,11 +58,11 @@ def get_dataframe_orig():
 
     
     ##Only including participants ages 18-40
-    df_preg = df[df['Age'] >=18]
-    df_preg = df_preg[df_preg['Age'] <=40]
+    df_age = df[df['Age'] >=18]
+    df_age = df_age[df_age['Age'] <=40]
     ## new covariates
     
-    df_preg.columns=['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
+    df_age.columns=['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
        'Child_A', 'Child_B', 'H_Inc', 'F_Inc', 'Edu', 'Rac', 'BLOD',
        'Result', 'Analyte']
 
@@ -71,11 +71,11 @@ def get_dataframe_orig():
     columns_to_indexes = ['PIN_Patient', 'TimePeriod' ]
     categorical_to_columns = ['Analyte']
 
-    df_preg = pd.pivot_table(df_preg, values=numerical_values,
+    df_age = pd.pivot_table(df_age, values=numerical_values,
                         index=columns_to_indexes,
                         columns=categorical_to_columns)
 
-    df_preg = df_preg.reset_index()
+    df_age = df_age.reset_index()
    
     
 
@@ -88,9 +88,9 @@ def get_dataframe_orig():
     # A0001M               3        1  1.365789  ...  0.143302  1.692582  0.020716
     # A0002M               1        1  1.547669  ...  0.387643  0.988567  1.081877
 
-    df_preg['CohortType'] = 'NHANES'
+    df_age['CohortType'] = 'NHANES'
     
-    return df_preg
+    return df_age
 
 
 
