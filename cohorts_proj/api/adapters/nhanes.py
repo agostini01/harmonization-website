@@ -131,6 +131,7 @@ def get_dataframe_orig_blod():
     columns_to_indexes = ['PIN_Patient', 'TimePeriod' ]
     categorical_to_columns = ['Analyte']
 
+
     df_preg = pd.pivot_table(df_preg, values=numerical_values,
                         index=columns_to_indexes,
                         columns=categorical_to_columns)
