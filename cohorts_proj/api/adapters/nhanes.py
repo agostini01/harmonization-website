@@ -111,11 +111,11 @@ def get_dataframe_orig_blod():
     
     
     ##only including pregnant participants
-    df_preg=df[df['Pregnant']==1.0]
+    ##df_preg=df[df['Pregnant']==1.0]
 
     ##Only including participants ages 18-40
-    ##df_preg=df_preg[df_preg['Age'] >=18]
-    ##df_preg=df_preg[df_preg['Age'] <=40]
+    df_preg=df_preg[df_preg['Age'] >=18]
+    df_preg=df_preg[df_preg['Age'] <=40]
 
     ## new covariates
     df_preg.columns=['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
