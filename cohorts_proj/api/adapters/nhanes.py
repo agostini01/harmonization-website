@@ -22,8 +22,9 @@ def get_dataframe_covars():
     )
 
     
-    ##only including pregnant participants
-    df_preg=df[df['Pregnant']==1.0]
+    ##Only including participants ages 18-40
+    df_preg = df[df['Age'] >=18]
+    df_preg = df_preg[df_preg['Age'] <=40]
 
     ## new covariates
     
@@ -56,9 +57,9 @@ def get_dataframe_orig():
     )
 
     
-    ##only including pregnant participants
-    df_preg=df[df['Pregnant']==1.0]
-
+    ##Only including participants ages 18-40
+    df_preg = df[df['Age'] >=18]
+    df_preg = df_preg[df_preg['Age'] <=40]
     ## new covariates
     
     df_preg.columns=['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
@@ -114,11 +115,11 @@ def get_dataframe_orig_blod():
     ##df_preg=df[df['Pregnant']==1.0]
 
     ##Only including participants ages 18-40
-    df_preg=df[df['Age'] >=18]
-    df_preg=df_preg[df_preg['Age'] <=40]
+    df_preg = df[df['Age'] >=18]
+    df_preg = df_preg[df_preg['Age'] <=40]
 
     ## new covariates
-    df_preg.columns=['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
+    df_preg.columns = ['id', 'PIN_Patient', 'Age', 'TimePeriod', 'Pregnant', 'Marital',
        'Child_A', 'Child_B', 'H_Inc', 'F_Inc', 'Edu', 'Rac', 'BLOD',
        'Result', 'Analyte']
 
