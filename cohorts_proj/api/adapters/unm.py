@@ -29,7 +29,7 @@ def get_dataframe():
     
     df = df[~df['creatininemgdl'].isna()]    
 
-    covars = ['Outcome_weeks', 'age', 'ethnicity',
+    covars = ['Outcome_weeks', 'age', 'ethnicity', 
                 'race', 'education', 'BMI', 'income', 'smoking', 'parity',
                 'preg_complications', 'folic_acid_supp', 'fish', 'babySex',
                 'birthWt', 'headCirc',
@@ -63,6 +63,41 @@ def get_dataframe():
 
     # TODO - Should we drop NaN here?
 
+    df['CohortType'] = 'UNM'
+    df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
+
+    return df
+
+def get_dataframe_BLOD():
+    """Returns a pandas DataFrame"""
+
+    # First is necessary to pivot the raw NEU dataset so it matches
+    # the requested features.
+
+    # This queries the RawNEU dataset and excludes some of the values
+    # TODO - Should we drop NaN here?
+    df = pd.DataFrame.from_records(
+        RawUNM.objects.
+        # exclude(Creat_Corr_Result__lt=-1000).
+        # exclude(Creat_Corr_Result__isnull=True).
+        values()
+    )
+    
+    # Pivoting the table and reseting index
+    numerical_values = 'imputed'
+
+    columns_to_indexes = ['PIN_Patient', 'TimePeriod', 'Member_c', 'Outcome']
+    categorical_to_columns = ['Analyte']
+   
+
+    df = pd.pivot_table(df, values=numerical_values,
+                        index=columns_to_indexes,
+                        columns=categorical_to_columns)
+                        
+    df = df.reset_index()
+   
+    # TODO - Should we drop NaN here?
+
     # After pivot
     # Analyte     TimePeriod Member_c       BCD  ...      UTMO       UTU       UUR
     # PIN_Patient                                ...
@@ -74,7 +109,7 @@ def get_dataframe():
 
     df['CohortType'] = 'UNM'
     df['TimePeriod'] = pd.to_numeric(df['TimePeriod'], errors='coerce')
-
+    
     return df
 
 def get_dataframe_nofish():
