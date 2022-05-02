@@ -7,6 +7,42 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import statsmodels
 
+map_analyte = {'UIAS': 'iAs' ,
+            'UASB': 'AsB', 
+            'UAS3': 'AsIII', 
+            'UAS5': 'AsV', 
+            'UDMA': 'DMA', 
+            'UMMA': 'MMA',
+            'UBA': 'Ba', 
+            'UAG': 'Ag', 
+            'UAL': 'Al', 
+            'UAS': 'As', 
+            'UBE': 'Be', 
+            'UCA': 'Ca', 
+            'UCD': 'Cd', 
+            'UCO': 'Co', 
+            'UCR': 'Cr', 
+            'UCS': 'Cs', 
+            'UCU': 'Cu', 
+            'UFE': 'Fe', 
+            'UHG': 'Hg', 
+            'UPO': 'K',
+            'UMG': 'Mg', 
+            'UMN': 'Mn', 
+            'UMO': 'Mo', 
+            'UNI': 'Ni', 
+            'UPP': 'P', 
+            'UPB': 'Pb',
+            'USB': 'Sb', 
+            'USE': 'Se', 
+            'USI': 'Si', 
+            'USN': 'Sn',
+            'USR': 'Sr', 
+            'UTL': 'Tl',
+            'UUR': 'U', 
+            'UTU': 'W', 
+            'UZN': 'Zn', 
+            'UVA': 'V'}
 
 def get_dataframe_pred():
     """Returns a pandas DataFrame with the correct
@@ -148,9 +184,28 @@ def get_dataframe_pred():
     }
     df['TimePeriod'] = df['TimePeriod'].map(time_period_mapper)
 
- 
+    return df
+
+def get_dataframe_BLOD():
+    """Returns a pandas DataFrame with the BLOD"""
+
+    # TODO - Should we drop NaN here?
+    df = pd.DataFrame.from_records(
+        RawDAR.objects.
+        # exclude(Creat_Corr_Result__lt=-1000).
+        # exclude(Creat_Corr_Result__isnull=True).
+        values()
+    )
+    map_analyte_inv = {v: k for k, v in map_analyte.items()}
+
+    analytes = [x for x in df.columns[51::] if '_' not in x]
+    # check if observed concentration is above the IDL value for that analyte, if so True, else False. 
+    for analyte in analytes:
+
+        df[map_analyte_inv[analyte] + '_BLOD'] =  (df[analyte] > df[analyte + '_IDL']).astype("int32")
 
     return df
+
 
 
 def get_dataframe_nofish():
