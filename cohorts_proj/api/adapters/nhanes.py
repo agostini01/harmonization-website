@@ -97,10 +97,10 @@ def get_dataframe_orig():
 def get_dataframe_orig_blod():
     """Returns a pandas DataFrame"""
 
-    # First is necessary to pivot the raw NEU dataset so it matches
+    # First is necessary to pivot the raw NHANES dataset so it matches
     # the requested features.
 
-    # This queries the RawNEU dataset and excludes some of the values
+    # This queries the RawNHANES dataset and excludes some of the values
     df = pd.DataFrame.from_records(
         RawNHANES_BIO.objects.
         # exclude(Creat_Corr_Result__lt=-1000).
