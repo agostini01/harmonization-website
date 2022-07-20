@@ -32,7 +32,7 @@ def load_dict(request):
 
 @csrf_exempt
 def postrec(request):
-    url = "http://api:8887/query/dataset-upload/"
+    url = "http://api:8888/query/dataset-upload/"
 
     data = request.POST.get('rec').split('|')
   
@@ -64,7 +64,7 @@ def getrec(request):
     covar_choices = ''
     adjust_dilution = ''
 
-    url = "http://api:8887/query/get-dict/"
+    url = "http://api:8888/query/get-dict/"
 
     payload = {'plot_type': plot_type,
                    'x_feature': x_feature,
