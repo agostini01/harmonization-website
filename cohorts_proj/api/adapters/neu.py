@@ -42,6 +42,7 @@ def get_dataframe():
     choices = [1,2,3,4,5]
 
     df['education'] = np.select(conditions, choices, default=-9)
+    
     ## birth year
     df['PPDATEDEL'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce')
     df['birth_year'] = pd.to_datetime(df['PPDATEDEL'],errors='coerce').dt.year
@@ -139,11 +140,31 @@ def get_dataframe_covars():
     ## df.rename(columns = {'pregnum':'parity'}, inplace = True)
     #new covars
 
-    covars = ['CohortType','TimePeriod','Outcome_weeks', 'age', 'ethnicity', 'race', 'Outcome',
-    'BMI', 'smoking', 'parity', 'preg_complications', 'ga_collection', 
-    'folic_acid_supp', 'fish', 'babySex', 'birthWt', 'birthLen', 'headCirc',
-    'WeightCentile','LGA','SGA','education', 'birth_year', 
-    'SPECIFICGRAVITY_V2', 'fish_pu_v2']
+    covars = ['CohortType',
+    'TimePeriod',
+    'Outcome_weeks',
+    'age', 
+    'ethnicity',
+    'race', 
+    'Outcome',
+    'BMI', 
+    'smoking', 
+    'parity', 
+    'preg_complications', 
+    'ga_collection', 
+    'folic_acid_supp', 
+    'fish', 
+    'babySex',
+    'birthWt', 
+    'birthLen', 
+    'headCirc',
+    'WeightCentile',
+    'LGA',
+    'SGA',
+    'education', 
+    'birth_year', 
+    'SPECIFICGRAVITY_V2',
+    'fish_pu_v2']
 
     #calculate extra variables
     #parity

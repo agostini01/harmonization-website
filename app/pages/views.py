@@ -170,7 +170,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
         covar_choices = request.GET.get('covar_choices')
         adjust_dilution = request.GET.get('adjust_dilution')
 
-        url = "http://api:8887/query/get-info/"
+        url = "http://api:8888/query/get-info/"
 
         payload = {'plot_type': plot_type,
                    'x_feature': x_feature,
@@ -222,7 +222,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
 
         print(plot_type)
 
-        url = "http://api:8887/query/get-dict/"
+        url = "http://api:8888/query/get-dict/"
 
         payload = {'plot_type': plot_type,
                    'x_feature': x_feature,
@@ -269,7 +269,7 @@ class GraphsPageView(LoginRequiredMixin, FormView):
         fig_dpi = int(request.GET.get('fig_dpi'))
         dataset_type = request.GET.get('dataset_type')
 
-        url = "http://api:8887/query/get-plot/"
+        url = "http://api:8888/query/get-plot/"
 
         payload = {'plot_type': plot_type,
                    'x_feature': x_feature,
