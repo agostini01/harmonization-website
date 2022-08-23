@@ -188,8 +188,7 @@ def get_dataframe_pred():
 
 def get_dataframe_BLOD():
     """Returns a pandas DataFrame with the BLOD"""
-
-    # TODO - Should we drop NaN here?
+    
     df = pd.DataFrame.from_records(
         RawDAR.objects.
         # exclude(Creat_Corr_Result__lt=-1000).
@@ -203,7 +202,15 @@ def get_dataframe_BLOD():
     for analyte in analytes:
 
         df[map_analyte_inv[analyte] + '_BLOD'] =  (df[analyte] > df[analyte + '_IDL']).astype("int32")
+        
+        conditions = [
+        (~df[analyte].isna()) & (df[analyte] >= df[analyte + '_IDL']),
+        (~df[analyte].isna()) & (df[analyte] < df[analyte + '_IDL']),
+        ]
+        choices = [1,0]
 
+        df[map_analyte_inv[analyte] + '_BLOD'] = np.select(conditions, choices, default=np.nan)
+        
     return df
 
 
